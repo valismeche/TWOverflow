@@ -1,0 +1,370 @@
+<div class="win-content message-list-wrapper searchable-list ng-scope">
+    <header class="win-head">
+        <h2 class="ng-binding">{{ this.title }} <span class="small">v{{ this.version }}</span></h2>
+        <ul class="list-btn">
+            <li><a href="#" id="farmOverflow-close" class="size-34x34 btn-red icon-26x26-close"></a></li>
+        </ul>
+    </header>
+
+    <div class="win-main">
+        <!-- ABAS -->
+        <div class="tabs tabs-bg">
+            <div class="tabs-three-col">
+                <div class="tab" tab="info">
+                    <div class="tab-inner">
+                        <div><a href="#" class="btn-icon btn-orange">{{ this.general.info }}</a></div>
+                    </div>
+                </div>
+                <div class="tab" tab="settings">
+                    <div class="tab-inner">
+                        <div><a href="#" class="btn-icon btn-orange">{{ this.general.settings }}</a></div>
+                    </div>
+                </div>
+                <div class="tab" tab="log">
+                    <div class="tab-inner">
+                        <div><a href="#" class="btn-icon btn-orange">{{ this.general.events }}</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INFORMAÇÕES -->
+        <div class="box-paper footer has-footer-upper farmOverflow-content-info">
+            <p class="center"><img src="https://i.imgur.com/rbUaOGx.png"/></p>
+            
+            <h5 class="twx-section">{{ this.info.development[0] }}</h5>
+            <div>
+                <p class="center">{{ this.info.development[1] }} <a href="{{ this.author.url }}">{{ this.author.name }}</a> &lt;{{ this.author.email }}&gt;</p>
+                <p class="center">{{ this.info.development[2] }}</p>
+                <p class="center">{{ this.info.development[3] }} <span class="opensource"></span> <a href="https://github.com/FarmOverflow/FarmOverflow">Open Source</a></p>
+            </div>
+            <h5 class="twx-section">{{ this.info.presets[0] }}</h5>
+            <div>
+                <p>{{ this.info.presets[1] }}</p>
+                <p>{{ this.info.presets[2] }}</p>
+                <p>{{ this.info.presets[3] }}</p>
+                <p>{{ this.info.presets[4] }}</p>
+                <p>{{ this.info.presets[5] }}</p>
+                <p>{{ this.info.presets[6] }}</p>
+                <p>{{ this.info.presets[7] }} <span class='sample'>Farm (Spears)</span> — <span class='sample'>Farm \"Lança\"</span> — <span class='sample'>Farm {Cavalary}</span></p>
+            </div>
+            <h5 class="twx-section">{{ this.info.ignore[0] }}</h5>
+            <div>
+                <p>{{ this.info.ignore[1] }}</p>
+            </div>
+            <h5 class="twx-section">{{ this.info.include[0] }}</h5>
+            <div>
+                <p>{{ this.info.include[1] }}</p>
+            </div>
+            <h5 class="twx-section">{{ this.info.randomBase[0] }}</h5>
+            <div>
+                <p>{{ this.info.randomBase[1] }}</p>
+            </div>
+            <h5 class="twx-section">{{ this.info.groupOnly[0] }}</h5>
+            <div>
+                <p>{{ this.info.groupOnly[1] }}</p>
+            </div>
+            <h5 class="twx-section">{{ this.info.ignoreOnLoss[0] }}</h5>
+            <div>
+                <p>{{ this.info.ignoreOnLoss[1] }}</p>
+                <p>{{ this.info.ignoreOnLoss[2] }}</p>
+                <p>{{ this.info.ignoreOnLoss[3] }}</p>
+            </div>
+            <h5 class="twx-section">{{ this.info.priorityTargets[0] }}</h5>
+            <div>
+                <p>{{ this.info.priorityTargets[1] }}</p>
+            </div>
+            <h5 class="twx-section">{{ this.info.remote[0] }}</h5>
+            <div>
+                <p>{{ this.info.remote[1] }}</p>
+                <p>{{ this.info.remote[2] }}</p>
+                <p>{{ this.info.remote[3] }}</p>
+                <p>&bull; <b>on</b> <i>{{ this.info.remote[4] }}</i></p>
+                <p>&bull; <b>off</b> <i>{{ this.info.remote[5] }}</i></p>
+                <p>&bull; <b>status</b> <i>{{ this.info.remote[6] }}</i></p>
+                <p>{{ this.info.remote[7] }}</p>
+                <p>{{ this.info.remote[8] }}</p>
+                <p>{{ this.info.remote[9] }}</p>
+            </div>
+        </div>
+
+        <!-- CONFIGURAÇÕES -->
+        <div class="box-paper footer has-footer-upper farmOverflow-content-settings">
+            <form id="farmOverflow-settings">
+                <h5 class="twx-section">{{ this.settings.presets }}</h5>
+                <table class="tbl-border-light tbl-striped">
+                    <colgroup>
+                        <col width="50%">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="icon-34x34-preset"></span>
+                                <span class="ff-cell-fix">{{ this.settings.presetName }}</span>
+                            </td>
+                            <td>
+                                <select name="presetName" id="farmOverflow-preset"></select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h5 class="twx-section">{{ this.settings.villages }}</h5>
+                <table class="tbl-border-light tbl-striped">
+                    <colgroup>
+                        <col width="50%">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="icon-20x20-queue-indicator-short"></span>
+                                <span class="ff-cell-fix">{{ this.settings.groupIgnore }}</span>
+                            </td>
+                            <td>
+                                <select name="groupIgnore" id="farmOverflow-ignore"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="icon-20x20-queue-indicator-long"></span>
+                                <span class="ff-cell-fix">{{ this.settings.groupInclude }}</span>
+                            </td>
+                            <td>
+                                <select name="groupInclude" id="farmOverflow-include"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="icon-20x20-favourite"></span>
+                                <span class="ff-cell-fix">{{ this.settings.groupOnly }}</span>
+                            </td>
+                            <td>
+                                <select name="groupOnly" id="farmOverflow-only"></select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="icon-34x34-name_changed"></span>
+                                <span class="ff-cell-fix">{{ this.settings.priorityTargets }}</span>
+                            </td>
+                            <td>
+                                <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-priorityTargets">
+                                    <input id="settings-priorityTargets" type="checkbox" name="priorityTargets">
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h5 class="twx-section">{{ this.settings.filters }}</h5>
+                <table class="tbl-border-light tbl-striped">
+                    <colgroup>
+                        <col width="50%">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="icon-26x26-double-arrow"></span>
+                                <span class="ff-cell-fix">{{ this.settings.minDistance }}</span>
+                            </td>
+                            <td><input name="minDistance" type="number" class="textfield-border" min="0" max="60" required></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="icon-26x26-double-arrow"></span>
+                                <span class="ff-cell-fix">{{ this.settings.maxDistance }}</span>
+                            </td>
+                            <td><input name="maxDistance" type="number" class="textfield-border" min="1" max="60" required></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="icon-34x34-points-per-village"></span>
+                                <span class="ff-cell-fix">{{ this.settings.minPoints }}</span>
+                            </td>
+                            <td><input name="minPoints" type="number" class="textfield-border" required></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="icon-34x34-points-per-village"></span>
+                                <span class="ff-cell-fix">{{ this.settings.maxPoints }}</span>
+                            </td>
+                            <td><input name="maxPoints" type="number" class="textfield-border" required></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="icon-26x26-time"></span>
+                                <span class="ff-cell-fix">{{ this.settings.maxTravelTime }}</span>
+                            </td>
+                            <td><input name="maxTravelTime" type="text" class="textfield-border" pattern="\\\\d{1,2}:\\\\d{1,2}:\\\\d{1,2}" required></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h5 class="twx-section">{{ this.settings.security }}</h5>
+                <table class="tbl-border-light tbl-striped">
+                    <colgroup>
+                        <col width="50%">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td><span class="ff-cell-fix">{{ this.settings.randomBase }}</span></td>
+                            <td><input name="randomBase" type="number" class="textfield-border" min="0" required></td>
+                        </tr>
+                        <tr>
+                            <td>{{ this.settings.ignoreOnLoss }}</td>
+                            <td>
+                                <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-ignoreOnLoss">
+                                    <input id="settings-ignoreOnLoss" type="checkbox" name="ignoreOnLoss">
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h5 class="twx-section">{{ this.settings.events }}</h5>
+                <table class="tbl-border-light tbl-striped">
+                    <colgroup>
+                        <col width="50%">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="icon-26x26-info"></span>
+                                <span class="ff-cell-fix">{{ this.settings.eventsLimit }}</span>
+                            </td>
+                            <td><input name="eventsLimit" type="number" class="textfield-border" min="1" required></td>
+                        </tr>
+
+                        <tr>
+                            <td>{{ this.settings.eventAttack }}</td>
+                            <td>
+                                <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-eventAttack">
+                                    <input id="settings-eventAttack" type="checkbox" name="eventAttack">
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{{ this.settings.eventVillageChange }}</td>
+                            <td>
+                                <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-eventVillageChange">
+                                    <input id="settings-eventVillageChange" type="checkbox" name="eventVillageChange">
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{{ this.settings.eventPriorityAdd }}</td>
+                            <td>
+                                <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-eventPriorityAdd">
+                                    <input id="settings-eventPriorityAdd" type="checkbox" name="eventPriorityAdd">
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{{ this.settings.eventIgnoredVillage }}</td>
+                            <td>
+                                <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-eventIgnoredVillage">
+                                    <input id="settings-eventIgnoredVillage" type="checkbox" name="eventIgnoredVillage">
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h5 class="twx-section">{{ this.settings.others }}</h5>
+                <table class="tbl-border-light tbl-striped">
+                    <colgroup>
+                        <col width="50%">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="icon-26x26-message-misc"></span>
+                                <span class="ff-cell-fix">{{ this.settings.remote }}</span>
+                            </td>
+                            <td><input name="remoteId" type="text" class="textfield-border" min="3" max="45"></td>
+                        </tr>
+                        <tr>
+                            <td>{{ this.settings.hotkeySwitch }}</td>
+                            <td><input name="hotkeySwitch" type="text" class="textfield-border"></td>
+                        </tr>
+                        <tr>
+                            <td>{{ this.settings.hotkeyWindow }}</td>
+                            <td><input name="hotkeyWindow" type="text" class="textfield-border"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="icon-34x34-general"></span>
+                                <span class="ff-cell-fix">{{ this.settings.language }}</span>
+                            </td>
+                            <td>
+                                <select name="language" id="farmOverflow-language">
+                                    <option value="en_us">English</option>
+                                    <option value="pt_br">Português</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <br/>
+                <div class="center">
+                    <input class="btn-orange btn-border" id="farmOverflow-save" type="submit" value="{{ this.settings.save }}"/>
+                </div>
+            </form>
+        </div>
+
+        <!-- EVENTOS -->
+        <div class="box-paper footer has-footer-upper farmOverflow-content-log">
+            <div class="screen-tribe-news rich-text">
+                <h5 class="twx-section">{{ this.events.status }}</h5>
+                <table class="tbl-border-light tbl-news tbl-big-header">
+                    <colgroup>
+                        <col width="135px">
+                        <col width="*">
+                    </colgroup>
+                    <tbody>
+                        <tr class="list-item">
+                            <td id="farmOverflow-status" colspan="2" class="cell-center">{{ this.events.paused }}</td>
+                        </tr>
+                        <tr class="reduced">
+                            <td>{{ this.events.selectedVillage }}</td>
+                            <td id="farmOverflow-selected"></td>
+                        </tr>
+                        <tr class="reduced">
+                            <td>{{ this.events.lastAttack }}</td>
+                            <td id="farmOverflow-last">{{ this.general.none }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h5 class="twx-section">{{ this.general.events }}</h5>
+                <table class="tbl-border-light tbl-news tbl-big-header">
+                    <colgroup>
+                        <col width="125px">
+                        <col width="*">
+                    </colgroup>
+                    <tbody id="farmOverflow-events">
+                        <tr class="reduced">
+                            <td class="tribe-event-detail" colspan="2">
+                                <div class="text-tribe-news">
+                                    <span>{{ this.events.nothingYet }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <footer class="win-foot">
+        <ul class="list-btn list-center">
+            <li><a class="btn-orange btn-border" id="farmOverflow-start">{{ this.general.start }}</a></li>
+        </ul>
+    </footer>
+</div>

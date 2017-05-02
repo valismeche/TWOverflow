@@ -1,0 +1,122 @@
+{  
+    "title": "FarmOverflow",
+    "events": {  
+        "attacking": "Attacking.",
+        "commandLimit": "Limit of 50 attacks reached, waiting return.",
+        "lastAttack": "Last attack",
+        "nextVillage": "Changing to village {0}",
+        "noPreset": "No presets avaliable.",
+        "noSelectedVillage": "No villages avaliable.",
+        "noUnits": "No units avaliable in village, waiting attacks return.",
+        "noUnitsNoCommands": "No villages has units or commands returning.",
+        "noVillages": "No villages avaliable, waiting attacks return.",
+        "nothingYet": "Nothing available yet...",
+        "paused": "Paused.",
+        "presetFirst": "Set a preset first!",
+        "selectedVillage": "Village selected",
+        "sendCommand": "{0} attack {1}",
+        "status": "Status",
+        "loadingTargets": "Loading targets...",
+        "checkingTargets": "Checking targets...",
+        "restartingCommands": "Restarting commands...",
+        "ignoredVillage": "Target {0} ignored! (caused loss)",
+        "priorityTargetAdded": "{0} added to priorities."
+    },
+    "general": {
+        "disabled": "Disabled",
+        "events": "Task Logs",
+        "info": "Information",
+        "none": "None",
+        "pause": "Pause",
+        "paused": "AutoFarm paused.",
+        "settings": "Settings",
+        "start": "Start",
+        "started": "AutoFarm started."
+    },
+    "info": {
+        "development": [
+            "Development",
+            "Developed from <span class='brazil'>Brazil</span> with <strong style='color:#ad0202'>❤</strong> by",
+            "Any email reporting error, suggestion, messages of love or hate will be wellcome.",
+            "This project is"
+        ],
+        "groupOnly": [  
+            "Using only villages from a group to attack",
+            "You can select a specific group to use only the villages from that group to attack."
+        ],
+        "ignore": [  
+            "Ignoring villages from a group",
+            "You can select ignore targets setting a Ignore Group. All villages that assigned in that group will be ignored by the script. <strong>The group works on targets and your own villages as well</strong>."
+        ],
+        "include": [  
+            "Including targets with a group",
+            "As well as ignoring villages, you can include village targets of players. Works only in villages inside the maximum distance range."
+        ],
+        "presets": [  
+            "Setting presets",
+            "The preset that hasn't assigned to the villages will be automatically.",
+            "Attention! If the presets have <strong>officers</strong>, they <strong>will be used</strong>.",
+            "It's possible to have more than one preset, <strong>since it has the same identification</strong>.",
+            "Is permitted include some description along side the identification. The description must be between keys, brackets, parentheses, single or double quotes.",
+            "Exemples of some preset names:"
+        ],
+        "randomBase": [  
+            "Random interval base",
+            "That interval is a random period of time (in seconds) between each attack avoid the script to be detected by the game. <strong>The bigger the better</strong>."
+        ],
+        "ignoreOnLoss": [
+            "Ignoring targets that cause loss",
+            "This option will ignore any target that cause loss in your troops.",
+            "The target that cause any loss to your troops will be ignored in the future.",
+            "<strong>Note</strong>: For this feature works properly, the option \"Ignore villages from group\" must be set."
+        ],
+        "priorityTargets": [
+            "Prioritizing targets",
+            "When activated, all targets that has full haul reports, will be added to the list of priorities, to resend the attack as soon as possible."
+        ],
+        "remote": [
+            "Controlling the script remotelly via message",
+            "Let the script working in home and control it by the app of game!",
+            "Set the subject of message where you will control the script in the \"Settings\" tab",
+            "Create a message and add yourself as a recipient. On the subject put what you set, and in the message use one of the fallowing commands:",
+            "start the farm",
+            "pause the farm",
+            "receive the current status of farm",
+            "If you don't receive the message \"OK\" in return, means that the script did not receive the message or the command was invalid.",
+            "Attentin: Works only if you are the only participant in the message!",
+            "You can use the same message to execute other commands, just reply the message."
+        ]
+    },
+    "settings": {  
+        "basicSettings": "Basic Settings",
+        "eventsLimit": "Maximum length of task logs",
+        "groupIgnore": "Ignore villages from group",
+        "groupInclude": "Include targets from group",
+        "groupOnly": "Attack only with villages from group",
+        "language": "Interface language (require restart)",
+        "maxDistance": "Targets maximum distance",
+        "maxTravelTime": "Maximum travel time (going)",
+        "minDistance": "Targets minimum distance",
+        "others": "Others",
+        "presetName": "Preset of troops",
+        "randomBase": "Random interval base (seconds)",
+        "ignoreOnLoss": "Ignore villages that cause loss<br/>(Need a active group of ignoreds)",
+        "save": "Save settings",
+        "saved": "Settings saved!",
+        "filters": "Filters",
+        "presets": "Presets",
+        "villages": "Villages",
+        "security": "Security",
+        "minPoints": "Targets minimum points",
+        "maxPoints": "Targets maximum points",
+        "priorityTargets": "Prioritize targets with full loot report",
+        "events": "Task logs",
+        "eventAttack": "Show task logs of attacks",
+        "eventVillageChange": "Show task logs of village's changes",
+        "eventPriorityAdd": "Show task logs of priority targets",
+        "eventIgnoredVillage": "Show task logs of ignored villages",
+        "remote": "Control script via message (subject)",
+        "hotkeySwitch": "Hotkey to start/pause",
+        "hotkeyWindow": "Hotkey to open window"
+    }
+}

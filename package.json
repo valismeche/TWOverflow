@@ -1,0 +1,36 @@
+{
+  "name": "farmoverflow",
+  "title": "FarmOverflow",
+  "description": "High customizable script for Tribal Wars 2 to farm automatically around your villages.",
+  "author": {
+    "name": "Relaxeaza",
+    "email": "mafrazzrafael@gmail.com",
+    "url": "https://github.com/mafrazz"
+  },
+  "private": true,
+  "version": "2.2.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FarmOverflow/FarmOverflow"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-build-number": "^1.0.0",
+    "grunt-cli": "^1.2.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-htmlmin": "^2.3.0",
+    "grunt-contrib-less": "^1.4.1",
+    "grunt-contrib-uglify": "^2.2.0",
+    "grunt-eslint": "^19.0.0",
+    "grunt-replace": "^1.0.1",
+    "uglify-js": "git+https://github.com/mishoo/UglifyJS2.git#harmony"
+  },
+  "scripts": {
+    "build": "grunt build"
+  },
+  "build": "1243",
+  "analytics": "UA-92130203-4"
+}

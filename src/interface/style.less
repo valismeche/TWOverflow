@@ -1,0 +1,203 @@
+#farmOverflow-interface {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    margin-bottom: 10px;
+
+    .button {
+        white-space: nowrap;
+        position: relative;
+        top: 0px;
+        left: 0px;
+        width: 60px;
+        height: 24px;
+    }
+
+    .text,
+    .quickview {
+        margin: 5px 0;
+        font-size: 12px;
+    }
+
+    .quickview {
+        display: none;
+    }
+}
+
+#wrapper.window-open #farmOverflow-interface .button {
+    left: 720px;
+}
+
+#farmOverflow-window {
+    visibility: hidden;
+
+    h3 {
+        color: #000;
+    }
+
+    p {
+        color: #000;
+        margin: 7px 0;
+        padding: 0px 40px;
+
+        span.sample {
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        span.brazil {
+            color: green;
+            font-weight: bold;
+        }
+
+        .opensource {
+            background: url(https://i.imgur.com/KFHdWXN.png);
+            width: 15px;
+            height: 15px;
+            display: inline-block;
+            vertical-align: -2px;
+        }
+    }
+
+    input[type=text],
+    input[type=number] {
+        width: 100%;
+    }
+
+    select {
+        width: 100%;
+        padding: 0px 0 0 5px;
+        font-size: 14px;
+        border: 1px solid #976543;
+        height: 28px;
+        text-decoration: none;
+        text-align: left;
+        border-radius: 2px;
+        font-weight: 600;
+        font-family: "Trebuchet MS";
+        color: white;
+        box-shadow:
+            0 0 0 1px #421f09 inset,
+            0 0 0 2px #976543 inset,
+            0 0 0 3px #421f09 inset,
+            0 -1px 1px 4px rgba(215,181,144,0.7) inset,
+            0 0 1px 5px rgba(0,0,0,0.4) inset;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        outline: none;
+        background-image: url(https://i.imgur.com/SlaWRrX.png), url(https://i.imgur.com/e2qKrmX.png);
+        background-repeat: no-repeat, repeat;
+        background-position: 293px -3px, top left;
+        background-color: #b28e68;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .reduced {
+        height: 30px;
+    }
+
+    .farmOverflow-content-info a {
+        font-weight: bold;
+        color: #544231;
+    }
+}
+
+#farmOverflow-settings {
+    input[type="text"],
+    input[type="number"],
+    select {
+        color: black;
+    }
+
+    [class^="icon-"] {
+        display: inline;
+        margin: 0 9px 0 0;
+    }
+
+    .icon-34x34-preset,
+    .icon-26x26-time,
+    .icon-26x26-info,
+    .icon-26x26-double-arrow {
+        zoom: 0.6;
+    }
+
+    .icon-20x20-queue-indicator-short,
+    .icon-20x20-queue-indicator-long,
+    .icon-20x20-favourite {
+        vertical-align: 0px;
+        margin: 0 5px 0 0;
+    }
+
+    .icon-34x34-preset,
+    .icon-26x26-time {
+        vertical-align: 3px;
+    }
+
+    .icon-26x26-double-arrow {
+        vertical-align: 4px;
+    }
+
+    .icon-26x26-info {
+        vertical-align: 5px
+    }
+
+    .icon-34x34-points-per-village,
+    .icon-34x34-name_changed {
+        zoom: 0.5;
+        vertical-align: 6px;
+    }
+
+    .icon-26x26-message-misc {
+        vertical-align: 1px;
+    }
+
+    .icon-34x34-general {
+        zoom: 0.5;
+    }
+
+    .icon-26x26-time-spy {
+        zoom: 0.7;
+    }
+
+    td {
+        text-align: center;
+    }
+}
+
+#farmOverflow-save {
+    color: white;
+    width: 180px;
+    height: 25px;
+    margin: 6px;
+    line-height: 24px;
+    border: none;
+}
+
+@keyframes farmOverflowShowStatus {
+    0% {
+        width: 60px;
+    }
+    100% {
+        width: 220px;
+    }
+}
+
+@keyframes farmOverflowHideStatus {
+    0% {
+        width: 220px;
+    }
+    100% {
+        width: 60px;
+    }
+}
+
+.farmOverflow-show-status {
+    animation: farmOverflowShowStatus 0.1s forwards;
+}
+
+.farmOverflow-hide-status {
+    animation: farmOverflowHideStatus 0.1s forwards;
+}
