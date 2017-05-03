@@ -22,8 +22,6 @@
         Lockr.prefix = `${$player.getId()}_farmOverflow_`
 
         farmOverflow = new FarmOverflow()
-        farmOverflow.version += ' (Developer Build ___build)'
-
         interface = new FarmOverflowInterface(farmOverflow)
         interface.openWindow()
     }

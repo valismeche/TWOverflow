@@ -109,9 +109,6 @@ module.exports = function (grunt) {
         },
         clean: {
             all: ['dist/temp']
-        },
-        buildnumber: {
-            package: {}
         }
     })
 
@@ -133,7 +130,6 @@ module.exports = function (grunt) {
         'htmlmin',
         'replace',
         'uglify',
-        'clean',
-        'buildnumber'
+        'clean'
     ])
 }

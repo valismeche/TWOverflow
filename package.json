@@ -16,7 +16,6 @@
   },
   "devDependencies": {
     "grunt": "^1.0.1",
-    "grunt-build-number": "^1.0.0",
     "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-concat": "^1.0.1",
@@ -31,6 +30,5 @@
   "scripts": {
     "build": "grunt build"
   },
-  "build": "1253",
   "analytics": "UA-92130203-4"
 }
