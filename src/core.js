@@ -1132,8 +1132,8 @@ FarmOverflow = (function () {
                 $socket.emit($route.MESSAGE_REPLY, {
                     message_id: message_id,
                     message: message
-                }, function () {})
-            }, 1000)
+                })
+            }, 300)
         }
 
         // Remove aldeias da lista de espera e detecta se todas as aldeias
