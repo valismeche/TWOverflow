@@ -31,6 +31,6 @@
   "scripts": {
     "build": "grunt build"
   },
-  "build": "1245",
+  "build": "1253",
   "analytics": "UA-92130203-4"
 }

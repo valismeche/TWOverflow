@@ -299,7 +299,7 @@ FarmOverflowCommander = (function () {
         let self = this.farmOverflow
 
         let travelTime = $armyService.calculateTravelTime(preset, {
-            barbarian: !self.village.pid,
+            barbarian: !self.target.pid,
             officers: false
         })
 
