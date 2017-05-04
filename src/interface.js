@@ -9,6 +9,7 @@ FarmOverflowInterface = (function () {
     let $filter = injector.get('$filter')
     let $hotkeys = injector.get('hotkeys')
     let $eventQueue = require('queues/EventQueue')
+    let $timeHelper = require('helper/time')
     let $presetList = $model.getPresetList()
 
     let rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
@@ -527,7 +528,7 @@ FarmOverflowInterface = (function () {
         this.eventCount++
 
         if (!_populate) {
-            options.timestamp = Date.now()
+            options.timestamp = $timeHelper.gameTime()
             this.events.unshift(options)
             
             Lockr.set('lastEvents', this.events)
@@ -563,7 +564,7 @@ FarmOverflowInterface = (function () {
 
         $tr.className = 'reduced'
         $tr.innerHTML = TemplateEngine('___htmlEvent', {
-            date: $filter('readableDateFilter')(options.timestamp || Date.now()),
+            date: $filter('readableDateFilter')(options.timestamp || $timeHelper.gameTime()),
             icon: options.icon,
             text: options.text
         })
@@ -653,7 +654,7 @@ FarmOverflowInterface = (function () {
         let events = {
             sendCommand: (from, to) => {
                 this.$status.html(this.farmOverflow.lang.events.attacking)
-                this.updateLastAttack(Date.now())
+                this.updateLastAttack($timeHelper.gameTime())
 
                 if (!settings.eventAttack) {
                     return false

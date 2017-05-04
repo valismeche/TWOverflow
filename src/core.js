@@ -23,6 +23,7 @@ FarmOverflow = (function () {
     let $conf = require('conf/conf')
     let $convert = require('helper/mapconvert')
     let $mapData = require('struct/MapData')
+    let $timeHelper = require('helper/time')
 
     // Limpa qualquer text entre (, [, {, " & ' do nome dos presets
     // para serem idetificados com o mesmo nome.
@@ -280,7 +281,7 @@ FarmOverflow = (function () {
          *
          * @type {Number}
          */
-        this.lastActivity = Lockr.get('lastActivity', Date.now(), true)
+        this.lastActivity = Lockr.get('lastActivity', $timeHelper.gameTime(), true)
 
         /**
          * Timestamp da última atividade do FarmOverflow como atques e
@@ -321,7 +322,7 @@ FarmOverflow = (function () {
             return this.notif('error', this.lang.events.noSelectedVillage)
         }
 
-        let now = Date.now()
+        let now = $timeHelper.gameTime()
 
         // Reseta a lista prioridades caso tenha expirado
         if (now > this.lastActivity + PRIORITY_EXPIRE_TIME) {
@@ -394,7 +395,7 @@ FarmOverflow = (function () {
      * Atualiza o timestamp da última atividade do FarmOverflow.
      */
     FarmOverflow.prototype.updateActivity = function () {
-        this.lastActivity = Date.now()
+        this.lastActivity = $timeHelper.gameTime()
         Lockr.set('lastActivity', this.lastActivity)
     }
 
@@ -402,7 +403,7 @@ FarmOverflow = (function () {
      * Atualiza o timestamp do último ataque enviado com o FarmOverflow.
      */
     FarmOverflow.prototype.updateLastAttack = function () {
-        this.lastAttack = Date.now()
+        this.lastAttack = $timeHelper.gameTime()
         Lockr.set('lastAttack', this.lastAttack)
     }
 
