@@ -17,6 +17,7 @@ FarmOverflow = (function () {
     let $socket = injector.get('socketService')
     let $route = injector.get('routeProvider')
     let $eventType = injector.get('eventTypeProvider')
+    let $filter = injector.get('$filter')
     let $presetList = $model.getPresetList()
     let $math = require('helper/math')
     let $conf = require('conf/conf')
@@ -1335,12 +1336,13 @@ FarmOverflow = (function () {
             case 'status':
                 let village = this.village
                 let villageLabel = `${village.name} (${village.x}|${village.y})`
+                let lastAttack = $filter('readableDateFilter')(this.lastAttack)
 
                 let bbcodeMessage = [
                     `[b]${this.lang.events.status}:[/b] ${this.status}[br]`,
                     `[b]${this.lang.events.selectedVillage}:[/b] `,
                     `[village=${village.id}]${villageLabel}[/village][br]`,
-                    `[b]${this.lang.events.lastAttack}:[/b] ${this.lastAttack}`
+                    `[b]${this.lang.events.lastAttack}:[/b] ${lastAttack}`
                 ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)
