@@ -9,6 +9,7 @@ FarmOverflowInterface = (function () {
     let $filter = injector.get('$filter')
     let $hotkeys = injector.get('hotkeys')
     let $eventQueue = require('queues/EventQueue')
+    let $presetList = $model.getPresetList()
 
     let rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
 
@@ -131,12 +132,12 @@ FarmOverflowInterface = (function () {
         this.updateGroupList()
         this.populateEvents()
 
-        if (farmOverflow.presets.length) {
+        farmOverflow.on('presetsLoaded', () => {
             this.updatePresetList()
-        } else {
-            farmOverflow.on('presetsLoaded', () => {
-                this.updatePresetList()
-            })
+        })
+        
+        if ($presetList.isLoaded()) {
+            this.updatePresetList()
         }
 
         farmOverflow.on('presetsChange', () => {

@@ -962,6 +962,13 @@ FarmOverflow = (function () {
      */
     FarmOverflow.prototype.checkPresets = function (callback) {
         log('checkPresets')
+
+        if (!this.presets.lenght) {
+            this.stop()
+            this.event('noPreset')
+
+            return false
+        }
         
         let vid = this.village.id
         let villagePresets = $presetList.getPresetsByVillageId(vid)

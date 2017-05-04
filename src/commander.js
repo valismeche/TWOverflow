@@ -86,6 +86,13 @@ FarmOverflowCommander = (function () {
             return false
         }
 
+        if (!self.presets.lenght) {
+            self.stop()
+            self.event('noPreset')
+
+            return false
+        }
+
         if (!self.hasVillage()) {
             return self.event('noVillageSelected')
         }
