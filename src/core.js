@@ -964,7 +964,7 @@ FarmOverflow = (function () {
     FarmOverflow.prototype.checkPresets = function (callback) {
         log('checkPresets')
 
-        if (!this.presets.lenght) {
+        if (!this.presets.length) {
             this.stop()
             this.event('noPreset')
 

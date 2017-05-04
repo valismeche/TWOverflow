@@ -86,7 +86,7 @@ FarmOverflowCommander = (function () {
             return false
         }
 
-        if (!self.presets.lenght) {
+        if (!self.presets.length) {
             self.stop()
             self.event('noPreset')
 
