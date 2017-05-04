@@ -28,10 +28,10 @@
         "info": "Information",
         "none": "None",
         "pause": "Pause",
-        "paused": "AutoFarm paused.",
+        "paused": "FarmOverflow paused.",
         "settings": "Settings",
         "start": "Start",
-        "started": "AutoFarm started."
+        "started": "FarmOverflow started."
     },
     "info": {
         "development": [
@@ -46,7 +46,7 @@
         ],
         "ignore": [  
             "Ignoring villages from a group",
-            "You can select ignore targets setting a Ignore Group. All villages that assigned in that group will be ignored by the script. <strong>The group works on targets and your own villages as well</strong>."
+            "You can select ignore targets setting a Ignore Group. All villages that assigned in that group will be ignored by the FarmOverflow. <strong>The group works on targets and your own villages as well</strong>."
         ],
         "include": [  
             "Including targets with a group",
@@ -62,7 +62,7 @@
         ],
         "randomBase": [  
             "Random interval base",
-            "That interval is a random period of time (in seconds) between each attack avoid the script to be detected by the game. <strong>The bigger the better</strong>."
+            "That interval is a random period of time (in seconds) between each attack avoid the FarmOverflow to be detected by the game. <strong>The bigger the better</strong>."
         ],
         "ignoreOnLoss": [
             "Ignoring targets that cause loss",
@@ -75,14 +75,14 @@
             "When activated, all targets that has full haul reports, will be added to the list of priorities, to resend the attack as soon as possible."
         ],
         "remote": [
-            "Controlling the script remotelly via message",
-            "Let the script working in home and control it by the app of game!",
-            "Set the subject of message where you will control the script in the \"Settings\" tab",
+            "Controlling remotelly via message",
+            "Let the FarmOverflow working in home and control it by the app of game!",
+            "Set the subject of message where you will control the FarmOverflow in the \"Settings\" tab",
             "Create a message and add yourself as a recipient. On the subject put what you set, and in the message use one of the fallowing commands:",
             "start the farm",
             "pause the farm",
             "receive the current status of farm",
-            "If you don't receive the message \"OK\" in return, means that the script did not receive the message or the command was invalid.",
+            "If you don't receive the message \"OK\" in return, means that the FarmOverflow did not receive the message or the command was invalid.",
             "Attentin: Works only if you are the only participant in the message!",
             "You can use the same message to execute other commands, just reply the message."
         ]
@@ -115,7 +115,7 @@
         "eventVillageChange": "Show task logs of village's changes",
         "eventPriorityAdd": "Show task logs of priority targets",
         "eventIgnoredVillage": "Show task logs of ignored villages",
-        "remote": "Control script via message (subject)",
+        "remote": "Control via message (subject)",
         "hotkeySwitch": "Hotkey to start/pause",
         "hotkeyWindow": "Hotkey to open window"
     }

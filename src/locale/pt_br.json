@@ -28,10 +28,10 @@
         "info": "Informações",
         "none": "Nenhum",
         "pause": "Pausar",
-        "paused": "AutoFarm pausado.",
+        "paused": "FarmOverflow pausado.",
         "settings": "Configurações",
         "start": "Iniciar",
-        "started": "AutoFarm iniciado."
+        "started": "FarmOverflow iniciado."
     },
     "info": {
         "development": [
@@ -46,7 +46,7 @@
         ],
         "ignore": [
             "Ignorando aldeias com grupo",
-            "Você pode selecionar um grupo nas configurações para que todas aldeias atribuidas a esse grupo sejam ignorados pelo AutoFarm. <strong>O grupo serve tanto para os alvos quanto para suas aldeias</strong>."
+            "Você pode selecionar um grupo nas configurações para que todas aldeias atribuidas a esse grupo sejam ignorados pelo FarmOverflow. <strong>O grupo serve tanto para os alvos quanto para suas aldeias</strong>."
         ],
         "include": [
             "Incluindo alvos com grupo",
@@ -62,7 +62,7 @@
         ],
         "randomBase": [
             "Base do intervalo aleatório",
-            "Esse intervalo é usado para gerar um tempo aleatório (em segundos) entre cada ataque evitando o script ser detectado. <strong>Quanto maior melhor</strong>."
+            "Esse intervalo é usado para gerar um tempo aleatório (em segundos) entre cada ataque evitando o FarmOverflow ser detectado. <strong>Quanto maior melhor</strong>."
         ],
         "ignoreOnLoss": [
             "Ignorando alvos que causam perdas",
@@ -75,14 +75,14 @@
             "Quando ativada, todos os alvos que tiverem relatórios com saque no máximo, serão adicionados na lista de prioridades para reenviar o ataque assim que possível."
         ],
         "remote": [
-            "Controlando remotamente o script via mensagem",
-            "Deixe o script funcionando em casa e o controle pelo app do jogo!",
-            "Configure o assunto da mensagem por onde você controlará o script na aba \"Configurações\"",
+            "Controlando remotamente via mensagem",
+            "Deixe o FarmOverflow funcionando em casa e o controle pelo app do jogo!",
+            "Configure o assunto da mensagem por onde você controlará o FarmOverflow na aba \"Configurações\"",
             "Crie uma mensagem e adicione você mesmo como destinatário. No assunto coloque o que você configurou e no corpo da mensagem use um dos seguintes comandos:",
             "inicia o farm",
             "pausa o farm",
             "recebe o status atual do farm",
-            "Se você não receber uma mensagem de OK em retorno, quer dizer que o script não recebeu a mensagem ou que um comando inválido foi usado.",
+            "Se você não receber uma mensagem de OK em retorno, quer dizer que o FarmOverflow não recebeu a mensagem ou que um comando inválido foi usado.",
             "Atenção: Só funciona se você for o único participante da mensagem!",
             "Você pode usar a mesma mensagem para executar outros comandos, bastando responde-la."
         ]
@@ -115,7 +115,7 @@
         "eventVillageChange": "Mostrar registros de troca de aldeias",
         "eventPriorityAdd": "Mostrar registros de alvos prioritarios",
         "eventIgnoredVillage": "Mostrar registros de aldeias ignoradas",
-        "remote": "Controlar script via mensagem (assunto)",
+        "remote": "Controle via mensagem (assunto)",
         "hotkeySwitch": "Tecla de atalho para inicar/pausar (requer reinício)",
         "hotkeyWindow": "Tecla de atalho para abrir janela (requer reinício)"
     }
