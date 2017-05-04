@@ -62,7 +62,6 @@ FarmOverflowCommander = (function () {
          */
         this.preventNextCommand = false
 
-
         this.timeoutId = null
         this.running = false
     }
@@ -83,14 +82,14 @@ FarmOverflowCommander = (function () {
         let self = this.farmOverflow
 
         if (!this.running) {
-            return false
+            return
         }
 
         if (!self.presets.length) {
             self.stop()
             self.event('noPreset')
 
-            return false
+            return
         }
 
         if (!self.hasVillage()) {
@@ -102,7 +101,7 @@ FarmOverflowCommander = (function () {
                 self.analyse()
             })
 
-            return false
+            return
         }
 
         if (self.isWaiting() || self.isIgnored()) {
@@ -112,17 +111,15 @@ FarmOverflowCommander = (function () {
                 self.event(self.lastError)
             }
 
-            return false
+            return
         }
 
         // Se aldeia ainda não tiver obtido a lista de alvos, obtem
         // os alvos e executa o comando novamente para dar continuidade.
         if (!self.targetsLoaded()) {
-            self.getTargets(() => {
+            return self.getTargets(() => {
                 this.analyse()
             })
-
-            return false
         }
 
         // Analisa se a aldeia selecionada possui algum alvo disponível
@@ -136,7 +133,7 @@ FarmOverflowCommander = (function () {
                 self.event('noTargets')
             }
 
-            return false
+            return
         }
 
         self.checkPresets(() => {
