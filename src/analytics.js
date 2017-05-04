@@ -1,4 +1,4 @@
-Analytics = (function () {
+define('FarmOverflow/analytics', function () {
     let player = null
     let uid = null
 
@@ -117,4 +117,4 @@ Analytics = (function () {
         villageChange: villageChange,
         remoteCommand: remoteCommand
     }
-})()
+})

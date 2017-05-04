@@ -1,34 +1,24 @@
-/*!
- * ___title v___version (build ___build)
- *
- * Copyright ___authorName <___authorEmail>
- * __licence License
- *
- * ___date
- */
-
-__debug = false
-
-FarmOverflow = (function () {
-    'use strict'
-
-    let $root = angular.element(document).scope()
-    let $model = injector.get('modelDataService')
-    let $socket = injector.get('socketService')
-    let $route = injector.get('routeProvider')
-    let $eventType = injector.get('eventTypeProvider')
-    let $filter = injector.get('$filter')
-    let $presetList = $model.getPresetList()
-    let $math = require('helper/math')
-    let $conf = require('conf/conf')
-    let $convert = require('helper/mapconvert')
-    let $mapData = require('struct/MapData')
-    let $timeHelper = require('helper/time')
-
-    // Limpa qualquer text entre (, [, {, " & ' do nome dos presets
-    // para serem idetificados com o mesmo nome.
-    let rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
-
+define('FarmOverflow', [
+    'FarmOverflow/Commander',
+    'FarmOverflow/analytics',
+    'FarmOverflow/Village',
+    'helper/math',
+    'conf/conf',
+    'struct/MapData',
+    'helper/mapconvert',
+    'helper/time',
+    'conf/locale'
+], function (
+    Commander,
+    analytics,
+    Village,
+    $math,
+    $conf,
+    $mapData,
+    $convert,
+    $timeHelper,
+    gameLocale
+) {
     /**
      * Tempo de validade dos índices dos alvos, é resetado quando o
      * FarmOverflow está pausado por mais de 30 minutos.
@@ -54,28 +44,9 @@ FarmOverflow = (function () {
     const REMOTE_SWITCH_RESPONSE = '[color=0a8028]OK[/color]'
 
     /**
-     * Remove todas propriedades que tiverem valor zero.
-     *
-     * @param {Object} units - Unidades do preset a serem filtradas.
-     */
-    function cleanPresetUnits (units) {
-        let pure = {}
-
-        for (let unit in units) {
-            if (units[unit] > 0) {
-                pure[unit] = units[unit]
-            }
-        }
-
-        return pure
-    }
-
-    /**
      * @class
      */
     function FarmOverflow () {
-        log('FarmOverflow')
-
         let DEFAULTS = {
             maxDistance: 10,
             minDistance: 0,
@@ -258,7 +229,7 @@ FarmOverflow = (function () {
          *
          * @type {FarmOverflowCommander}
          */
-        this.commander = new FarmOverflowCommander(this)
+        this.commander = new Commander(this)
 
         /**
          * Lista de alvos com prioridade no envio dos ataques.
@@ -335,12 +306,12 @@ FarmOverflow = (function () {
             Lockr.set('indexes', {})
         }
 
-        this.commander = new FarmOverflowCommander(this)
+        this.commander = new Commander(this)
         this.commander.start()
 
         this.notif('success', this.lang.general.started)
 
-        Analytics.start()
+        analytics.start()
 
         return true
     }
@@ -355,7 +326,7 @@ FarmOverflow = (function () {
 
         this.notif('success', this.lang.general.paused)
 
-        Analytics.pause()
+        analytics.pause()
 
         return true
     }
@@ -421,8 +392,6 @@ FarmOverflow = (function () {
      * @param {Object} changes - Novas configurações.
      */
     FarmOverflow.prototype.updateSettings = function (changes) {
-        log('updateSettings')
-
         let modify = {}
 
         // Valores que precisam ser resetados/modificados quando
@@ -483,15 +452,13 @@ FarmOverflow = (function () {
             })
         }
 
-        Analytics.settingsChange(localStorage[Lockr.prefix + 'settings'])
+        analytics.settingsChange(localStorage[Lockr.prefix + 'settings'])
     }
 
     /**
      * Desativa o disparo de eventos temporariamente.
      */
     FarmOverflow.prototype.disableEvents = function (callback) {
-        log('disableEvents')
-
         this.eventsEnabled = false
         callback()
         this.eventsEnabled = true
@@ -501,8 +468,6 @@ FarmOverflow = (function () {
      * Desativa o disparo de eventos temporariamente.
      */
     FarmOverflow.prototype.disableNotifs = function (callback) {
-        log('disableNotifs')
-
         this.notifsEnabled = false
         callback()
         this.notifsEnabled = true
@@ -514,8 +479,6 @@ FarmOverflow = (function () {
      * @param [_selectOnly] Apenas seleciona o alvo sem pular para o próximo.
      */
     FarmOverflow.prototype.nextTarget = function (_selectOnly) {
-        log('nextTarget')
-
         let sid = this.village.id
 
         // Caso a lista de alvos seja resetada no meio da execução.
@@ -590,8 +553,6 @@ FarmOverflow = (function () {
      * o objecto do alvo e o índice.
      */
     FarmOverflow.prototype.hasTarget = function () {
-        log('hasTarget')
-
         let sid = this.village.id
         let index = this.indexes[sid]
         let targets = this.targets[sid]
@@ -678,8 +639,6 @@ FarmOverflow = (function () {
      * Obtem a lista de alvos para a aldeia selecionada.
      */
     FarmOverflow.prototype.getTargets = function (callback) {
-        log('getTargets')
-
         let coords = this.village.position
         let sid = this.village.id
 
@@ -806,8 +765,6 @@ FarmOverflow = (function () {
      * @return {Boolean}
      */
     FarmOverflow.prototype.nextVillage = function () {
-        log('nextVillage')
-
         if (this.singleVillage) {
             return false
         }
@@ -843,8 +800,6 @@ FarmOverflow = (function () {
      * @return {Boolean}
      */
     FarmOverflow.prototype.selectVillage = function (vid) {
-        log('selectVillage')
-
         let i = this.villages.indexOf(vid)
 
         if (i !== -1) {
@@ -863,8 +818,6 @@ FarmOverflow = (function () {
      * @param {Array} data - Argumentos que serão passados no callback.
      */
     FarmOverflow.prototype.event = function (type, data) {
-        log('event', type)
-
         if (!this.eventsEnabled) {
             return this
         }
@@ -904,8 +857,6 @@ FarmOverflow = (function () {
      * @param {Function} callback
      */
     FarmOverflow.prototype.updatePresets = function (callback) {
-        log('updatePresets')
-
         let updatePresets = (presets) => {
             this.presets = []
 
@@ -947,8 +898,6 @@ FarmOverflow = (function () {
      * @param {Function} callback
      */
     FarmOverflow.prototype.assignPresets = function (presetIds, callback) {
-        log('assignPresets')
-
         $socket.emit($route.ASSIGN_PRESETS, {
             village_id: this.village.id,
             preset_ids: presetIds
@@ -963,8 +912,6 @@ FarmOverflow = (function () {
      * @param {Function} callback
      */
     FarmOverflow.prototype.checkPresets = function (callback) {
-        log('checkPresets')
-
         if (!this.presets.length) {
             this.stop()
             this.event('noPreset')
@@ -999,8 +946,6 @@ FarmOverflow = (function () {
      * Atualiza o grupo de referência para ignorar aldeias e incluir alvos
      */
     FarmOverflow.prototype.updateExceptionGroups = function () {
-        log('updateExceptionGroups')
-
         let types = ['groupIgnore', 'groupInclude', 'groupOnly']
         let groups = $model.getGroupList().getGroups()
 
@@ -1026,8 +971,6 @@ FarmOverflow = (function () {
      * Atualiza a lista de aldeias ignoradas e incluidas
      */
     FarmOverflow.prototype.updateExceptionVillages = function () {
-        log('updateExceptionVillages')
-
         let groupList = $model.getGroupList()
 
         this.ignoredVillages = []
@@ -1052,7 +995,7 @@ FarmOverflow = (function () {
         let villages = this.player.getVillageList()
 
         villages = villages.map((village) => {
-            return new FarmOverflowVillage(village)
+            return new Village(village)
         })
 
         villages = villages.filter((village) => {
@@ -1134,8 +1077,6 @@ FarmOverflow = (function () {
      * para o funcionamento do FarmOverflow.
      */
     FarmOverflow.prototype.listeners = function () {
-        log('listeners')
-
         function replyMessage (message_id, message) {
             setTimeout(function () {
                 $socket.emit($route.MESSAGE_REPLY, {
@@ -1217,7 +1158,7 @@ FarmOverflow = (function () {
             }
 
             this.ignoreVillage(target)
-            Analytics.ignoreTarget()
+            analytics.ignoreTarget()
 
             return true
         }
@@ -1236,7 +1177,7 @@ FarmOverflow = (function () {
 
             this.priorityTargets[vid].push(tid)
 
-            Analytics.priorityTarget()
+            analytics.priorityTarget()
 
             this.event('priorityTargetAdded', [{
                 id: tid,
@@ -1322,7 +1263,7 @@ FarmOverflow = (function () {
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                Analytics.remoteCommand()
+                analytics.remoteCommand()
 
                 break
             case 'off':
@@ -1331,7 +1272,7 @@ FarmOverflow = (function () {
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                Analytics.remoteCommand()
+                analytics.remoteCommand()
 
                 break
             case 'status':
@@ -1347,7 +1288,7 @@ FarmOverflow = (function () {
                 ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)
-                Analytics.remoteCommand()
+                analytics.remoteCommand()
 
                 break
             }
@@ -1432,14 +1373,12 @@ FarmOverflow = (function () {
      * Define a linguagem da interface
      */
     FarmOverflow.prototype.languages = function () {
-        log('languages')
-
-        let locales = {
+        let i18n = {
             pt_br: ___langPt_br,
             en_us: ___langEn_us
         }
 
-        let gameLang = require('conf/locale').LANGUAGE
+        let gameLang = gameLocale.LANGUAGE
 
         let aliases = {
             'pt_pt': 'pt_br',
@@ -1451,19 +1390,13 @@ FarmOverflow = (function () {
         }
 
         if (this.settings.language) {
-            this.lang = locales[this.settings.language]
+            this.lang = i18n[this.settings.language]
         } else {
-            let lang = gameLang in locales ? gameLang : 'en_us'
-            this.lang = locales[lang]
+            let lang = gameLang in i18n ? gameLang : 'en_us'
+            this.lang = i18n[lang]
             this.settings.language = lang
         }
     }
 
-    function log () {
-        if (__debug) {
-            console.log.apply(this, arguments)
-        }
-    }
-
     return FarmOverflow
-})()
+})

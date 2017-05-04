@@ -1,20 +1,18 @@
-;(function initFarmOverflow () {
-    if (typeof __farmOverflow !== 'undefined') {
-        return false
-    }
-
-    __farmOverflow = true
-
+require([
+    'FarmOverflow',
+    'FarmOverflow/Interface',
+    'FarmOverflow/analytics'
+], function (FarmOverflow, Interface, analytics) {
     let initialize = function () {
         let $model = injector.get('modelDataService')
         let $player = $model.getSelectedCharacter()
 
-        Analytics.init($player)
-        
+        analytics.init($player)
+
         Lockr.prefix = `${$player.getId()}_farmOverflow_`
 
-        let farmOverflow = new FarmOverflow()
-        let interface = new FarmOverflowInterface(farmOverflow)
+        window.farmOverflow = new FarmOverflow()
+        window.farmOverflowInterface = new Interface(farmOverflow)
     }
 
     let $map = document.querySelector('#map')
@@ -28,4 +26,4 @@
 
         $root.$on($eventType.MAP_INITIALIZED, initialize)
     }
-})()
+})

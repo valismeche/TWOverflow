@@ -5,26 +5,17 @@ module.exports = function (grunt) {
             prod: {
                 src: [
                     'src/libs/lockr.js',
+                    'src/header.js',
+                    'src/utils.js',
                     'src/core.js',
                     'src/commander.js',
                     'src/village.js',
                     'src/interface.js',
                     'src/analytics.js',
+                    'src/footer.js',
                     'src/initialize.js'
                 ],
                 dest: 'dist/temp/<%= pkg.name %>.js'
-            },
-            dev: {
-                src: [
-                    'src/libs/lockr.js',
-                    'src/core.js',
-                    'src/commander.js',
-                    'src/village.js',
-                    'src/interface.js',
-                    'src/analytics.js',
-                    'src/debug.js'
-                ],
-                dest: 'dist/temp/<%= pkg.name %>.dev.js'
             }
         },
         eslint: {
@@ -65,7 +56,7 @@ module.exports = function (grunt) {
                         json: {
                             title: '<%= pkg.title %>',
                             version: '<%= pkg.version %>',
-                            licence: '<%= pkg.licence %>',
+                            license: '<%= pkg.license %>',
                             author: '<%= pkg.author %>',
                             authorName: '<%= pkg.author.name %>',
                             authorEmail: '<%= pkg.author.email %>',
@@ -88,8 +79,7 @@ module.exports = function (grunt) {
                     expand: true,
                     flatten: true,
                     src: [
-                        'dist/temp/<%= pkg.name %>.js',
-                        'dist/temp/<%= pkg.name %>.dev.js'
+                        'dist/temp/<%= pkg.name %>.js'
                     ],
                     dest: 'dist/'
                 }]
@@ -120,12 +110,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify')
     grunt.loadNpmTasks('grunt-contrib-clean')
     grunt.loadNpmTasks('grunt-contrib-copy')
-    grunt.loadNpmTasks('grunt-build-number')
 
     grunt.registerTask('build', [
         'eslint',
-        'concat:prod',
-        'concat:dev',
+        'concat',
         'less',
         'htmlmin',
         'replace',

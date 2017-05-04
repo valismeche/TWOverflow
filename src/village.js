@@ -1,11 +1,12 @@
-FarmOverflowVillage = (function () {
-    let $socket = injector.get('socketService')
-    let $route = injector.get('routeProvider')
-    let $villageService = injector.get('villageService')
-    let CommandListModel = require('models/CommandListModel')
-    let CommandModel = require('models/CommandModel')
-    let VILLAGE_CONFIG = require('conf/village')
-
+define('FarmOverflow/Village', [
+    'models/CommandListModel',
+    'models/CommandModel',
+    'conf/village'
+], function (
+    CommandListModel,
+    CommandModel,
+    VILLAGE_CONFIG
+) {
     // 'READY_STATES' : {
     //     'COMPLETED'         : 'completed',
     //     'EFFECTS'           : 'effects',
@@ -28,7 +29,6 @@ FarmOverflowVillage = (function () {
      *
      * @param {VillageModel} original - Objeto original da aldeia.
      */
-
     function Village (original) {
         this.original = original
         this.id = original.data.villageId
@@ -116,4 +116,4 @@ FarmOverflowVillage = (function () {
     }
 
     return Village
-})()
+})

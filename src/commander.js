@@ -1,41 +1,7 @@
-FarmOverflowCommander = (function () {
-    let $root = angular.element(document).scope()
-    let $route = injector.get('routeProvider')
-    let $eventType = injector.get('eventTypeProvider')
-    let $socket = injector.get('socketService')
-    let $armyService = injector.get('armyService')
-    let $math = require('helper/math')
-
-    /**
-     * Gera um número aleatório aproximado da base.
-     *
-     * @param {Number} base - Número base para o calculo.
-     */
-    function randomSeconds (base) {
-        base = parseInt(base, 10)
-        
-        let max = base + (base / 2)
-        let min = base - (base / 2)
-
-        return Math.round(Math.random() * (max - min) + min)
-    }
-
-    /**
-     * Converte uma string com um tempo em segundos.
-     *
-     * @param {String} time - Tempo que será convertido (hh:mm:ss)
-     */
-    function time2seconds (time) {
-        time = time.split(':')
-        time[0] = parseInt(time[0], 10) * 60 * 60
-        time[1] = parseInt(time[1], 10) * 60
-        time[2] = parseInt(time[2], 10)
-
-        return time.reduce((a, b) => {
-            return a + b
-        })
-    }
-
+define('FarmOverflow/Commander', [
+    'FarmOverflow/analytics',
+    'helper/math'
+], function (analytics, $math) {
     /**
      * @class
      *
@@ -234,8 +200,6 @@ FarmOverflowCommander = (function () {
      * @return {Object} preset ou erro.
      */
     Commander.prototype.getPreset = function (_units) {
-        log('getPreset')
-
         let self = this.farmOverflow
 
         let timeLimit = false
@@ -273,8 +237,6 @@ FarmOverflowCommander = (function () {
      * a redução de tropas para o proximo comando.
      */
     Commander.prototype.getPresetNext = function (presetUsed) {
-        log('getPresetNext')
-
         let self = this.farmOverflow
 
         let unitsCopy = angular.copy(self.village.units)
@@ -298,8 +260,6 @@ FarmOverflowCommander = (function () {
      * @param {Object} preset - Preset usado no calculo.
      */
     Commander.prototype.checkPresetTime = function (preset) {
-        log('checkPresetTime')
-
         let self = this.farmOverflow
 
         let travelTime = $armyService.calculateTravelTime(preset, {
@@ -335,8 +295,6 @@ FarmOverflowCommander = (function () {
      * alteração das tropas na aldeia.
      */
     Commander.prototype.send = function (preset, callback) {
-        log('send')
-
         if (!this.running) {
             return false
         }
@@ -415,7 +373,7 @@ FarmOverflowCommander = (function () {
                 self.target
             ])
 
-            Analytics.attack()
+            analytics.attack()
 
             unbind()
             callback()
@@ -443,7 +401,7 @@ FarmOverflowCommander = (function () {
                 return false
             }
 
-            Analytics.attackError()
+            analytics.attackError()
 
             unbind()
             callback()
@@ -459,8 +417,6 @@ FarmOverflowCommander = (function () {
      * @param {Object} callback
      */
     Commander.prototype.simulate = function (callback) {
-        log('simulate')
-
         let self = this.farmOverflow
 
         let attackingFactor = () => {
@@ -477,4 +433,4 @@ FarmOverflowCommander = (function () {
     }
 
     return Commander
-})()
+})
