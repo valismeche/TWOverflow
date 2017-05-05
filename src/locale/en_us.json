@@ -23,7 +23,7 @@
         "priorityTargetAdded": "{0} added to priorities."
     },
     "general": {
-        "disabled": "Disabled",
+        "disabled": "— Disabled —",
         "events": "Task Logs",
         "info": "Information",
         "none": "None",
