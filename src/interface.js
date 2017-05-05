@@ -482,8 +482,7 @@ define('FarmOverflow/Interface', [
     Interface.prototype.updatePresetList = function () {
         let loaded = {}
         let presets = $model.getPresetList().presets
-        let presetMatch = this.farmOverflow.settings.presetName
-
+        
         this.$preset.html(
             `<option value="">${this.farmOverflow.lang.general.disabled}</option>`
         )
@@ -500,7 +499,11 @@ define('FarmOverflow/Interface', [
                 continue
             }
 
-            let selected = presetMatch === cleanName ? 'selected' : ''
+            let selected = ''
+
+            if (this.farmOverflow.settings.presetName === cleanName) {
+                selected = 'selected'
+            }
 
             this.$preset.append(
                 `<option value="${cleanName}" ${selected}>${cleanName}</option>`
@@ -524,15 +527,16 @@ define('FarmOverflow/Interface', [
                 `<option value="">${this.farmOverflow.lang.general.disabled}</option>`
             )
 
-            for (let groupId in groups) {
-                let name = groups[groupId].name
+            for (let id in groups) {
+                let name = groups[id].name
+                let selected = ''
 
-                let selected = this.farmOverflow.settings[type] === name
-                    ? 'selected'
-                    : ''
+                if (this.farmOverflow.settings[type] == id) {
+                    selected = 'selected'
+                }
 
                 this[$type].append(
-                    `<option value="${name}" ${selected}>${name}</option>`
+                    `<option value="${id}" ${selected}>${name}</option>`
                 )
             }
         }

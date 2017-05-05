@@ -53,9 +53,9 @@ define('FarmOverflow', [
             maxTravelTime: '01:00:00',
             randomBase: 3, // segundos
             presetName: '',
-            groupIgnore: '',
-            groupInclude: '',
-            groupOnly: '',
+            groupIgnore: 0,
+            groupInclude: 0,
+            groupOnly: 0,
             minPoints: 0,
             maxPoints: 12500,
             eventsLimit: 20,
@@ -956,13 +956,11 @@ define('FarmOverflow', [
         for (let type of types) {
             this[type] = null
 
-            for (let groupId in groups) {
-                let group = groups[groupId]
-
-                if (group.name === this.settings[type]) {
+            for (let id in groups) {
+                if (id == this.settings[type]) {
                     this[type] = {
-                        name: group.name,
-                        id: group.id
+                        name: groups[id].name,
+                        id: id
                     }
 
                     break
