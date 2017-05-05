@@ -482,6 +482,7 @@ define('FarmOverflow/Interface', [
     Interface.prototype.updatePresetList = function () {
         let loaded = {}
         let presets = $model.getPresetList().presets
+        let presetMatch = this.farmOverflow.settings.presetName
 
         this.$preset.html(
             `<option value="">${this.farmOverflow.lang.general.disabled}</option>`
@@ -494,9 +495,12 @@ define('FarmOverflow/Interface', [
                 continue
             }
 
-            let selected = this.farmOverflow.settings.presetName === cleanName
-                ? 'selected'
-                : ''
+            // presets apenas com descrição sem identificação são ignorados
+            if (!cleanName) {
+                continue
+            }
+
+            let selected = presetMatch === cleanName ? 'selected' : ''
 
             this.$preset.append(
                 `<option value="${cleanName}" ${selected}>${cleanName}</option>`

@@ -860,6 +860,10 @@ define('FarmOverflow', [
         let updatePresets = (presets) => {
             this.presets = []
 
+            if (!this.settings.presetName) {
+                return callback()
+            }
+
             for (let id in presets) {
                 if (!presets.hasOwnProperty(id)) {
                     continue
