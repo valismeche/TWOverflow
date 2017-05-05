@@ -3,6 +3,12 @@ require([
     'FarmOverflow/Interface',
     'FarmOverflow/analytics'
 ], function (FarmOverflow, Interface, analytics) {
+    if (FarmOverflow.initialized) {
+        return false
+    } else {
+        FarmOverflow.initialized = true
+    }
+
     let initialize = function () {
         let $model = injector.get('modelDataService')
         let $player = $model.getSelectedCharacter()
