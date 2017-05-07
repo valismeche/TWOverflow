@@ -861,7 +861,11 @@ define('FarmOverflow', [
             this.presets = []
 
             if (!this.settings.presetName) {
-                return callback()
+                if (callback) {
+                    callback()
+                }
+
+                return
             }
 
             for (let id in presets) {
