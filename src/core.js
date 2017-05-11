@@ -404,7 +404,12 @@ define('FarmOverflow', [
             minDistance: ['targets'],
             maxDistance: ['targets'],
             minPoints: ['targets'],
-            maxPoints: ['targets']
+            maxPoints: ['targets'],
+            eventsLimit: ['events'],
+            eventAttack: ['events'],
+            eventVillageChange: ['events'],
+            eventPriorityAdd: ['events'],
+            eventIgnoredVillage: ['events']
         }
 
         for (let key in changes) {
@@ -443,6 +448,10 @@ define('FarmOverflow', [
 
         if (modify.targets) {
             this.targets = {}
+        }
+
+        if (modify.events) {
+            this.event('resetEvents')
         }
 
         if (this.commander.running && this.globalWaiting) {

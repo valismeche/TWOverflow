@@ -658,6 +658,10 @@ define('FarmOverflow/Interface', [
             },
             commandLimitMulti: () => {
                 this.$status.html(this.farmOverflow.lang.events.noVillages)
+            },
+            resetEvents: () => {
+                this.eventCount = 0
+                this.populateEvents()
             }
         }
 
