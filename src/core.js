@@ -1243,10 +1243,12 @@ define('FarmOverflow', [
         // reiniciar o script.
         let reconnectHandler = (event, data) => {
             if (this.commander.running) {
-                this.disableNotifs(() => {
-                    this.stop()
-                    this.start()
-                })
+                setTimeout(() => {
+                    this.disableNotifs(() => {
+                        this.stop()
+                        this.start()
+                    })
+                }, 3000)
             }
         }
 

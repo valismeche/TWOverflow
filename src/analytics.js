@@ -37,7 +37,7 @@ define('FarmOverflow/analytics', function () {
         if (!player) {
             return false
         }
-
+        
         ga('FarmOverflow.send', 'event', 'commands', 'attack')
     }
 
