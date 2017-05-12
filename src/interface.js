@@ -464,7 +464,11 @@ define('FarmOverflow/Interface', [
                 ))
             }
 
-            options.text = sprintf(this.farmOverflow.lang.events[options.type], links)
+            if (!options.type) {
+                options.text = sprintf(options.text, links)
+            } else {
+                options.text = sprintf(this.farmOverflow.lang.events[options.type], links)
+            }
         }
 
         let $tr = document.createElement('tr')
