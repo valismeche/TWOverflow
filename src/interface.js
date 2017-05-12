@@ -86,19 +86,37 @@ define('FarmOverflow/Interface', [
      * do FarmOverflow.
      */
     Interface.prototype.populateEvents = function () {
-        let limit = this.farmOverflow.settings.eventsLimit
-
+        let settings = this.farmOverflow.settings
+        
         // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
         if (this.events.length > 0) {
             this.$events.html('')
         }
-        
+
         for (let i = 0; i < this.events.length; i++) {
-            if (this.eventCount >= limit) {
+            if (this.eventCount >= settings.eventsLimit) {
                 break
             }
 
-            this.addEvent(this.events[i], true)
+            let event = this.events[i]
+
+            if (!settings.eventAttack && event.type === 'sendCommand') {
+                continue
+            }
+
+            if (!settings.eventVillageChange && event.type === 'nextVillage') {
+                continue
+            }
+
+            if (!settings.eventPriorityAdd && event.type === 'priorityTargetAdded') {
+                continue
+            }
+
+            if (!settings.eventIgnoredVillage && event.type === 'ignoredVillage') {
+                continue
+            }
+
+            this.addEvent(event, true)
         }
     }
 
