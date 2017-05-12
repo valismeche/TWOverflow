@@ -446,7 +446,7 @@ define('FarmOverflow/Interface', [
                 ))
             }
 
-            options.text = sprintf(options.text, links)
+            options.text = sprintf(this.farmOverflow.lang.events[options.type], links)
         }
 
         let $tr = document.createElement('tr')
@@ -565,8 +565,8 @@ define('FarmOverflow/Interface', [
                         { type: 'village', name: labelFrom, id: from.id },
                         { type: 'village', name: labelTo, id: to.id }
                     ],
-                    text: this.farmOverflow.lang.events.sendCommand,
-                    icon: 'attack-small'
+                    icon: 'attack-small',
+                    type: 'sendCommand'
                 })
             },
             nextVillage: (next) => {
@@ -583,7 +583,7 @@ define('FarmOverflow/Interface', [
                         { type: 'village', name: labelNext, id: next.id }
                     ],
                     icon: 'village',
-                    text: this.farmOverflow.lang.events.nextVillage
+                    type: 'nextVillage'
                 })
             },
             ignoredVillage: (target) => {
@@ -598,7 +598,7 @@ define('FarmOverflow/Interface', [
                         { type: 'village', name: label, id: target.id }
                     ],
                     icon: 'check-negative',
-                    text: this.farmOverflow.lang.events.ignoredVillage
+                    type: 'ignoredVillage'
                 })
             },
             priorityTargetAdded: (target) => {
@@ -613,13 +613,13 @@ define('FarmOverflow/Interface', [
                         { type: 'village', name: label, id: target.id }
                     ],
                     icon: 'parallel-recruiting',
-                    text: this.farmOverflow.lang.events.priorityTargetAdded
+                    type: 'priorityTargetAdded'
                 })
             },
             noPreset: () => {
                 this.addEvent({
                     icon: 'info',
-                    text: this.farmOverflow.lang.events.noPreset
+                    type: 'noPreset'
                 })
 
                 this.$status.html(this.farmOverflow.lang.events.paused)
