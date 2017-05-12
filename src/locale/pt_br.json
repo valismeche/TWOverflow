@@ -54,11 +54,11 @@
         ],
         "presets": [
             "Configurando predefinições",
-            "As predefinição que não estiverem ativadas nas aldeias serão ativadas automaticamente.",
-            "Atenção! Se as predefinições tiverem <strong>oficiais</strong>, eles <strong>serão utilizados</strong>.",
-            "É possível utilizar mais de uma predefinição, <strong>desde que tenham uma mesma identificação</strong>.",
-            "É permitido adicionar uma descrição em conjunto com a identificação da predefinição. A descrição deve estar no final do nome e entre chaves, colchetes, parênteses, aspas ou aspas-simples.",
-            "Exemplo de alguns nome de predefinições:"
+            "O FarmOverflow utiliza as próprias predefinições do jogo configuradas por você, basta você selecionar uma na aba configurações, salvar e iniciar!",
+            "Como o jogo só permite enviar predefinições que estejam ativas na aldeia, o FarmOverflow irá ativa-las automaticamente caso já não estejam.",
+            "Você pode usar mais de uma predefinição, <strong>desde que tenham o mesmo nome</strong> (você pode adicionar uma pequena descrição na frente do nome para identifica-las melhor).",
+            "Veja alguns exemplos para os nomes das predefinições:",
+            "Atenção com os <strong>oficiais</strong>, eles <strong>serão utilizados</strong> caso estejam ativos nas predefinições."
         ],
         "randomBase": [
             "Base do intervalo aleatório",

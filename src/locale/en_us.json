@@ -52,13 +52,13 @@
             "Including targets with a group",
             "As well as ignoring villages, you can include village targets of players. Works only in villages inside the maximum distance range."
         ],
-        "presets": [  
+        "presets": [
             "Setting presets",
-            "The preset that hasn't assigned to the villages will be automatically.",
-            "Attention! If the presets have <strong>officers</strong>, they <strong>will be used</strong>.",
-            "It's possible to have more than one preset, <strong>since it has the same identification</strong>.",
-            "Is permitted include some description along side the identification. The description must be between keys, brackets, parentheses, single or double quotes.",
-            "Exemples of some preset names:"
+            "FarmOverflow uses the game's presets that you set up, you just need to select one on the settings tab, save and run to start the farm!",
+            "As the game only allows send presets that is activated on the village. FarmOverflow will activate it automatically if not already activated.",
+            "You can user more than one preset, <strong>since it have the same name</strong> (you can put a small description at the end to help identification)",
+            "See some name exemples for presets:",
+            "Attention with <strong>officers</strong>, they <strong>will be used</strong> if they are activated on the presets."
         ],
         "randomBase": [  
             "Random interval base",
@@ -83,7 +83,7 @@
             "pause the farm",
             "receive the current status of farm",
             "If you don't receive the message \"OK\" in return, means that the FarmOverflow did not receive the message or the command was invalid.",
-            "Attentin: Works only if you are the only participant in the message!",
+            "Attention: Works only if you are the only participant in the message!",
             "You can use the same message to execute other commands, just reply the message."
         ]
     },
