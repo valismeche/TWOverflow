@@ -22,6 +22,13 @@ The script will be compiled inside `dist/`
 
 ## Changelog
 
+2.2.3
+- [Fixed] "Route not public" error after reconnecting.
+- [Fixed] List of events now are updated when related settings are changed.
+- [Fixed] Event texts are showed accordingly to the selected language.
+- [Fixed] Filtered events don't show anymore on initialization.
+- [Changed] Preset infomations are now more easy to understand.
+
 2.2.2
 - [Fixed] Tools inilize normally when the presetName settings is empty.
 
