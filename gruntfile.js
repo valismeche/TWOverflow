@@ -42,9 +42,9 @@ module.exports = function (grunt) {
                     collapseWhitespace: true
                 },
                 files: {
-                    'dist/temp/window.html': 'src/interface/window.html',
-                    'dist/temp/button.html': 'src/interface/button.html',
-                    'dist/temp/event.html': 'src/interface/event.html'
+                    'dist/temp/farm/window.html': 'src/interface/farm/window.html',
+                    'dist/temp/farm/event.html': 'src/interface/farm/event.html',
+                    'dist/temp/button.html': 'src/interface/button.html'
                 }
             }
         },
@@ -66,9 +66,9 @@ module.exports = function (grunt) {
                             analytics: '<%= pkg.analytics %>',
 
                             // script replaces
-                            htmlWindow: '<%= grunt.file.read("dist/temp/window.html") %>',
+                            htmlFarmWindow: '<%= grunt.file.read("dist/temp/farm/window.html") %>',
+                            htmlFarmEvent: '<%= grunt.file.read("dist/temp/farm/event.html") %>',
                             htmlButton: '<%= grunt.file.read("dist/temp/button.html") %>',
-                            htmlEvent: '<%= grunt.file.read("dist/temp/event.html") %>',
                             cssStyle: '<%= grunt.file.read("dist/temp/style.css") %>',
                             langPt_br: '<%= grunt.file.read("src/locale/pt_br.json") %>',
                             langEn_us: '<%= grunt.file.read("src/locale/en_us.json") %>'

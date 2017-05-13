@@ -147,7 +147,7 @@ define('FarmOverflow/Interface', [
             author: ___author
         }, this.farmOverflow.lang)
 
-        let html = TemplateEngine('___htmlWindow', replaces)
+        let html = TemplateEngine('___htmlFarmWindow', replaces)
 
         this.$window.innerHTML = html
         this.$wrapper.append(this.$window)
@@ -490,7 +490,7 @@ define('FarmOverflow/Interface', [
         let $tr = document.createElement('tr')
 
         $tr.className = 'reduced'
-        $tr.innerHTML = TemplateEngine('___htmlEvent', {
+        $tr.innerHTML = TemplateEngine('___htmlFarmEvent', {
             date: $filter('readableDateFilter')(options.timestamp || $timeHelper.gameTime()),
             icon: options.icon,
             text: options.text
