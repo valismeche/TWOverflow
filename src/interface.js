@@ -1,7 +1,8 @@
 define('FarmOverflow/Interface', [
     'helper/time',
-    'queues/EventQueue'
-], function ($timeHelper, $eventQueue) {
+    'queues/EventQueue',
+    'FarmOverflow/FrontButton'
+], function ($timeHelper, $eventQueue, FrontButton) {
     /**
      * @class
      *
@@ -50,7 +51,7 @@ define('FarmOverflow/Interface', [
             this.closeWindow()
         })
 
-        this.$button.on('click', () => {
+        this.farmButton.click(() => {
             this.openWindow()
         })
 
@@ -69,13 +70,13 @@ define('FarmOverflow/Interface', [
         farmOverflow.on('start', () => {
             this.$start.html(farmOverflow.lang.general.pause)
             this.$start.removeClass('btn-green').addClass('btn-red')
-            this.$button.removeClass('btn-green').addClass('btn-red')
+            this.farmButton.$elem.removeClass('btn-green').addClass('btn-red')
         })
 
         farmOverflow.on('pause', () => {
             this.$start.html(farmOverflow.lang.general.start)
             this.$start.removeClass('btn-red').addClass('btn-green')
-            this.$button.removeClass('btn-red').addClass('btn-green')
+            this.farmButton.$elem.removeClass('btn-red').addClass('btn-green')
         })
 
         return this
@@ -152,15 +153,17 @@ define('FarmOverflow/Interface', [
         this.$window.innerHTML = html
         this.$wrapper.append(this.$window)
 
-        let $buttonWrapper = document.createElement('div')
-        $buttonWrapper.id = 'farmOverflow-interface'
-        $buttonWrapper.innerHTML = '___htmlButton'
-
-        $('#toolbar-left').prepend($buttonWrapper)
+        this.farmButton = new FrontButton({
+            label: 'Farm',
+            classHover: 'farmOverflow-show-status',
+            classBlur: 'farmOverflow-hide-status',
+            hoverText: () => {
+                let translate = this.farmOverflow.lang.events.lastAttack
+                return translate + ': ' + this.$last.html()
+            }
+        })
 
         this.$scrollbar = jsScrollbar(this.$window.querySelector('.win-main'))
-        this.$button = $('.button', $buttonWrapper)
-        this.$quickview = this.$button.find('.quickview')
         this.$settings = $('#farmOverflow-settings')
         this.$save = $('#farmOverflow-save')
         this.$start = $('#farmOverflow-start')
@@ -177,7 +180,6 @@ define('FarmOverflow/Interface', [
 
         this.updateLastAttack()
         this.updateSelectedVillage()
-        this.bindQuickview()
     }
 
     /**
@@ -197,7 +199,7 @@ define('FarmOverflow/Interface', [
         let langLast = this.farmOverflow.lang.events.lastAttack
 
         this.$last.html(readable)
-        this.$quickview.html(langLast + ': ' + readable)
+        this.farmButton.updateHoverText(langLast + ': ' + readable)
     }
 
     /**
@@ -220,32 +222,6 @@ define('FarmOverflow/Interface', [
 
         this.$selected.html('')
         this.$selected.append(village.elem)
-    }
-
-    /**
-     * Mostra informações no botão ao passar o mouse.
-     */
-    Interface.prototype.bindQuickview = function () {
-        let $title = this.$button.find('.text')
-
-        let langLast = this.farmOverflow.lang.events.lastAttack
-
-        this.$button.on('mouseenter', () => {
-            this.$button.addClass('farmOverflow-show-status')
-            this.$button.removeClass('farmOverflow-hide-status')
-
-            this.$quickview.html(`${langLast}: ${this.$last.html()}`)
-            $title.hide()
-            this.$quickview.show()
-        })
-
-        this.$button.on('mouseleave', () => {
-            this.$button.removeClass('farmOverflow-show-status')
-            this.$button.addClass('farmOverflow-hide-status')
-
-            this.$quickview.hide()
-            $title.show()
-        })
     }
 
     /**

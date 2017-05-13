@@ -10,6 +10,7 @@ module.exports = function (grunt) {
                     'src/core.js',
                     'src/commander.js',
                     'src/village.js',
+                    'src/frontbutton.js',
                     'src/interface.js',
                     'src/analytics.js',
                     'src/footer.js',
