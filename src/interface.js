@@ -162,6 +162,7 @@ define('FarmOverflow/Interface', [
         this.$button = $('.button', $buttonWrapper)
         this.$quickview = this.$button.find('.quickview')
         this.$settings = $('#farmOverflow-settings')
+        this.$save = $('#farmOverflow-save')
         this.$start = $('#farmOverflow-start')
         this.$close = $('#farmOverflow-close')
         this.$preset = $('#farmOverflow-preset')
@@ -298,6 +299,7 @@ define('FarmOverflow/Interface', [
             let name = $tab.getAttribute('tab')
 
             let $content = this.$window.querySelector(`.farmOverflow-content-${name}`)
+            let $button = this.$window.querySelector(`.farmOverflow-button-${name}`)
             let $inner = $tab.querySelector('.tab-inner > div')
             let $a = $tab.querySelector('a')
 
@@ -307,12 +309,20 @@ define('FarmOverflow/Interface', [
                 $inner.classList.add('box-border-light')
                 $a.classList.remove('btn-icon', 'btn-orange')
 
+                if ($button) {
+                    $button.style.display = ''
+                }
+
                 this.$scrollbar.content = $content
             } else {
                 $content.style.display = 'none'
                 $tab.classList.remove('tab-active')
                 $inner.classList.remove('box-border-light')
                 $a.classList.add('btn-icon', 'btn-orange')
+
+                if ($button) {
+                    $button.style.display = 'none'
+                }
             }
 
             this.$scrollbar.recalc()
@@ -410,6 +420,12 @@ define('FarmOverflow/Interface', [
                 this.farmOverflow.updateSettings(settings)
                 this.farmOverflow.notif('success', this.farmOverflow.lang.settings.saved)
             }
+
+            return false
+        })
+
+        this.$save.on('click', (event) => {
+            this.$settings.find('input:submit')[0].click()
         })
     }
 

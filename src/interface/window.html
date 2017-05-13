@@ -316,11 +316,7 @@
                         </tr>
                     </tbody>
                 </table>
-
-                <br/>
-                <div class="center">
-                    <input class="btn-orange btn-border" id="farmOverflow-save" type="submit" value="{{ this.settings.save }}"/>
-                </div>
+                <input type="submit" hidden>
             </form>
         </div>
 
@@ -369,7 +365,12 @@
     </div>
     <footer class="win-foot">
         <ul class="list-btn list-center">
-            <li><a class="btn-orange btn-border" id="farmOverflow-start">{{ this.general.start }}</a></li>
+            <li class="farmOverflow-button-settings">
+                <a class="btn-orange btn-border" id="farmOverflow-save">{{ this.settings.save }}</a>
+            </li>
+            <li>
+                <a class="btn-orange btn-border" id="farmOverflow-start">{{ this.general.start }}</a>
+            </li>
         </ul>
     </footer>
 </div>
