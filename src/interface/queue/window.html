@@ -30,9 +30,8 @@
 
         <!-- ADD COMANDO -->
         <div class="box-paper footer has-footer-upper farmOverflow-content-add">
-            <h5 class="twx-section">Em desenvolvimento!</h5>
             <form id="commandoQueue-add">
-                <h5 class="twx-section">Tabela para adicionar um comando</h5>
+                <h5 class="twx-section">Aldeias</h5>
                 <table class="tbl-border-light tbl-striped">
                     <colgroup>
                         <col width="50%">
@@ -44,7 +43,7 @@
                                 <span class="ff-cell-fix">Origem</span>
                             </td>
                             <td>
-                                <input name="origin" type="text" class="textfield-border" required>
+                                <input name="origin" type="text" class="textfield-border" pattern="\\\\d{2,3}\\\\|\\\\d{2,3}" required>
                             </td>
                         </tr>
 
@@ -53,9 +52,29 @@
                                 <span class="ff-cell-fix">Alvo</span>
                             </td>
                             <td>
-                                <input name="target" type="text" class="textfield-border" required>
+                                <input name="target" type="text" class="textfield-border" pattern="\\\\d{2,3}\\\\|\\\\d{2,3}" required>
                             </td>
                         </tr>
+
+                        <tr>
+                            <td>
+                                <span class="ff-cell-fix">Data de chegada</span>
+                            </td>
+                            <td>
+                                <input name="arrive" type="text" class="textfield-border" pattern="\\\\d{1,2}\\\\:\\\\d{1,2}:\\\\d{1,2}(\\\\:\\\\d{1,3})? \\\\d{1,2}\\\\/\\\\d{1,2}\\\\/\\\\d{4}" required>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h5 class="twx-section">Unidades</h5>
+                <table class="tbl-border-light tbl-striped">
+                    <colgroup>
+                        <col width="50%">
+                        <col>
+                    </colgroup>
+                    <tbody class="preset-edit">
+                        {{ this.unitsInput }}
                     </tbody>
                 </table>
             </form>
