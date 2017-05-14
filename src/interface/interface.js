@@ -125,7 +125,7 @@ define('FarmOverflow/Interface', [
             let name = $tab.getAttribute('tab')
 
             let $content = this.$window.querySelector(`.farmOverflow-content-${name}`)
-            let $button = this.$window.querySelector(`.farmOverflow-button-${name}`)
+            let $buttons = this.$window.querySelectorAll(`.farmOverflow-button-${name}`)
             let $inner = $tab.querySelector('.tab-inner > div')
             let $a = $tab.querySelector('a')
 
@@ -135,8 +135,10 @@ define('FarmOverflow/Interface', [
                 $inner.classList.add('box-border-light')
                 $a.classList.remove('btn-icon', 'btn-orange')
 
-                if ($button) {
-                    $button.style.display = ''
+                if ($buttons.length) {
+                    $buttons.forEach(function ($button) {
+                        $button.style.display = ''
+                    })
                 }
 
                 this.$scrollbar.content = $content
@@ -146,8 +148,10 @@ define('FarmOverflow/Interface', [
                 $inner.classList.remove('box-border-light')
                 $a.classList.add('btn-icon', 'btn-orange')
 
-                if ($button) {
-                    $button.style.display = 'none'
+                if ($buttons.length) {
+                    $buttons.forEach(function ($button) {
+                        $button.style.display = 'none'
+                    })
                 }
             }
 
