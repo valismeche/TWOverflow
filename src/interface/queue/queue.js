@@ -32,7 +32,7 @@ define('FarmOverflow/QueueInterface', [
             label: 'Queue'
         })
 
-        let queueInterface = new Interface('commandQueue', {
+        let queueInterface = new Interface('farmOverflow-queue', {
             activeTab: 'add',
             htmlTemplate: '___htmlQueueWindow',
             htmlReplaces: {
