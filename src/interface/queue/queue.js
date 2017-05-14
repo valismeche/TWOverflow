@@ -4,28 +4,51 @@ define('FarmOverflow/QueueInterface', [
 ], function (Interface, FrontButton) {
     return function (commandQueue) {
         function genUnitsInput () {
-            let html = []
+            let wrapper = ['<tr>']
+            let units = $model.getGameData().getOrderedUnitNames()
 
-            html.push('<tr>')
-
-            $model.getGameData().getOrderedUnitNames().forEach((unit, index) => {
+            units.forEach((unit, index) => {
                 if (index % 2 === 0 && index !== 0) {
-                    html.push('</tr><tr>')
+                    wrapper.push('</tr><tr>')
                 }
 
-                let unitLabel = $filter('i18n')(unit, $root.loc.ale, 'unit_names')
+                let name = $filter('i18n')(unit, $root.loc.ale, 'unit_names')
 
-                html.push('<td class="cell-space-left">')
-                html.push(`<span class="float-left icon-bg-black icon-44x44-unit-${unit}"></span>`)
-                html.push('<div class="ff-cell-fix cell-space-44x44">')
-                html.push(`<span class="ng-binding">${unitLabel}</span><input class="unit" type="number">`)
-                html.push('</div>')
-                html.push('</td>')
+                wrapper.push(
+                    '<td class="cell-space-left">',
+                    `<span class="float-left icon-bg-black icon-44x44-unit-${unit}"></span>`,
+                    '<div class="ff-cell-fix cell-space-44x44">',
+                    `<span class="ng-binding">${name}</span><input class="unit" type="number">`,
+                    '</div>',
+                    '</td>'
+                )
             })
 
-            html.push('</tr>')
+            wrapper.push('</tr>')
 
-            return html.join('')
+            return wrapper.join('')
+        }
+
+        function genOfficersInput () {
+            let wrapper = ['<tr>']
+            let officers = $model.getGameData().getOrderedOfficerNames()
+
+            officers.forEach((officer, index) => {
+                let name = $filter('i18n')(officer, $root.loc.ale, 'officer_names')
+
+                wrapper.push(
+                    '<td>',
+                    `<span class="icon-44x44-premium_officer_${officer}"></span>`,
+                    '<label class="size-34x34 btn-orange icon-26x26-checkbox">',
+                    `<input type="checkbox" name="${officer}">`,
+                    '</label>',
+                    '</td>'
+                )
+            })
+
+            wrapper.push('</tr>')
+
+            return wrapper.join('')
         }
 
         let queueButton = new FrontButton({
@@ -39,7 +62,8 @@ define('FarmOverflow/QueueInterface', [
                 version: commandQueue.version,
                 author: ___author,
                 title: 'CommandQueue',
-                unitsInput: genUnitsInput()
+                unitsInput: genUnitsInput(),
+                officersInput: genOfficersInput()
             }
         })
 
