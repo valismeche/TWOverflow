@@ -4,14 +4,12 @@ define('FarmOverflow/Interface', [
     let interfaceInstances = []
 
     function closeAllInstances () {
-        interfaceInstances.map(function (ui) {
+        interfaceInstances.forEach(function (ui) {
             ui.closeWindow()
         })
     }
 
-    $hotkeys.add('esc', () => {
-        closeAllInstances()
-    }, ['INPUT', 'SELECT', 'TEXTAREA'])
+    $hotkeys.add('esc', closeAllInstances, ['INPUT', 'SELECT', 'TEXTAREA'])
 
     /**
      * Injeta o CSS geral de toda UI do FarmOverflow.
@@ -35,8 +33,7 @@ define('FarmOverflow/Interface', [
 
         this.windowId = windowId
         this.activeTab = settings.activeTab
-        this.htmlTemplate = settings.htmlTemplate
-        this.htmlReplaces = settings.htmlReplaces
+        this.settings = settings
 
         this.buildWindow()
         this.bindTabs()
@@ -65,8 +62,8 @@ define('FarmOverflow/Interface', [
         this.$window.className = 'farmOverflow-window twx-window screen left'
 
         this.$window.innerHTML = TemplateEngine(
-            this.htmlTemplate,
-            this.htmlReplaces
+            this.settings.htmlTemplate,
+            this.settings.htmlReplaces
         )
         this.$wrapper.append(this.$window)
 
