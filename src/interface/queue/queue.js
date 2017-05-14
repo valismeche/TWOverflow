@@ -18,7 +18,7 @@ define('FarmOverflow/QueueInterface', [
                     '<td class="cell-space-left">',
                     `<span class="float-left icon-bg-black icon-44x44-unit-${unit}"></span>`,
                     '<div class="ff-cell-fix cell-space-44x44">',
-                    `<span class="ng-binding">${name}</span><input class="unit" type="number">`,
+                    `<span class="ng-binding">${name}</span><input class="unit" type="number" placeholder="0">`,
                     '</div>',
                     '</td>'
                 )
