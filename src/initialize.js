@@ -1,12 +1,14 @@
 require([
-    'FarmOverflow',
-    'FarmOverflow/Interface',
+    'FarmOverflow/Farm',
+    'FarmOverflow/FarmInterface',
+    'FarmOverflow/Queue',
+    'FarmOverflow/QueueInterface',
     'FarmOverflow/analytics'
-], function (FarmOverflow, Interface, analytics) {
-    if (FarmOverflow.initialized) {
+], function (Farm, FarmInterface, Queue, QueueInterface, analytics) {
+    if (Farm.initialized) {
         return false
     } else {
-        FarmOverflow.initialized = true
+        Farm.initialized = true
     }
 
     let initialize = function () {
@@ -17,8 +19,11 @@ require([
 
         Lockr.prefix = `${$player.getId()}_farmOverflow_`
 
-        window.farmOverflow = new FarmOverflow()
-        window.farmOverflowInterface = new Interface(farmOverflow)
+        let farmOverflow = new Farm()
+        FarmInterface(farmOverflow)
+
+        let commandQueue = new Queue()
+        QueueInterface(commandQueue)
     }
 
     let $map = document.querySelector('#map')

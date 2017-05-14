@@ -1,0 +1,81 @@
+<div class="win-content message-list-wrapper searchable-list ng-scope">
+    <header class="win-head">
+        <h2 class="ng-binding">{{ this.title }} <span class="small">v{{ this.version }}</span></h2>
+        <ul class="list-btn">
+            <li><a href="#" class="farmOverflow-close size-34x34 btn-red icon-26x26-close"></a></li>
+        </ul>
+    </header>
+
+    <div class="win-main">
+        <!-- ABAS -->
+        <div class="tabs tabs-bg">
+            <div class="tabs-three-col">
+                <div class="tab" tab="add">
+                    <div class="tab-inner">
+                        <div><a href="#" class="btn-icon btn-orange">Adicionar comando</a></div>
+                    </div>
+                </div>
+                <div class="tab" tab="queue">
+                    <div class="tab-inner">
+                        <div><a href="#" class="btn-icon btn-orange">Comandos em espera</a></div>
+                    </div>
+                </div>
+                <div class="tab" tab="log">
+                    <div class="tab-inner">
+                        <div><a href="#" class="btn-icon btn-orange">Registros</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADD COMANDO -->
+        <div class="box-paper footer has-footer-upper farmOverflow-content-add">
+            <h5 class="twx-section">Em desenvolvimento!</h5>
+            <form id="commandoQueue-add">
+                <h5 class="twx-section">Tabela para adicionar um comando</h5>
+                <table class="tbl-border-light tbl-striped">
+                    <colgroup>
+                        <col width="50%">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="ff-cell-fix">Origem</span>
+                            </td>
+                            <td>
+                                <input name="origin" type="text" class="textfield-border" required>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <span class="ff-cell-fix">Alvo</span>
+                            </td>
+                            <td>
+                                <input name="target" type="text" class="textfield-border" required>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+
+        <!-- LISTA DE COMANDOS -->
+        <div class="box-paper footer has-footer-upper farmOverflow-content-queue">
+            <h5 class="twx-section">Em desenvolvimento!</h5>
+        </div>
+
+        <!-- EVENTOS -->
+        <div class="box-paper footer has-footer-upper farmOverflow-content-log">
+            <h5 class="twx-section">Em desenvolvimento!</h5>
+        </div>
+    </div>
+    <footer class="win-foot">
+        <ul class="list-btn list-center">
+            <li>
+                <a class="btn-green btn-border" id="commandoQueue-activate">Ativar/desativar</a>
+            </li>
+        </ul>
+    </footer>
+</div>

@@ -1,4 +1,4 @@
-define('FarmOverflow', [
+define('FarmOverflow/Farm', [
     'FarmOverflow/Commander',
     'FarmOverflow/analytics',
     'FarmOverflow/Village',

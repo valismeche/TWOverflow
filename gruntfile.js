@@ -7,11 +7,14 @@ module.exports = function (grunt) {
                     'src/libs/lockr.js',
                     'src/header.js',
                     'src/utils.js',
-                    'src/core.js',
-                    'src/commander.js',
-                    'src/village.js',
-                    'src/frontbutton.js',
-                    'src/interface.js',
+                    'src/farm/farm.js',
+                    'src/farm/commander.js',
+                    'src/farm/village.js',
+                    'src/queue/queue.js',
+                    'src/interface/interface.js',
+                    'src/interface/button.js',
+                    'src/interface/farm/farm.js',
+                    'src/interface/queue/queue.js',
                     'src/analytics.js',
                     'src/footer.js',
                     'src/initialize.js'
@@ -43,9 +46,10 @@ module.exports = function (grunt) {
                     collapseWhitespace: true
                 },
                 files: {
+                    'dist/temp/button.html': 'src/interface/button.html',
                     'dist/temp/farm/window.html': 'src/interface/farm/window.html',
                     'dist/temp/farm/event.html': 'src/interface/farm/event.html',
-                    'dist/temp/button.html': 'src/interface/button.html'
+                    'dist/temp/queue/window.html': 'src/interface/queue/window.html'
                 }
             }
         },
@@ -69,6 +73,7 @@ module.exports = function (grunt) {
                             // script replaces
                             htmlFarmWindow: '<%= grunt.file.read("dist/temp/farm/window.html") %>',
                             htmlFarmEvent: '<%= grunt.file.read("dist/temp/farm/event.html") %>',
+                            htmlQueueWindow: '<%= grunt.file.read("dist/temp/queue/window.html") %>',
                             htmlButton: '<%= grunt.file.read("dist/temp/button.html") %>',
                             cssStyle: '<%= grunt.file.read("dist/temp/style.css") %>',
                             langPt_br: '<%= grunt.file.read("src/locale/pt_br.json") %>',

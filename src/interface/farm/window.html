@@ -2,7 +2,7 @@
     <header class="win-head">
         <h2 class="ng-binding">{{ this.title }} <span class="small">v{{ this.version }}</span></h2>
         <ul class="list-btn">
-            <li><a href="#" id="farmOverflow-close" class="size-34x34 btn-red icon-26x26-close"></a></li>
+            <li><a href="#" class="farmOverflow-close size-34x34 btn-red icon-26x26-close"></a></li>
         </ul>
     </header>
 
@@ -95,7 +95,7 @@
 
         <!-- CONFIGURAÇÕES -->
         <div class="box-paper footer has-footer-upper farmOverflow-content-settings">
-            <form id="farmOverflow-settings">
+            <form class="settings">
                 <h5 class="twx-section">{{ this.settings.presets }}</h5>
                 <table class="tbl-border-light tbl-striped">
                     <colgroup>
@@ -109,7 +109,7 @@
                                 <span class="ff-cell-fix">{{ this.settings.presetName }}</span>
                             </td>
                             <td>
-                                <select name="presetName" id="farmOverflow-preset"></select>
+                                <select name="presetName" class="preset"></select>
                             </td>
                         </tr>
                     </tbody>
@@ -128,7 +128,7 @@
                                 <span class="ff-cell-fix">{{ this.settings.groupIgnore }}</span>
                             </td>
                             <td>
-                                <select name="groupIgnore" id="farmOverflow-ignore"></select>
+                                <select name="groupIgnore" class="ignore"></select>
                             </td>
                         </tr>
                         <tr>
@@ -137,7 +137,7 @@
                                 <span class="ff-cell-fix">{{ this.settings.groupInclude }}</span>
                             </td>
                             <td>
-                                <select name="groupInclude" id="farmOverflow-include"></select>
+                                <select name="groupInclude" class="include"></select>
                             </td>
                         </tr>
                         <tr>
@@ -146,7 +146,7 @@
                                 <span class="ff-cell-fix">{{ this.settings.groupOnly }}</span>
                             </td>
                             <td>
-                                <select name="groupOnly" id="farmOverflow-only"></select>
+                                <select name="groupOnly" class="only"></select>
                             </td>
                         </tr>
                         <tr>
@@ -308,7 +308,7 @@
                                 <span class="ff-cell-fix">{{ this.settings.language }}</span>
                             </td>
                             <td>
-                                <select name="language" id="farmOverflow-language">
+                                <select name="language">
                                     <option value="en_us">English</option>
                                     <option value="pt_br">Português</option>
                                 </select>
@@ -331,15 +331,15 @@
                     </colgroup>
                     <tbody>
                         <tr class="list-item">
-                            <td id="farmOverflow-status" colspan="2" class="cell-center">{{ this.events.paused }}</td>
+                            <td class="status" colspan="2" class="cell-center">{{ this.events.paused }}</td>
                         </tr>
                         <tr class="reduced">
                             <td>{{ this.events.selectedVillage }}</td>
-                            <td id="farmOverflow-selected"></td>
+                            <td class="selected"></td>
                         </tr>
                         <tr class="reduced">
                             <td>{{ this.events.lastAttack }}</td>
-                            <td id="farmOverflow-last">{{ this.general.none }}</td>
+                            <td class="last">{{ this.general.none }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -350,7 +350,7 @@
                         <col width="135px">
                         <col width="*">
                     </colgroup>
-                    <tbody id="farmOverflow-events">
+                    <tbody class="events">
                         <tr class="reduced">
                             <td class="tribe-event-detail" colspan="2">
                                 <div class="text-tribe-news">
@@ -366,10 +366,10 @@
     <footer class="win-foot">
         <ul class="list-btn list-center">
             <li class="farmOverflow-button-settings">
-                <a class="btn-orange btn-border" id="farmOverflow-save">{{ this.settings.save }}</a>
+                <a class="btn-orange btn-border" class="save">{{ this.settings.save }}</a>
             </li>
             <li>
-                <a class="btn-orange btn-border" id="farmOverflow-start">{{ this.general.start }}</a>
+                <a class="btn-green btn-border" class="start">{{ this.general.start }}</a>
             </li>
         </ul>
     </footer>
