@@ -22,9 +22,10 @@ let $wms = injector.get('windowManagerService')
 let $hotkeys = injector.get('hotkeys')
 let $armyService = injector.get('armyService')
 let $villageService = injector.get('villageService')
-
 let $presetList = $model.getPresetList()
 
 // Limpa qualquer text entre (, [, {, " & ' do nome dos presets
 // para serem idetificados com o mesmo nome.
 let rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
+
+let inputCheckedClass = 'icon-26x26-checkbox-checked'

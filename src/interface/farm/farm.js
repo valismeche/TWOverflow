@@ -24,8 +24,6 @@ define('FarmOverflow/FarmInterface', [
          * Listeners das para alteração das configurações do FarmOverflow.
          */
         function bindSettings () {
-            let checkedClass = 'icon-26x26-checkbox-checked'
-
             // Insere os valores nas entradas
             eachSetting(($input) => {
                 let type = $input[0].type
@@ -42,11 +40,11 @@ define('FarmOverflow/FarmInterface', [
                 if (type === 'checkbox') {
                     if (farmOverflow.settings[name]) {
                         $input[0].checked = true
-                        $input.parent().addClass(checkedClass)
+                        $input.parent().addClass(inputCheckedClass)
                     }
 
                     $input.on('click', () => {
-                        $input.parent().toggleClass(checkedClass)
+                        $input.parent().toggleClass(inputCheckedClass)
                     })
 
                     return
