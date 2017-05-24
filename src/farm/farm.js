@@ -286,11 +286,19 @@ define('FarmOverflow/Farm', [
      */
     FarmOverflow.prototype.start = function () {
         if (!this.presets.length) {
-            return this.notif('error', this.lang.events.presetFirst)
+            if (this.notifsEnabled) {
+                emitNotif('error', this.lang.events.presetFirst)
+            }
+
+            return false
         }
 
         if (!this.village) {
-            return this.notif('error', this.lang.events.noSelectedVillage)
+            if (this.notifsEnabled) {
+                emitNotif('error', this.lang.events.noSelectedVillage)
+            }
+            
+            return false
         }
 
         let now = $timeHelper.gameTime()
@@ -309,7 +317,9 @@ define('FarmOverflow/Farm', [
         this.commander = new Commander(this)
         this.commander.start()
 
-        this.notif('success', this.lang.general.started)
+        if (this.notifsEnabled) {
+            emitNotif('success', this.lang.general.started)
+        }
 
         analytics.start()
 
@@ -323,8 +333,10 @@ define('FarmOverflow/Farm', [
      */
     FarmOverflow.prototype.stop = function () {
         this.commander.stop()
-
-        this.notif('success', this.lang.general.paused)
+        
+        if (this.notifsEnabled) {
+            emitNotif('success', this.lang.general.paused)
+        }
 
         analytics.pause()
 
@@ -340,26 +352,6 @@ define('FarmOverflow/Farm', [
         } else {
             this.start()
         }
-    }
-
-    /**
-     * Emite notificação nativa do jogo.
-     *
-     * @param {String} type - success || error
-     * @param {String} message - Texto a ser exibido
-     */
-    FarmOverflow.prototype.notif = function (type, message) {
-        if (!this.notifsEnabled) {
-            return false
-        }
-
-        let eventType = type === 'success'
-            ? $eventType.MESSAGE_SUCCESS
-            : $eventType.MESSAGE_ERROR
-
-        $root.$broadcast(eventType, {
-            message: message
-        })
     }
 
     /**

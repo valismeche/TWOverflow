@@ -145,3 +145,19 @@ function createButtonLink (type, text, id) {
         elem: elem
     }
 }
+
+/**
+ * Emite notificação nativa do jogo.
+ *
+ * @param {String} type - success || error
+ * @param {String} message - Texto a ser exibido
+ */
+function emitNotif (type, message) {
+    let eventType = type === 'success'
+        ? $eventType.MESSAGE_SUCCESS
+        : $eventType.MESSAGE_ERROR
+
+    $root.$broadcast(eventType, {
+        message: message
+    })
+}

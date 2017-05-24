@@ -73,7 +73,10 @@ define('FarmOverflow/FarmInterface', [
                     })
 
                     farmOverflow.updateSettings(settings)
-                    farmOverflow.notif('success', farmOverflow.lang.settings.saved)
+
+                    if (farmOverflow.notifsEnabled) {
+                        emitNotif('success', farmOverflow.lang.settings.saved)
+                    }
                 }
 
                 return false
