@@ -2,7 +2,11 @@ define('FarmOverflow/QueueInterface', [
     'FarmOverflow/Interface',
     'FarmOverflow/FrontButton',
     'helper/time'
-], function (Interface, FrontButton, $timeHelper) {
+], function (
+    Interface,
+    FrontButton,
+    $timeHelper
+) {
     return function (commandQueue) {
         let unitNames = $model.getGameData().getOrderedUnitNames()
         let officerNames = $model.getGameData().getOrderedOfficerNames()
@@ -118,8 +122,6 @@ define('FarmOverflow/QueueInterface', [
         let $arrive = $w.find('input.arrive')
         let $officers = $w.find('table.officers input')
 
-        console.log($officers)
-
         let inputsMap = ['origin', 'target', 'arrive']
             .concat($model.getGameData().getOrderedUnitNames())
             .concat($model.getGameData().getOrderedOfficerNames())
@@ -141,8 +143,6 @@ define('FarmOverflow/QueueInterface', [
                     let $input = $addForm.find(`[name="${name}"]`)
                     let value = $input.val()
 
-                    console.log()
-
                     if ($input[0].type === 'number') {
                         value = parseInt(value, 10)
                     }
@@ -163,10 +163,14 @@ define('FarmOverflow/QueueInterface', [
                 })
 
                 if (isEmptyUnits(command.units)) {
-                    return alert('You need to specify some units.')
+                    return emitNotif('error', 'You need to specify some units.')
                 }
 
-                console.log('ADD COMMAND:', command)
+                if (!commandQueue.checkArriveTime(command.arrive)) {
+                    return emitNotif('error', 'This command should have already exited.')
+                }
+
+                commandQueue.add(command)
             })
 
             $officers.on('click', function () {
