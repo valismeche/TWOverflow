@@ -460,28 +460,28 @@ define('FarmOverflow/FarmInterface', [
             }, farmOverflow.lang)
         })
 
-        let $w = $(farmInterface.$window)
-
-        let $settings = $w.find('.settings')
-        let $save = $w.find('.save')
-        let $start = $w.find('.start')
-        let $preset = $w.find('.preset')
-        let $selected = $w.find('.selected')
-        let $events = $w.find('.events')
-        let $status = $w.find('.status')
-        let $last = $w.find('.last')
-        let $groups = {
-            groupIgnore: $w.find('.ignore'),
-            groupInclude: $w.find('.include'),
-            groupOnly: $w.find('.only')
-        }
-
         let farmButton = new FrontButton({
             label: 'Farm',
             classHover: 'farmOverflow-show-status',
             classBlur: 'farmOverflow-hide-status',
             hoverText: updateQuickview
         })
+
+        let $window = $(farmInterface.$window)
+
+        let $settings = $window.find('.settings')
+        let $save = $window.find('.save')
+        let $start = $window.find('.start')
+        let $preset = $window.find('.preset')
+        let $selected = $window.find('.selected')
+        let $events = $window.find('.events')
+        let $status = $window.find('.status')
+        let $last = $window.find('.last')
+        let $groups = {
+            groupIgnore: $window.find('.ignore'),
+            groupInclude: $window.find('.include'),
+            groupOnly: $window.find('.only')
+        }
 
         let events = Lockr.get('lastEvents', [], true)
         let visibleEventCount = 1

@@ -154,25 +154,6 @@ define('FarmOverflow/QueueInterface', [
             })
         }
 
-        let $w = $(queueInterface.$window)
-        let $addForm = $w.find('form.addForm')
-        let $addAttack = $w.find('a.attack')
-        let $addSupport = $w.find('a.support')
-        let $switch = $w.find('a.switch')
-        let $addSelected = $w.find('a.addSelected')
-        let $addCurrentDate = $w.find('a.addCurrentDate')
-        let $origin = $w.find('input.origin')
-        let $arrive = $w.find('input.arrive')
-        let $officers = $w.find('table.officers input')
-
-        let inputsMap = ['origin', 'target', 'arrive']
-            .concat($model.getGameData().getOrderedUnitNames())
-            .concat($model.getGameData().getOrderedOfficerNames())
-
-        let queueButton = new FrontButton({
-            label: 'Queue'
-        })
-
         let queueInterface = new Interface('farmOverflow-queue', {
             activeTab: 'add',
             htmlTemplate: '___htmlQueueWindow',
@@ -184,6 +165,26 @@ define('FarmOverflow/QueueInterface', [
                 officersInput: genOfficersInput()
             }
         })
+
+        let queueButton = new FrontButton({
+            label: 'Queue'
+        })
+
+        let $window = $(queueInterface.$window)
+
+        let $addForm = $window.find('form.addForm')
+        let $addAttack = $window.find('a.attack')
+        let $addSupport = $window.find('a.support')
+        let $switch = $window.find('a.switch')
+        let $addSelected = $window.find('a.addSelected')
+        let $addCurrentDate = $window.find('a.addCurrentDate')
+        let $origin = $window.find('input.origin')
+        let $arrive = $window.find('input.arrive')
+        let $officers = $window.find('table.officers input')
+
+        let inputsMap = ['origin', 'target', 'arrive']
+            .concat($model.getGameData().getOrderedUnitNames())
+            .concat($model.getGameData().getOrderedOfficerNames())
 
         bindAdd()
 
