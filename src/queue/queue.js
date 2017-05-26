@@ -13,7 +13,7 @@ define('FarmOverflow/Queue', [
     let index = 0
 
     function joinTroopsLog (units) {
-        var troops = []
+        let troops = []
 
         for (let unit in units) {
             troops.push(`${unit}: ${units[unit]}`)
@@ -23,9 +23,9 @@ define('FarmOverflow/Queue', [
     }
 
     function joinOfficersLog (officers) {
-        var string = []
+        let string = []
 
-        for (var officer in officers) {
+        for (let officer in officers) {
             string.push(officer)
         }
 
@@ -51,7 +51,7 @@ define('FarmOverflow/Queue', [
     }
 
     function checkUnits (units) {
-        for (var unit in units) {
+        for (let unit in units) {
             if (units[unit] == 0) {
                 return false
             }
@@ -75,12 +75,12 @@ define('FarmOverflow/Queue', [
     }
 
     function getTravelTime (origin, target, units, type, officers) {
-        var army = {
+        let army = {
             units: units,
             officers: officers
         }
 
-        var travelTime = $armyService.calculateTravelTime(army, {
+        let travelTime = $armyService.calculateTravelTime(army, {
             barbarian: false,
             ownTribe: false,
             officers: officers,
@@ -155,9 +155,9 @@ define('FarmOverflow/Queue', [
             return errorCallback('Unit amount can not be zero.')
         }
 
-        var arriveTime = new Date(command.arrive).getTime()
-        var travelTime = getTravelTime(command.origin, command.target, command.units, command.type)
-        var sendTime = arriveTime - travelTime
+        let arriveTime = new Date(command.arrive).getTime()
+        let travelTime = getTravelTime(command.origin, command.target, command.units, command.type)
+        let sendTime = arriveTime - travelTime
 
         if (!checkArriveTime(sendTime)) {
             return errorCallback('This command should have already exited.')
@@ -182,23 +182,23 @@ define('FarmOverflow/Queue', [
     }
 
     function show (_id) {
-        var gameTime = $timeHelper.gameTime()
+        let gameTime = $timeHelper.gameTime()
 
-        // var commandsTable = {}
+        // let commandsTable = {}
 
-        for (var i = 0; i < queue.length; i++) {
-            var cmd = queue[i]
+        for (let i = 0; i < queue.length; i++) {
+            let cmd = queue[i]
 
             if (_id && _id != cmd.id) {
                 continue
             }
             
-            var troops = joinTroopsLog(cmd.units)
-            var officers = joinOfficersLog(cmd.officers)
-            var $travelTime = readableMillisecondsFilter(cmd.travelTime)
-            var $sendTime = readableDateFilter(cmd.sendTime)
-            var $arrive = readableDateFilter(cmd.sendTime + cmd.travelTime)
-            var $remain = readableMillisecondsFilter(cmd.sendTime - gameTime)
+            let troops = joinTroopsLog(cmd.units)
+            let officers = joinOfficersLog(cmd.officers)
+            let $travelTime = readableMillisecondsFilter(cmd.travelTime)
+            let $sendTime = readableDateFilter(cmd.sendTime)
+            let $arrive = readableDateFilter(cmd.sendTime + cmd.travelTime)
+            let $remain = readableMillisecondsFilter(cmd.sendTime - gameTime)
 
             console.log(`%c============= planeador.show #${cmd.id} =============`, 'background:#ccc')
             console.log(`Identificação:  ${cmd.id}`)
@@ -231,7 +231,7 @@ define('FarmOverflow/Queue', [
     function remove (id) {
         console.log('%c============= planeador.remove =============', 'background:#ccc')
 
-        for (var i = 0; i < queue.length; i++) {
+        for (let i = 0; i < queue.length; i++) {
             if (queue[i].id == id) {
                 console.log('ataque #' + id + ' removido!')
                 
@@ -245,9 +245,9 @@ define('FarmOverflow/Queue', [
 
     function listener () {
         setInterval(function () {
-            var gameTime = $timeHelper.gameTime()
-            var command
-            var i
+            let gameTime = $timeHelper.gameTime()
+            let command
+            let i
 
             if (!queue.length) {
                 return false
