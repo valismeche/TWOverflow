@@ -199,7 +199,7 @@ define('FarmOverflow/Queue', [
             let success = 0
 
             updateVillageData(command, 'origin', function (villageData) {
-                if (!villageData) {
+                if (!villageData.hasOwnProperty('id')) {
                     reject('Origin village does not exist.')
                 } else if (++success === 2) {
                     resolve()
@@ -207,7 +207,7 @@ define('FarmOverflow/Queue', [
             })
 
             updateVillageData(command, 'target', function (villageData) {
-                if (!villageData) {
+                if (!villageData.hasOwnProperty('id')) {
                     reject('Target village does not exist.')
                 } else if (++success === 2) {
                     resolve()
