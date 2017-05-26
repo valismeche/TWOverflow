@@ -51,8 +51,8 @@ define('FarmOverflow/Queue', [
     }
 
     function checkUnits (units) {
-        for (var unit in command.units) {
-            if (command.units[unit] == 0) {
+        for (var unit in units) {
+            if (units[unit] == 0) {
                 return false
             }
         }
@@ -174,11 +174,10 @@ define('FarmOverflow/Queue', [
         command.origin = { coords: command.origin, name: null, id: null }
         command.target = { coords: command.target, name: null, id: null }
 
-        queue.push(command)
-
         updateVillageData(command, 'origin')
         updateVillageData(command, 'target')
 
+        queue.push(command)
         orderQueue()
     }
 
