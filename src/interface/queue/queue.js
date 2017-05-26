@@ -1,13 +1,15 @@
 define('FarmOverflow/QueueInterface', [
+    'FarmOverflow/Queue',
     'FarmOverflow/Interface',
     'FarmOverflow/FrontButton',
     'helper/time'
 ], function (
+    Queue,
     Interface,
     FrontButton,
     $timeHelper
 ) {
-    return function (commandQueue) {
+    return function () {
         let unitNames = $model.getGameData().getOrderedUnitNames()
         let officerNames = $model.getGameData().getOrderedOfficerNames()
 
@@ -122,7 +124,7 @@ define('FarmOverflow/QueueInterface', [
 
                 console.log('command', command)
 
-                commandQueue.add(command)
+                Queue.add(command)
             })
 
             $officers.on('click', function () {
@@ -154,7 +156,7 @@ define('FarmOverflow/QueueInterface', [
             activeTab: 'add',
             htmlTemplate: '___htmlQueueWindow',
             htmlReplaces: {
-                version: commandQueue.version,
+                version: Queue.version,
                 author: ___author,
                 title: 'CommandQueue',
                 unitsInput: genUnitsInput(),
@@ -188,11 +190,11 @@ define('FarmOverflow/QueueInterface', [
             queueInterface.openWindow()
         })
 
-        commandQueue.onSuccess(function (msg) {
+        Queue.onSuccess(function (msg) {
             emitNotif('success', msg)
         })
 
-        commandQueue.onError(function (error) {
+        Queue.onError(function (error) {
             emitNotif('error', error)
         })
     }
