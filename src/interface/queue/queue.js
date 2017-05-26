@@ -120,10 +120,6 @@ define('FarmOverflow/QueueInterface', [
                     command[name] = value
                 })
 
-                commandQueue.onError(function (error) {
-                    emitNotif('error', error)
-                })
-
                 console.log('command', command)
 
                 commandQueue.add(command)
@@ -194,6 +190,10 @@ define('FarmOverflow/QueueInterface', [
 
         commandQueue.onSuccess(function (msg) {
             emitNotif('success', msg)
+        })
+
+        commandQueue.onError(function (error) {
+            emitNotif('error', error)
         })
     }
 })
