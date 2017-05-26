@@ -61,6 +61,20 @@ define('FarmOverflow/Queue', [
         return false
     }
 
+    function cleanZeroUnits (units) {
+        let cleanUnits = {}
+
+        for (let unit in units) {
+            let amount = parseInt(units[unit], 10)
+
+            if (amount > 0) {
+                cleanUnits[unit] = amount
+            }
+        }
+
+        return cleanUnits
+    }
+
     function checkArriveTime (sendTime) {
         if ($timeHelper.gameTime() > sendTime) {
             return false
@@ -159,6 +173,8 @@ define('FarmOverflow/Queue', [
         if (!checkUnits(command.units)) {
             return errorCallback('You need to specify an amount of units.')
         }
+
+        command.units = cleanZeroUnits(command.units)
 
         let arriveTime = new Date(command.arrive).getTime()
         let travelTime = getTravelTime(command.origin, command.target, command.units, command.type)
