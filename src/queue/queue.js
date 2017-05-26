@@ -33,7 +33,7 @@ define('FarmOverflow/Queue', [
     }
 
     function updateVillageData (command, prop) {
-        let coords = command.coords.split('|').map(function (coord) {
+        let coords = command[prop].coords.split('|').map(function (coord) {
             return parseInt(coord, 10)
         })
 
