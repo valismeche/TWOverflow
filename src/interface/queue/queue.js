@@ -191,5 +191,9 @@ define('FarmOverflow/QueueInterface', [
         queueButton.click(() => {
             queueInterface.openWindow()
         })
+
+        commandQueue.onSuccess(function (msg) {
+            emitNotif('success', msg)
+        })
     }
 })

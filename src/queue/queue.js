@@ -4,6 +4,7 @@ define('FarmOverflow/Queue', [
     'helper/math'
 ], function (UNITS, $timeHelper, $math) {
     let errorCallback = function () {}
+    let successCallback = function () {}
 
     let i18n = $filter('i18n')
     let readableMillisecondsFilter = $filter('readableMillisecondsFilter')
@@ -32,7 +33,7 @@ define('FarmOverflow/Queue', [
         return string.join(', ')
     }
 
-    function updateVillageData (command, prop) {
+    function updateVillageData (command, prop, _callback) {
         let coords = command[prop].coords.split('|').map(function (coord) {
             return parseInt(coord, 10)
         })
@@ -43,6 +44,8 @@ define('FarmOverflow/Queue', [
         }, function (villageData) {
             command[prop].id = villageData.id
             command[prop].name = villageData.name
+
+            _callback && _callback(villageData)
         })
     }
 
@@ -137,6 +140,10 @@ define('FarmOverflow/Queue', [
         errorCallback = fn
     }
 
+    function onSuccess (fn) {
+        successCallback = fn
+    }
+
     // function add (origin, target, units, arrive, type, officers) {
     function add (command) {
         if (!command.origin || !command.target) {
@@ -174,11 +181,36 @@ define('FarmOverflow/Queue', [
         command.origin = { coords: command.origin, name: null, id: null }
         command.target = { coords: command.target, name: null, id: null }
 
-        updateVillageData(command, 'origin')
-        updateVillageData(command, 'target')
+        let checkVillages = new Promise(function (resolve, reject) {
+            let success = 0
 
-        queue.push(command)
-        orderQueue()
+            updateVillageData(command, 'origin', function (villageData) {
+                if (!villageData) {
+                    reject('Origin village does not exist.')
+                } else if (++success === 2) {
+                    resolve()
+                }
+            })
+
+            updateVillageData(command, 'target', function (villageData) {
+                if (!villageData) {
+                    reject('Target village does not exist.')
+                } else if (++success === 2) {
+                    resolve()
+                }
+            })
+        })
+
+        checkVillages.then(function () {
+            queue.push(command)
+            orderQueue()
+
+            successCallback('Command added.')
+        })
+
+        checkVillages.catch(function (error) {
+            errorCallback(error)
+        })
     }
 
     function show (_id) {
@@ -274,6 +306,7 @@ define('FarmOverflow/Queue', [
         add: add,
         show: show,
         remove: remove,
-        onError: onError
+        onError: onError,
+        onSuccess: onSuccess
     }
 })
