@@ -22,6 +22,7 @@ let $wms = injector.get('windowManagerService')
 let $hotkeys = injector.get('hotkeys')
 let $armyService = injector.get('armyService')
 let $villageService = injector.get('villageService')
+let $autoCompleteService = injector.get('autoCompleteService')
 let $presetList = $model.getPresetList()
 
 // Limpa qualquer text entre (, [, {, " & ' do nome dos presets

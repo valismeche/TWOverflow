@@ -21,9 +21,7 @@ require([
 
         let farmOverflow = new Farm()
         FarmInterface(farmOverflow)
-
-        let commandQueue = new Queue()
-        QueueInterface(commandQueue)
+        QueueInterface(Queue)
     }
 
     let $map = document.querySelector('#map')

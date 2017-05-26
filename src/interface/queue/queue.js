@@ -66,16 +66,6 @@ define('FarmOverflow/QueueInterface', [
             return officerNames.includes(value)
         }
 
-        function isEmptyUnits (units) {
-            for (let unit in units) {
-                if (units[unit] > 0) {
-                    return false
-                }
-            }
-
-            return true
-        }
-
         function zeroPad (number) {
             return number <= 9 ? ('0' + number) : number;
         }
@@ -91,42 +81,9 @@ define('FarmOverflow/QueueInterface', [
             return `${hour}:${min}:${sec} ${month}/${day}/${year}`
         }
 
-        let queueButton = new FrontButton({
-            label: 'Queue'
-        })
-
-        let queueInterface = new Interface('farmOverflow-queue', {
-            activeTab: 'add',
-            htmlTemplate: '___htmlQueueWindow',
-            htmlReplaces: {
-                version: commandQueue.version,
-                author: ___author,
-                title: 'CommandQueue',
-                unitsInput: genUnitsInput(),
-                officersInput: genOfficersInput()
-            }
-        })
-
-        queueButton.click(() => {
-            queueInterface.openWindow()
-        })
-
-        let $w = $(queueInterface.$window)
-        let $addForm = $w.find('form.addForm')
-        let $addAttack = $w.find('a.attack')
-        let $addSupport = $w.find('a.support')
-        let $switch = $w.find('a.switch')
-        let $addSelected = $w.find('a.addSelected')
-        let $addCurrentDate = $w.find('a.addCurrentDate')
-        let $origin = $w.find('input.origin')
-        let $arrive = $w.find('input.arrive')
-        let $officers = $w.find('table.officers input')
-
-        let inputsMap = ['origin', 'target', 'arrive']
-            .concat($model.getGameData().getOrderedUnitNames())
-            .concat($model.getGameData().getOrderedOfficerNames())
-
         function bindAdd () {
+            let commandType = 'attack'
+
             $addForm.on('submit', (event) => {
                 event.preventDefault()
 
@@ -136,7 +93,8 @@ define('FarmOverflow/QueueInterface', [
 
                 let command = {
                     units: {},
-                    officers: {}
+                    officers: {},
+                    type: commandType
                 }
 
                 inputsMap.forEach((name) => {
@@ -162,13 +120,11 @@ define('FarmOverflow/QueueInterface', [
                     command[name] = value
                 })
 
-                if (isEmptyUnits(command.units)) {
-                    return emitNotif('error', 'You need to specify some units.')
-                }
+                commandQueue.onError(function (error) {
+                    emitNotif('error', error)
+                })
 
-                if (!commandQueue.checkArriveTime(command.arrive)) {
-                    return emitNotif('error', 'This command should have already exited.')
-                }
+                console.log('command', command)
 
                 commandQueue.add(command)
             })
@@ -178,22 +134,61 @@ define('FarmOverflow/QueueInterface', [
             })
 
             $addAttack.on('click', (event) => {
+                commandType = 'attack'
+                $addForm.find('input:submit')[0].click()
+            })
+
+            $addSupport.on('click', (event) => {
+                commandType = 'support'
                 $addForm.find('input:submit')[0].click()
             })
 
             $addSelected.on('click', () => {
                 let pos = $model.getSelectedVillage().getPosition()
                 $origin.val(pos.x + '|' + pos.y)
-                return false
             })
 
             $addCurrentDate.on('click', () => {
                 let now = dateToString($timeHelper.gameDate())
                 $arrive.val(now)
-                return false
             })
         }
 
+        let $w = $(queueInterface.$window)
+        let $addForm = $w.find('form.addForm')
+        let $addAttack = $w.find('a.attack')
+        let $addSupport = $w.find('a.support')
+        let $switch = $w.find('a.switch')
+        let $addSelected = $w.find('a.addSelected')
+        let $addCurrentDate = $w.find('a.addCurrentDate')
+        let $origin = $w.find('input.origin')
+        let $arrive = $w.find('input.arrive')
+        let $officers = $w.find('table.officers input')
+
+        let inputsMap = ['origin', 'target', 'arrive']
+            .concat($model.getGameData().getOrderedUnitNames())
+            .concat($model.getGameData().getOrderedOfficerNames())
+
+        let queueButton = new FrontButton({
+            label: 'Queue'
+        })
+
+        let queueInterface = new Interface('farmOverflow-queue', {
+            activeTab: 'add',
+            htmlTemplate: '___htmlQueueWindow',
+            htmlReplaces: {
+                version: commandQueue.version,
+                author: ___author,
+                title: 'CommandQueue',
+                unitsInput: genUnitsInput(),
+                officersInput: genOfficersInput()
+            }
+        })
+
         bindAdd()
+
+        queueButton.click(() => {
+            queueInterface.openWindow()
+        })
     }
 })
