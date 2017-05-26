@@ -54,6 +54,10 @@ define('FarmOverflow/Queue', [
     }
 
     function checkUnits (units) {
+        if (!Object.keys(units).length) {
+            return false
+        }
+
         for (let unit in units) {
             if (units[unit] == 0) {
                 return false
@@ -159,7 +163,7 @@ define('FarmOverflow/Queue', [
         }
 
         if (!checkUnits(command.units)) {
-            return errorCallback('Unit amount can not be zero.')
+            return errorCallback('You need to specify an amount of units.')
         }
 
         let arriveTime = new Date(command.arrive).getTime()
