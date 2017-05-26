@@ -15,7 +15,7 @@ define('FarmOverflow/Queue', [
     function joinTroopsLog (units) {
         var troops = []
 
-        for (unit in units) {
+        for (let unit in units) {
             troops.push(`${unit}: ${units[unit]}`)
         }
 
