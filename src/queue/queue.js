@@ -54,17 +54,11 @@ define('FarmOverflow/Queue', [
     }
 
     function checkUnits (units) {
-        if (!Object.keys(units).length) {
-            return false
+        for (let u in units) {
+            return true
         }
 
-        for (let unit in units) {
-            if (units[unit] == 0) {
-                return false
-            }
-        }
-
-        return true
+        return false
     }
 
     function checkArriveTime (sendTime) {
