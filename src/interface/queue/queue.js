@@ -75,7 +75,7 @@ define('FarmOverflow/QueueInterface', [
             let min = zeroPad(date.getMinutes())
             let sec = zeroPad(date.getSeconds())
             let day = zeroPad(date.getDate())
-            let month = zeroPad(date.getMonth())
+            let month = zeroPad(date.getMonth() + 1)
             let year = date.getFullYear()
 
             return `${hour}:${min}:${sec} ${month}/${day}/${year}`
