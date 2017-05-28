@@ -5,6 +5,7 @@ define('FarmOverflow/Queue', [
 ], function (UNITS, $timeHelper, $math) {
     let errorCallback = function () {}
     let successCallback = function () {}
+    let addCallback = function () {}
 
     let i18n = $filter('i18n')
     let readableMillisecondsFilter = $filter('readableMillisecondsFilter')
@@ -156,6 +157,10 @@ define('FarmOverflow/Queue', [
         successCallback = fn
     }
 
+    function onAdd (fn) {
+        addCallback = fn
+    }
+
     // function add (origin, target, units, arrive, type, officers) {
     function add (command) {
         if (!command.origin || !command.target) {
@@ -220,6 +225,7 @@ define('FarmOverflow/Queue', [
             orderQueue()
 
             successCallback('Command added.')
+            addCallback(command)
         })
 
         checkVillages.catch(function (error) {
@@ -321,6 +327,7 @@ define('FarmOverflow/Queue', [
         show: show,
         remove: remove,
         onError: onError,
-        onSuccess: onSuccess
+        onSuccess: onSuccess,
+        onAdd: onAdd
     }
 })

@@ -49,7 +49,8 @@ module.exports = function (grunt) {
                     'dist/temp/button.html': 'src/interface/button.html',
                     'dist/temp/farm/window.html': 'src/interface/farm/window.html',
                     'dist/temp/farm/event.html': 'src/interface/farm/event.html',
-                    'dist/temp/queue/window.html': 'src/interface/queue/window.html'
+                    'dist/temp/queue/window.html': 'src/interface/queue/window.html',
+                    'dist/temp/queue/command.html': 'src/interface/queue/command.html'
                 }
             }
         },
@@ -74,6 +75,7 @@ module.exports = function (grunt) {
                             htmlFarmWindow: '<%= grunt.file.read("dist/temp/farm/window.html") %>',
                             htmlFarmEvent: '<%= grunt.file.read("dist/temp/farm/event.html") %>',
                             htmlQueueWindow: '<%= grunt.file.read("dist/temp/queue/window.html") %>',
+                            htmlQueueCommand: '<%= grunt.file.read("dist/temp/queue/command.html") %>',
                             htmlButton: '<%= grunt.file.read("dist/temp/button.html") %>',
                             cssStyle: '<%= grunt.file.read("dist/temp/style.css") %>',
                             langPt_br: '<%= grunt.file.read("src/locale/pt_br.json") %>',

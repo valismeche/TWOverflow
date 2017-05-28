@@ -10,6 +10,7 @@ define('FarmOverflow/QueueInterface', [
     $timeHelper
 ) {
     return function () {
+        let readableDateFilter = $filter('readableDateFilter')
         let unitNames = $model.getGameData().getOrderedUnitNames()
         let officerNames = $model.getGameData().getOrderedOfficerNames()
 
@@ -179,6 +180,7 @@ define('FarmOverflow/QueueInterface', [
         let $origin = $window.find('input.origin')
         let $arrive = $window.find('input.arrive')
         let $officers = $window.find('table.officers input')
+        let $queue = $window.find('div.queue')
 
         let inputsMap = ['origin', 'target', 'arrive']
             .concat($model.getGameData().getOrderedUnitNames())
@@ -196,6 +198,41 @@ define('FarmOverflow/QueueInterface', [
 
         Queue.onError(function (error) {
             emitNotif('error', error)
+        })
+
+        Queue.onAdd(function (command) {
+            let $command = document.createElement('div')
+            $command.className = 'command'
+
+            let originLabel = `${command.origin.name} (${command.origin.coords})`
+            let origin = createButtonLink('village', originLabel, command.origin.id)
+
+            let targetLabel = `${command.target.name} (${command.target.coords})`
+            let target = createButtonLink('village', targetLabel, command.target.id)
+
+            let typeClass = command.type === 'attack' ? 'attack-small' : 'support'
+            let arrive = readableDateFilter(command.sendTime + command.travelTime)
+            let sendTime = readableDateFilter(command.sendTime)
+
+            $command.innerHTML = TemplateEngine('___htmlQueueCommand', {
+                sendTime: sendTime,
+                origin: origin.html,
+                target: target.html,
+                typeClass: typeClass,
+                arrive: arrive,
+                units: command.units,
+                officers: command.officers,
+                lang: {
+                    out: 'Saída',
+                    timeLeft: 'Tempo restante',
+                    village: 'Aldeia',
+                    arrive: 'Chegada',
+                    units: 'Tropas',
+                    officers: 'Oficiais'
+                }
+            })
+
+            $queue.append($command)
         })
     }
 })

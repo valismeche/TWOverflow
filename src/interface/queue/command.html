@@ -1,0 +1,50 @@
+<table class="tbl-border-light">
+    <colgroup>
+        <col width="70px">
+        <col width="285px">
+        <col width="26px">
+        <col width="285px">
+    </colgroup>
+    <tbody>
+        <tr>
+            <th colspan="2">
+                {{ this.lang.out }}: {{ this.sendTime }}
+            </th>
+        </tr>
+        <tr>
+            <td>{{ this.lang.village }}</td>
+            <td>
+                {{ this.origin }}
+                <span class="icon-bg-black icon-26x26-{{ this.typeClass }}"></span>
+                {{ this.target }}
+            </td>
+        </tr>
+        <tr>
+            <td>{{ this.lang.arrive }}</td>
+            <td>{{ this.arrive }}</td>
+        </tr>
+        <tr>
+            <td>{{ this.lang.units }}</td>
+            <td class="units">
+                {{ for (let unit in this.units) { }}
+                    <div class="unit">
+                        <span class="icon-34x34-unit-{{ unit }}"></span>
+                        <br>
+                        <span>{{ this.units[unit] }}</span>
+                    </div>
+                {{ } }}
+            </td>
+        </tr>
+
+        {{ if (Object.keys(this.officers).length) { }}
+            <tr>
+                <td>{{ this.lang.officers }}</td>
+                <td class="officers">
+                    {{ for (let officer in this.officers) { }}
+                        <span class="icon-34x34-premium_officer_{{ officer }}"></span>
+                    {{ } }}
+                </td>
+            </tr>
+        {{ } }}
+    </tbody>
+</table>
