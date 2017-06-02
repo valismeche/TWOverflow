@@ -47,7 +47,7 @@ define('FarmOverflow/Farm', [
      * @class
      */
     function FarmOverflow () {
-        let DEFAULTS = {
+        var DEFAULTS = {
             maxDistance: 10,
             minDistance: 0,
             maxTravelTime: '01:00:00',
@@ -71,7 +71,7 @@ define('FarmOverflow/Farm', [
             hotkeyWindow: 'z'
         }
 
-        let localSettings = Lockr.get('settings', {}, true)
+        var localSettings = Lockr.get('settings', {}, true)
 
         /**
          * Obtem configurações locais.
@@ -301,7 +301,7 @@ define('FarmOverflow/Farm', [
             return false
         }
 
-        let now = $timeHelper.gameTime()
+        var now = $timeHelper.gameTime()
 
         // Reseta a lista prioridades caso tenha expirado
         if (now > this.lastActivity + PRIORITY_EXPIRE_TIME) {
@@ -384,11 +384,12 @@ define('FarmOverflow/Farm', [
      * @param {Object} changes - Novas configurações.
      */
     FarmOverflow.prototype.updateSettings = function (changes) {
-        let modify = {}
+        var self = this
+        var modify = {}
 
         // Valores que precisam ser resetados/modificados quando
         // configuração x é alterada.
-        let updates = {
+        var updates = {
             groupIgnore: ['groups'],
             groupInclude: ['groups', 'targets'],
             groupOnly: ['groups', 'villages', 'targets'],
@@ -404,21 +405,21 @@ define('FarmOverflow/Farm', [
             eventIgnoredVillage: ['events']
         }
 
-        for (let key in changes) {
-            if (changes[key] !== this.settings[key]) {
-                let modifyKeys = updates[key]
+        for (var key in changes) {
+            if (changes[key] !== self.settings[key]) {
+                var modifyKeys = updates[key]
 
                 if (updates.hasOwnProperty(key)) {
-                    for (let i = 0; i < modifyKeys.length; i++) {
+                    for (var i = 0; i < modifyKeys.length; i++) {
                         modify[modifyKeys[i]] = true
                     }
                 }
             }
 
-            this.settings[key] = changes[key]
+            self.settings[key] = changes[key]
         }
 
-        Lockr.set('settings', this.settings)
+        Lockr.set('settings', self.settings)
 
         // Nenhuma alteração nas configurações
         if (angular.equals(modify, {})) {
@@ -426,30 +427,30 @@ define('FarmOverflow/Farm', [
         }
 
         if (modify.groups) {
-            this.updateExceptionGroups()
-            this.updateExceptionVillages()
+            self.updateExceptionGroups()
+            self.updateExceptionVillages()
         }
 
         if (modify.villages) {
-            this.updatePlayerVillages()
+            self.updatePlayerVillages()
         }
 
         if (modify.preset) {
-            this.updatePresets()
+            self.updatePresets()
         }
 
         if (modify.targets) {
-            this.targets = {}
+            self.targets = {}
         }
 
         if (modify.events) {
-            this.event('resetEvents')
+            self.event('resetEvents')
         }
 
-        if (this.commander.running && this.globalWaiting) {
-            this.disableEvents(() => {
-                this.stop()
-                this.start()
+        if (self.commander.running && self.globalWaiting) {
+            self.disableEvents(function () {
+                self.stop()
+                self.start()
             })
         }
 
@@ -480,7 +481,7 @@ define('FarmOverflow/Farm', [
      * @param [_selectOnly] Apenas seleciona o alvo sem pular para o próximo.
      */
     FarmOverflow.prototype.nextTarget = function (_selectOnly) {
-        let sid = this.village.id
+        var sid = this.village.id
 
         // Caso a lista de alvos seja resetada no meio da execução.
         if (!this.targets[sid]) {
@@ -489,17 +490,17 @@ define('FarmOverflow/Farm', [
             return false
         }
 
-        let villageTargets = this.targets[sid]
+        var villageTargets = this.targets[sid]
 
         if (this.settings.priorityTargets && this.priorityTargets[sid]) {
-            let priorityId
+            var priorityId
 
             while (priorityId = this.priorityTargets[sid].shift()) {
                 if (this.ignoredVillages.includes(priorityId)) {
                     continue
                 }
 
-                for (let i = 0; i < villageTargets.length; i++) {
+                for (var i = 0; i < villageTargets.length; i++) {
                     if (villageTargets[i].id === priorityId) {
                         this.target = villageTargets[i]
                         return true
@@ -508,15 +509,15 @@ define('FarmOverflow/Farm', [
             }
         }
 
-        let index = this.indexes[sid]
-        let changed = false
+        var index = this.indexes[sid]
+        var changed = false
 
         if (!_selectOnly) {
             index = ++this.indexes[sid]
         }
 
         for (; index < villageTargets.length; index++) {
-            let target = villageTargets[index]
+            var target = villageTargets[index]
 
             if (this.ignoredVillages.includes(target.id)) {
                 this.event('ignoredTarget', [target])
@@ -554,9 +555,9 @@ define('FarmOverflow/Farm', [
      * o objecto do alvo e o índice.
      */
     FarmOverflow.prototype.hasTarget = function () {
-        let sid = this.village.id
-        let index = this.indexes[sid]
-        let targets = this.targets[sid]
+        var sid = this.village.id
+        var index = this.indexes[sid]
+        var targets = this.targets[sid]
 
         if (!targets.length) {
             return false
@@ -602,7 +603,7 @@ define('FarmOverflow/Farm', [
         // no grupo de incluidas.
         function (scope, target) {
             if (target.character_id) {
-                let included = scope.includedVillages.includes(target.id)
+                var included = scope.includedVillages.includes(target.id)
 
                 if (!included) {
                     return true
@@ -623,8 +624,8 @@ define('FarmOverflow/Farm', [
 
         // Filtra aldeias pela distância
         function (scope, target) {
-            let coords = scope.village.position
-            let distance = $math.actualDistance(coords, target)
+            var coords = scope.village.position
+            var distance = $math.actualDistance(coords, target)
 
             if (distance < scope.settings.minDistance) {
                 return true
@@ -640,38 +641,39 @@ define('FarmOverflow/Farm', [
      * Obtem a lista de alvos para a aldeia selecionada.
      */
     FarmOverflow.prototype.getTargets = function (callback) {
-        let coords = this.village.position
-        let sid = this.village.id
+        var self = this
+        var coords = self.village.position
+        var sid = self.village.id
 
-        if (sid in this.targets) {
+        if (sid in self.targets) {
             return callback()
         }
 
-        let filteredTargets = []
+        var filteredTargets = []
 
         // Carregando 25 campos a mais para preencher alguns setores
         // que não são carregados quando a aldeia se encontra na borda.
-        let chunk = $conf.MAP_CHUNK_SIZE
-        let x = coords.x - chunk
-        let y = coords.y - chunk
-        let w = chunk * 2
-        let h = chunk * 2
+        var chunk = $conf.MAP_CHUNK_SIZE
+        var x = coords.x - chunk
+        var y = coords.y - chunk
+        var w = chunk * 2
+        var h = chunk * 2
 
-        let load = () => {
-            let loaded = $mapData.hasTownDataInChunk(x, y)
+        var load = function () {
+            var loaded = $mapData.hasTownDataInChunk(x, y)
 
             if (loaded) {
                 loop()
             } else {
-                this.event('startLoadingTargers')
+                self.event('startLoadingTargers')
 
-                let loads = $convert.scaledGridCoordinates(x, y, w, h, chunk)
-                let length = loads.length
-                let index = 0
+                var loads = $convert.scaledGridCoordinates(x, y, w, h, chunk)
+                var length = loads.length
+                var index = 0
 
-                $mapData.loadTownDataAsync(x, y, w, h, () => {
+                $mapData.loadTownDataAsync(x, y, w, h, function () {
                     if (++index === length) {
-                        this.event('endLoadingTargers')
+                        self.event('endLoadingTargers')
 
                         loop()
                     }
@@ -681,20 +683,20 @@ define('FarmOverflow/Farm', [
             return 
         }
 
-        let loop = () => {
-            let sectors = $mapData.loadTownData(x, y, w, h, chunk)
-            let i = sectors.length
+        var loop = function () {
+            var sectors = $mapData.loadTownData(x, y, w, h, chunk)
+            var i = sectors.length
 
             while (i--) {
-                let sector = sectors[i]
-                let sectorDataX = sector.data
+                var sector = sectors[i]
+                var sectorDataX = sector.data
 
-                for (let x in sectorDataX) {
-                    let sectorDataY = sectorDataX[x]
+                for (var sx in sectorDataX) {
+                    var sectorDataY = sectorDataX[sx]
 
-                    for (let y in sectorDataY) {
-                        let village = sectorDataY[y]
-                        let pass = filter(village)
+                    for (var sy in sectorDataY) {
+                        var village = sectorDataY[sy]
+                        var pass = filter(village)
 
                         if (pass) {
                             filteredTargets.push(pass)
@@ -706,9 +708,9 @@ define('FarmOverflow/Farm', [
             done()
         }
 
-        let filter = (target) => {
-            let pass = FarmOverflow.mapFilters.every((fn) => {
-                return !fn(this, target)
+        var filter = function (target) {
+            var pass = FarmOverflow.mapFilters.every(function (fn) {
+                return !fn(self, target)
             })
 
             if (!pass) {
@@ -725,33 +727,33 @@ define('FarmOverflow/Farm', [
             }
         }
 
-        let done = () => {
+        var done = function () {
             if (filteredTargets.length === 0) {
-                let hasVillages = this.nextVillage()
+                var hasVillages = self.nextVillage()
 
                 if (hasVillages) {
-                    this.getTargets(callback)
+                    self.getTargets(callback)
                 } else {
-                    this.event('noTargets')
+                    self.event('noTargets')
                 }
 
                 return false
             }
 
-            this.targets[sid] = filteredTargets.sort(function (a, b) {
+            self.targets[sid] = filteredTargets.sort(function (a, b) {
                 return a.distance - b.distance
             })
 
-            if (this.indexes.hasOwnProperty(sid)) {
-                if (this.indexes[sid] > this.targets[sid].length) {
-                    this.indexes[sid] = 0
+            if (self.indexes.hasOwnProperty(sid)) {
+                if (self.indexes[sid] > self.targets[sid].length) {
+                    self.indexes[sid] = 0
 
-                    Lockr.set('indexes', this.indexes)
+                    Lockr.set('indexes', self.indexes)
                 }
             } else {
-                this.indexes[sid] = 0
+                self.indexes[sid] = 0
 
-                Lockr.set('indexes', this.indexes)
+                Lockr.set('indexes', self.indexes)
             }
 
             callback()
@@ -766,29 +768,30 @@ define('FarmOverflow/Farm', [
      * @return {Boolean}
      */
     FarmOverflow.prototype.nextVillage = function () {
-        if (this.singleVillage) {
+        var self = this
+
+        if (self.singleVillage) {
             return false
         }
 
-        let free = this.villages.filter((village) => {
-            return !this.waiting[village.id]
+        var free = self.villages.filter(function (village) {
+            return !self.waiting[village.id]
         })
 
         if (!free.length) {
-            this.event('noVillages')
+            self.event('noVillages')
             return false
         } else if (free.length === 1) {
-            this.village = free[0]
-            this.event('nextVillage', [this.village])
+            self.village = free[0]
+            self.event('nextVillage', [self.village])
             return true
         }
 
-        let index = free.indexOf(this.village) + 1
-        this.village = free[index] ? free[index] : free[0]
+        var index = free.indexOf(self.village) + 1
+        self.village = free[index] ? free[index] : free[0]
         
-        this.event('nextVillage', [this.village])
-
-        this.updateActivity()
+        self.event('nextVillage', [self.village])
+        self.updateActivity()
 
         return true
     }
@@ -801,7 +804,7 @@ define('FarmOverflow/Farm', [
      * @return {Boolean}
      */
     FarmOverflow.prototype.selectVillage = function (vid) {
-        let i = this.villages.indexOf(vid)
+        var i = this.villages.indexOf(vid)
 
         if (i !== -1) {
             this.village = this.villages[i]
@@ -824,9 +827,9 @@ define('FarmOverflow/Farm', [
         }
 
         if (type in this.eventListeners) {
-            let listeners = this.eventListeners[type]
+            var listeners = this.eventListeners[type]
 
-            for (let i = 0; i < listeners.length; i++) {
+            for (var i = 0; i < listeners.length; i++) {
                 listeners[i].apply(this, data)
             }
         }
@@ -858,10 +861,12 @@ define('FarmOverflow/Farm', [
      * @param {Function} callback
      */
     FarmOverflow.prototype.updatePresets = function (callback) {
-        let updatePresets = (presets) => {
-            this.presets = []
+        var self = this
 
-            if (!this.settings.presetName) {
+        var updatePresets = function (presets) {
+            self.presets = []
+
+            if (!self.settings.presetName) {
                 if (callback) {
                     callback()
                 }
@@ -869,19 +874,19 @@ define('FarmOverflow/Farm', [
                 return
             }
 
-            for (let id in presets) {
+            for (var id in presets) {
                 if (!presets.hasOwnProperty(id)) {
                     continue
                 }
 
-                let name = presets[id].name
-                let cleanName = name.replace(rpreset, '').trim()
+                var name = presets[id].name
+                var cleanName = name.replace(rpreset, '').trim()
 
-                if (cleanName === this.settings.presetName) {
+                if (cleanName === self.settings.presetName) {
                     presets[id].cleanName = cleanName
                     presets[id].units = cleanPresetUnits(presets[id].units)
 
-                    this.presets.push(presets[id])
+                    self.presets.push(presets[id])
                 }
             }
 
@@ -893,8 +898,8 @@ define('FarmOverflow/Farm', [
         if ($presetList.isLoaded()) {
             updatePresets($presetList.presets)
         } else {
-            $socket.emit($route.GET_PRESETS, {}, (data) => {
-                this.event('presetsLoaded')
+            $socket.emit($route.GET_PRESETS, {}, function (data) {
+                self.event('presetsLoaded')
                 updatePresets(data.presets)
             })
         }
@@ -928,20 +933,20 @@ define('FarmOverflow/Farm', [
             return false
         }
         
-        let vid = this.village.id
-        let villagePresets = $presetList.getPresetsByVillageId(vid)
-        let needAssign = false
-        let which = []
+        var vid = this.village.id
+        var villagePresets = $presetList.getPresetsByVillageId(vid)
+        var needAssign = false
+        var which = []
 
-        for (let preset of this.presets) {
+        this.presets.forEach(function (preset) {
             if (!villagePresets.hasOwnProperty(preset.id)) {
                 needAssign = true
                 which.push(preset.id)
             }
-        }
+        })
 
         if (needAssign) {
-            for (let id in villagePresets) {
+            for (var id in villagePresets) {
                 which.push(id)
             }
 
@@ -955,15 +960,16 @@ define('FarmOverflow/Farm', [
      * Atualiza o grupo de referência para ignorar aldeias e incluir alvos
      */
     FarmOverflow.prototype.updateExceptionGroups = function () {
-        let types = ['groupIgnore', 'groupInclude', 'groupOnly']
-        let groups = $model.getGroupList().getGroups()
+        var self = this
+        var types = ['groupIgnore', 'groupInclude', 'groupOnly']
+        var groups = $model.getGroupList().getGroups()
 
-        for (let type of types) {
-            this[type] = null
+        types.forEach(function (type) {
+            self[type] = null
 
-            for (let id in groups) {
-                if (id == this.settings[type]) {
-                    this[type] = {
+            for (var id in groups) {
+                if (id == self.settings[type]) {
+                    self[type] = {
                         name: groups[id].name,
                         id: id
                     }
@@ -971,14 +977,14 @@ define('FarmOverflow/Farm', [
                     break
                 }
             }
-        }
+        })
     }
 
     /**
      * Atualiza a lista de aldeias ignoradas e incluidas
      */
     FarmOverflow.prototype.updateExceptionVillages = function () {
-        let groupList = $model.getGroupList()
+        var groupList = $model.getGroupList()
 
         this.ignoredVillages = []
         this.includedVillages = []
@@ -999,45 +1005,46 @@ define('FarmOverflow/Farm', [
      * estaja configurado...).
      */
     FarmOverflow.prototype.updatePlayerVillages = function () {
-        let villages = this.player.getVillageList()
+        var self = this
+        var villages = self.player.getVillageList()
 
-        villages = villages.map((village) => {
+        villages = villages.map(function (village) {
             return new Village(village)
         })
 
-        villages = villages.filter((village) => {
-            return !this.ignoredVillages.includes(village.id)
+        villages = villages.filter(function (village) {
+            return !self.ignoredVillages.includes(village.id)
         })
 
-        if (this.groupOnly) {
-            let groupList = $model.getGroupList()
-            let groupVillages = groupList.getGroupVillageIds(this.groupOnly.id)
+        if (self.groupOnly) {
+            var groupList = $model.getGroupList()
+            var groupVillages = groupList.getGroupVillageIds(self.groupOnly.id)
 
-            villages = villages.filter((village) => {
+            villages = villages.filter(function (village) {
                 return groupVillages.includes(village.id)
             })
         }
 
-        this.villages = villages
-        this.singleVillage = this.villages.length === 1
-        this.village = this.villages[0]
+        self.villages = villages
+        self.singleVillage = self.villages.length === 1
+        self.village = self.villages[0]
 
         // Reinicia comandos imediatamente se liberar alguma aldeia
         // que nao esteja na lista de espera.
-        if (this.commander.running && this.globalWaiting) {
-            for (let i = 0; i < villages.length; i++) {
-                let village = villages[i]
+        if (self.commander.running && self.globalWaiting) {
+            for (var i = 0; i < villages.length; i++) {
+                var village = villages[i]
 
-                if (!this.waiting[village.id]) {
-                    this.globalWaiting = false
-                    this.commander.analyse()
+                if (!self.waiting[village.id]) {
+                    self.globalWaiting = false
+                    self.commander.analyse()
 
                     break
                 }
             }
         }
 
-        this.event('villagesUpdate')
+        self.event('villagesUpdate')
     }
 
     /**
@@ -1046,15 +1053,17 @@ define('FarmOverflow/Farm', [
      * @param {Object} target - Dados da aldeia a ser ignorada.
      */
     FarmOverflow.prototype.ignoreVillage = function (target) {
-        if (!this.groupIgnore) {
+        var self = this
+
+        if (!self.groupIgnore) {
             return false
         }
 
         $socket.emit($route.GROUPS_LINK_VILLAGE, {
-            group_id: this.groupIgnore.id,
+            group_id: self.groupIgnore.id,
             village_id: target.id
-        }, () => {
-            this.event('ignoredVillage', [target])
+        }, function () {
+            self.event('ignoredVillage', [target])
         })
     }
 
@@ -1064,11 +1073,11 @@ define('FarmOverflow/Farm', [
      * @param {Number} targetId - ID da aldeia
      */
     FarmOverflow.prototype.targetExists = function (targetId) {
-        for (let vid in this.targets) {
-            let villageTargets = this.targets[vid]
+        for (var vid in this.targets) {
+            var villageTargets = this.targets[vid]
 
-            for (let i = 0; i < villageTargets.length; i++) {
-                let target = villageTargets[i]
+            for (var i = 0; i < villageTargets.length; i++) {
+                var target = villageTargets[i]
 
                 if (target.id === targetId) {
                     return target
@@ -1084,6 +1093,8 @@ define('FarmOverflow/Farm', [
      * para o funcionamento do FarmOverflow.
      */
     FarmOverflow.prototype.listeners = function () {
+        var self = this
+
         function replyMessage (message_id, message) {
             setTimeout(function () {
                 $socket.emit($route.MESSAGE_REPLY, {
@@ -1095,20 +1106,20 @@ define('FarmOverflow/Farm', [
 
         // Remove aldeias da lista de espera e detecta se todas as aldeias
         // estavam na lista de espera, reiniciando o ciclo de ataques.
-        let commandBackHandler = (event, data) => {
-            let vid = data.origin.id
+        var commandBackHandler = function (event, data) {
+            var vid = data.origin.id
             
-            if (this.waiting[vid]) {
-                delete this.waiting[vid]
+            if (self.waiting[vid]) {
+                delete self.waiting[vid]
 
-                if (this.globalWaiting) {
-                    this.globalWaiting = false
+                if (self.globalWaiting) {
+                    self.globalWaiting = false
 
-                    if (this.commander.running) {
-                        this.selectVillage(vid)
+                    if (self.commander.running) {
+                        self.selectVillage(vid)
 
-                        setTimeout(() => {
-                            this.commander.analyse()
+                        setTimeout(function () {
+                            self.commander.analyse()
                         }, 10000)
                     }
                 }
@@ -1119,14 +1130,14 @@ define('FarmOverflow/Farm', [
 
         // Detecta alterações e atualiza lista de predefinições configuradas
         // no script.
-        let updatePresets = () => {
-            this.updatePresets()
-            this.event('presetsChange')
+        var updatePresets = function () {
+            self.updatePresets()
+            self.event('presetsChange')
 
-            if (!this.presets.length) {
-                if (this.commander.running) {
-                    this.event('noPreset')
-                    this.stop()
+            if (!self.presets.length) {
+                if (self.commander.running) {
+                    self.event('noPreset')
+                    self.stop()
                 }
             }
         }
@@ -1134,37 +1145,37 @@ define('FarmOverflow/Farm', [
         // Atualiza lista de grupos configurados no script.
         // Atualiza a lista de aldeias incluidas/ignoradas com base
         // nos grupos.
-        let updateGroups = (event, data) => {
-            this.updateExceptionGroups()
-            this.updateExceptionVillages()
+        var updateGroups = function (event, data) {
+            self.updateExceptionGroups()
+            self.updateExceptionVillages()
 
-            this.event('groupsChanged')
+            self.event('groupsChanged')
         }
 
         // Detecta grupos que foram adicionados nas aldeias.
         // Atualiza a lista de alvos e aldeias do jogador.
-        let updateGroupVillages = (event, data) => {
-            this.updatePlayerVillages()
+        var updateGroupVillages = function (event, data) {
+            self.updatePlayerVillages()
 
-            if (!this.groupInclude) {
+            if (!self.groupInclude) {
                 return false
             }
             
-            if (this.groupInclude.id === data.group_id) {
-                this.targets = {}
+            if (self.groupInclude.id === data.group_id) {
+                self.targets = {}
             }
         }
 
         // Adiciona o grupo de "ignorados" no alvo caso o relatório do
         // ataque tenha causado alguma baixa nas tropas.
-        let ignoreOnLoss = (report) => {
-            let target = this.targetExists(report.target_village_id)
+        var ignoreOnLoss = function (report) {
+            var target = self.targetExists(report.target_village_id)
 
             if (!target) {
                 return false
             }
 
-            this.ignoreVillage(target)
+            self.ignoreVillage(target)
             analytics.ignoreTarget()
 
             return true
@@ -1172,21 +1183,21 @@ define('FarmOverflow/Farm', [
 
         // Adiciona alvos na lista de prioridades caso o relatório
         // do farm seja lotado.
-        let priorityTargets = (report) => {
-            let vid = report.attVillageId
-            let tid = report.defVillageId
+        var priorityTargets = function (report) {
+            var vid = report.attVillageId
+            var tid = report.defVillageId
 
-            this.priorityTargets[vid] = this.priorityTargets[vid] || []
+            self.priorityTargets[vid] = self.priorityTargets[vid] || []
 
-            if (this.priorityTargets[vid].includes(tid)) {
+            if (self.priorityTargets[vid].includes(tid)) {
                 return false
             }
 
-            this.priorityTargets[vid].push(tid)
+            self.priorityTargets[vid].push(tid)
 
             analytics.priorityTarget()
 
-            this.event('priorityTargetAdded', [{
+            self.event('priorityTargetAdded', [{
                 id: tid,
                 name: report.defVillageName,
                 x: report.defVillageX,
@@ -1195,19 +1206,19 @@ define('FarmOverflow/Farm', [
         }
 
         // Analisa todos relatórios de ataques causados pelo FarmOverflow
-        let reportHandler = (event, data) => {
+        var reportHandler = function (event, data) {
             if (data.type !== 'attack') {
                 return false
             }
 
-            let queue = []
+            var queue = []
 
             // BATTLE_RESULTS = {
             //     '1'         : 'nocasualties',
             //     '2'         : 'casualties',
             //     '3'         : 'defeat'
             // }
-            if (this.settings.ignoreOnLoss && data.result !== 1) {
+            if (self.settings.ignoreOnLoss && data.result !== 1) {
                 ignoreOnLoss(data)
             }
 
@@ -1216,7 +1227,7 @@ define('FarmOverflow/Farm', [
             //     'PARTIAL'   : 'partial',
             //     'NONE'      : 'none'
             // }
-            if (this.settings.priorityTargets && data.haul === 'full') {
+            if (self.settings.priorityTargets && data.haul === 'full') {
                 queue.push(priorityTargets)
             }
 
@@ -1226,13 +1237,13 @@ define('FarmOverflow/Farm', [
 
             $socket.emit($route.REPORT_GET, {
                 id: data.id
-            }, (data) => {
+            }, function (data) {
                 // Manter o relatório marcado como "Novo"
                 $socket.emit($route.REPORT_MARK_UNREAD, {
                     reports: [data.id]
                 }, function () {})
 
-                let report = data.ReportAttack
+                var report = data.ReportAttack
 
                 queue.every(function (handler) {
                     handler(report)
@@ -1242,12 +1253,12 @@ define('FarmOverflow/Farm', [
 
         // Detecta quando a conexão é reestabelecida, podendo
         // reiniciar o script.
-        let reconnectHandler = (event, data) => {
-            if (this.commander.running) {
-                setTimeout(() => {
-                    this.disableNotifs(() => {
-                        this.stop()
-                        this.start()
+        var reconnectHandler = function (event, data) {
+            if (self.commander.running) {
+                setTimeout(function () {
+                    self.disableNotifs(function () {
+                        self.stop()
+                        self.start()
                     })
                 }, 3000)
             }
@@ -1255,20 +1266,20 @@ define('FarmOverflow/Farm', [
 
         // Detecta mensagens do jogador enviadas para sí mesmo, afim de iniciar
         // e pausar o farm remotamente.
-        let remoteHandler = (event, data) => {
-            let id = this.settings.remoteId
+        var remoteHandler = function (event, data) {
+            var id = self.settings.remoteId
 
             if (data.participants.length !== 1 || data.title !== id) {
                 return false
             }
 
-            let userMessage = data.message.content.trim().toLowerCase()
+            var userMessage = data.message.content.trim().toLowerCase()
 
             switch (userMessage) {
             case 'on':
-                this.disableNotifs(() => {
-                    this.stop()
-                    this.start()
+                self.disableNotifs(function () {
+                    self.stop()
+                    self.start()
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
@@ -1276,8 +1287,8 @@ define('FarmOverflow/Farm', [
 
                 break
             case 'off':
-                this.disableNotifs(() => {
-                    this.stop()
+                self.disableNotifs(function () {
+                    self.stop()
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
@@ -1285,16 +1296,16 @@ define('FarmOverflow/Farm', [
 
                 break
             case 'status':
-                let village = this.village
-                let villageLabel = `${village.name} (${village.x}|${village.y})`
-                let lastAttack = $filter('readableDateFilter')(this.lastAttack)
+                var village = self.village
+                var villageLabel = village.name + ' (' + village.x + '|' + village.y + ')'
+                var lastAttack = $filter('readableDateFilter')(self.lastAttack)
 
-                let bbcodeMessage = [
-                    `[b]${this.lang.events.status}:[/b] ${this.status}[br]`,
-                    `[b]${this.lang.events.selectedVillage}:[/b] `,
-                    `[village=${village.id}]${villageLabel}[/village][br]`,
-                    `[b]${this.lang.events.lastAttack}:[/b] ${lastAttack}`
-                ].join('')
+                var bbcodeMessage = [
+                    '[b]' + self.lang.events.status + ':[/b] ' + self.status + '[br]',
+                    '[b]' + self.lang.events.selectedVillage + ':[/b] ',
+                    '[village=' + village.id + ']' + villageLabel + '[/village][br]',
+                    '[b]' + self.lang.events.lastAttack + ':[/b] ' + lastAttack
+                ].join('');
 
                 replyMessage(data.message_id, bbcodeMessage)
                 analytics.remoteCommand()
@@ -1305,10 +1316,10 @@ define('FarmOverflow/Farm', [
             return false
         }
 
-        let bind = (eventType, handler) => {
-            let unbind = $root.$on($eventType[eventType], handler)
+        var bind = function (eventType, handler) {
+            var unbind = $root.$on($eventType[eventType], handler)
 
-            this.activeListeners.push(unbind)
+            self.activeListeners.push(unbind)
         }
 
         bind('COMMAND_RETURNED', commandBackHandler)
@@ -1332,22 +1343,40 @@ define('FarmOverflow/Farm', [
             $socket.emit($route.MAP_GETVILLAGES, args)
         })
 
-        let events = this.lang.events
+        var events = self.lang.events
 
         // Lista de eventos para atualizar o último status do FarmOverflow.
-        this.on('sendCommand', () => {
-            this.updateLastAttack()
-            this.updateLastStatus(events.attacking)
+        self.on('sendCommand', function () {
+            self.updateLastAttack()
+            self.updateLastStatus(events.attacking)
         })
-        this.on('noPreset', () => this.updateLastStatus(events.paused))
-        this.on('noUnits', () => this.updateLastStatus(events.noUnits))
-        this.on('noUnitsNoCommands', () => this.updateLastStatus(events.noUnitsNoCommands))
-        this.on('start', () => this.updateLastStatus(events.attacking))
-        this.on('pause', () => this.updateLastStatus(events.paused))
-        this.on('startLoadingTargers', () => this.updateLastStatus(events.loadingTargets))
-        this.on('endLoadingTargers', () => this.updateLastStatus(events.analyseTargets))
-        this.on('commandLimitSingle', () => this.updateLastStatus(events.commandLimit))
-        this.on('commandLimitMulti', () => this.updateLastStatus(events.noVillages))
+        self.on('noPreset', function () {
+            self.updateLastStatus(events.paused)
+        })
+        self.on('noUnits', function () {
+            self.updateLastStatus(events.noUnits)
+        })
+        self.on('noUnitsNoCommands', function () {
+            self.updateLastStatus(events.noUnitsNoCommands)
+        })
+        self.on('start', function () {
+            self.updateLastStatus(events.attacking)
+        })
+        self.on('pause', function () {
+            self.updateLastStatus(events.paused)
+        })
+        self.on('startLoadingTargers', function () {
+            self.updateLastStatus(events.loadingTargets)
+        })
+        self.on('endLoadingTargers', function () {
+            self.updateLastStatus(events.analyseTargets)
+        })
+        self.on('commandLimitSingle', function () {
+            self.updateLastStatus(events.commandLimit)
+        })
+        self.on('commandLimitMulti', function () {
+            self.updateLastStatus(events.noVillages)
+        })
     }
 
     FarmOverflow.prototype.targetsLoaded = function () {
@@ -1367,8 +1396,8 @@ define('FarmOverflow/Farm', [
     }
 
     FarmOverflow.prototype.isAllWaiting = function () {
-        for (let i = 0; i < this.villages.length; i++) {
-            let vid = this.villages[i].id
+        for (var i = 0; i < this.villages.length; i++) {
+            var vid = this.villages[i].id
 
             if (!this.waiting.hasOwnProperty(vid)) {
                 return false
@@ -1382,14 +1411,14 @@ define('FarmOverflow/Farm', [
      * Define a linguagem da interface
      */
     FarmOverflow.prototype.languages = function () {
-        let i18n = {
+        var i18n = {
             pt_br: ___langPt_br,
             en_us: ___langEn_us
         }
 
-        let gameLang = gameLocale.LANGUAGE
+        var gameLang = gameLocale.LANGUAGE
 
-        let aliases = {
+        var aliases = {
             'pt_pt': 'pt_br',
             'en_dk': 'en_us'
         }
@@ -1401,7 +1430,7 @@ define('FarmOverflow/Farm', [
         if (this.settings.language) {
             this.lang = i18n[this.settings.language]
         } else {
-            let lang = gameLang in i18n ? gameLang : 'en_us'
+            var lang = gameLang in i18n ? gameLang : 'en_us'
             this.lang = i18n[lang]
             this.settings.language = lang
         }

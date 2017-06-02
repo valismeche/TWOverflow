@@ -10,27 +10,27 @@ require([
         Farm.initialized = true
     }
 
-    let initialize = function () {
-        let $model = injector.get('modelDataService')
-        let $player = $model.getSelectedCharacter()
+    var initialize = function () {
+        var $model = injector.get('modelDataService')
+        var $player = $model.getSelectedCharacter()
 
         analytics.init($player)
 
-        Lockr.prefix = `${$player.getId()}_farmOverflow_`
+        Lockr.prefix = $player.getId() + '_farmOverflow_'
 
-        let farmOverflow = new Farm()
+        farmOverflow = new Farm()
         FarmInterface(farmOverflow)
         QueueInterface()
     }
 
-    let $map = document.querySelector('#map')
-    let $mapScope = angular.element($map).scope()
+    var $map = document.querySelector('#map')
+    var $mapScope = angular.element($map).scope()
 
     if ($mapScope.isInitialized) {
         initialize()
     } else {
-        let $root = angular.element(document).scope()
-        let $eventType = injector.get('eventTypeProvider')
+        var $root = angular.element(document).scope()
+        var $eventType = injector.get('eventTypeProvider')
 
         $root.$on($eventType.MAP_INITIALIZED, initialize)
     }

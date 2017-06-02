@@ -1,6 +1,8 @@
 define('FarmOverflow/FrontButton', function () {
     function FrontButton (options) {
-        this.options = angular.merge({}, {
+        var self = this
+
+        self.options = angular.merge({}, {
             label: '',
             className: '',
             classHover: '',
@@ -8,22 +10,22 @@ define('FarmOverflow/FrontButton', function () {
             hoverText: ''
         }, options)
 
-        this.buildWrapper()
-        this.appendButton()
+        self.buildWrapper()
+        self.appendButton()
 
         if (options.click) {
-            this.click(options.click)
+            self.click(options.click)
         }
 
-        let $label = this.$elem.find('.label')
-        let $quick = this.$elem.find('.quickview')
+        var $label = self.$elem.find('.label')
+        var $quick = self.$elem.find('.quickview')
 
-        if (this.options.classHover) {
-            this.$elem.on('mouseenter', () => {
-                this.$elem.addClass(this.options.classHover)
-                this.$elem.removeClass(this.options.classBlur)
+        if (self.options.classHover) {
+            self.$elem.on('mouseenter', function () {
+                self.$elem.addClass(self.options.classHover)
+                self.$elem.removeClass(self.options.classBlur)
 
-                let text = this.options.hoverText
+                var text = self.options.hoverText
 
                 $quick.html(typeof text === 'function' ? text() : text)
                 $label.hide()
@@ -31,17 +33,17 @@ define('FarmOverflow/FrontButton', function () {
             })
         }
 
-        if (this.options.classBlur) {
-            this.$elem.on('mouseleave', () => {
-                this.$elem.addClass(this.options.classBlur)
-                this.$elem.removeClass(this.options.classHover)
+        if (self.options.classBlur) {
+            self.$elem.on('mouseleave', function () {
+                self.$elem.addClass(self.options.classBlur)
+                self.$elem.removeClass(self.options.classHover)
 
                 $quick.hide()
                 $label.show()
             })
         }
 
-        return this
+        return self
     }
 
     FrontButton.prototype.updateHoverText = function (text) {
@@ -49,7 +51,7 @@ define('FarmOverflow/FrontButton', function () {
     }
 
     FrontButton.prototype.buildWrapper = function () {
-        let $wrapper = document.getElementById('farmOverflow-leftbar')
+        var $wrapper = document.getElementById('farmOverflow-leftbar')
 
         if (!$wrapper) {
             $wrapper = document.createElement('div')
@@ -61,14 +63,14 @@ define('FarmOverflow/FrontButton', function () {
     }
 
     FrontButton.prototype.appendButton = function () {
-        let html = TemplateEngine('___htmlButton', {
+        var html = TemplateEngine('___htmlButton', {
             className: this.options.className,
             label: this.options.label
         })
 
-        let $container = document.createElement('div')
+        var $container = document.createElement('div')
         $container.innerHTML = html
-        let $elem = $container.children[0]
+        var $elem = $container.children[0]
 
         this.$wrapper.appendChild($elem)
         this.$elem = $($elem)

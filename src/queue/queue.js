@@ -3,31 +3,31 @@ define('FarmOverflow/Queue', [
     'helper/time',
     'helper/math'
 ], function (UNITS, $timeHelper, $math) {
-    let errorCallback = function () {}
-    let successCallback = function () {}
-    let addCallback = function () {}
+    var errorCallback = function () {}
+    var successCallback = function () {}
+    var addCallback = function () {}
 
-    let i18n = $filter('i18n')
-    let readableMillisecondsFilter = $filter('readableMillisecondsFilter')
-    let readableDateFilter = $filter('readableDateFilter')
+    var i18n = $filter('i18n')
+    var readableMillisecondsFilter = $filter('readableMillisecondsFilter')
+    var readableDateFilter = $filter('readableDateFilter')
 
-    let queue = []
-    let index = 0
+    var queue = []
+    var index = 0
 
     function joinTroopsLog (units) {
-        let troops = []
+        var troops = []
 
-        for (let unit in units) {
-            troops.push(`${unit}: ${units[unit]}`)
+        for (var unit in units) {
+            troops.push(unit + ': ' + units[unit]);
         }
 
         return troops.join(',')
     }
 
     function joinOfficersLog (officers) {
-        let string = []
+        var string = []
 
-        for (let officer in officers) {
+        for (var officer in officers) {
             string.push(officer)
         }
 
@@ -35,7 +35,7 @@ define('FarmOverflow/Queue', [
     }
 
     function updateVillageData (command, prop, _callback) {
-        let coords = command[prop].coords.split('|').map(function (coord) {
+        var coords = command[prop].coords.split('|').map(function (coord) {
             return parseInt(coord, 10)
         })
 
@@ -55,7 +55,7 @@ define('FarmOverflow/Queue', [
     }
 
     function checkUnits (units) {
-        for (let u in units) {
+        for (var u in units) {
             return true
         }
 
@@ -63,10 +63,10 @@ define('FarmOverflow/Queue', [
     }
 
     function cleanZeroUnits (units) {
-        let cleanUnits = {}
+        var cleanUnits = {}
 
-        for (let unit in units) {
-            let amount = parseInt(units[unit], 10)
+        for (var unit in units) {
+            var amount = parseInt(units[unit], 10)
 
             if (amount > 0) {
                 cleanUnits[unit] = amount
@@ -91,12 +91,12 @@ define('FarmOverflow/Queue', [
     }
 
     function getTravelTime (origin, target, units, type, officers) {
-        let army = {
+        var army = {
             units: units,
             officers: officers
         }
 
-        let travelTime = $armyService.calculateTravelTime(army, {
+        var travelTime = $armyService.calculateTravelTime(army, {
             barbarian: false,
             ownTribe: false,
             officers: officers,
@@ -106,7 +106,7 @@ define('FarmOverflow/Queue', [
         origin = origin.split('|')
         target = target.split('|')
 
-        let distance = $math.actualDistance({
+        var distance = $math.actualDistance({
             x: origin[0],
             y: origin[1]
         }, {
@@ -114,7 +114,7 @@ define('FarmOverflow/Queue', [
             y: target[1]
         })
 
-        let totalTravelTime = $armyService.getTravelTimeForDistance(
+        var totalTravelTime = $armyService.getTravelTimeForDistance(
             army,
             travelTime,
             distance,
@@ -168,11 +168,11 @@ define('FarmOverflow/Queue', [
         }
 
         if (!checkCoords(command.origin)) {
-            return errorCallback(`Origin coords format ${origin} is invalid.`)
+            return errorCallback('Origin coords format ' + origin + ' is invalid.')
         }
 
         if (!checkCoords(command.target)) {
-            return errorCallback(`Origin coords format ${target} is invalid.`)
+            return errorCallback('Origin coords format ' + target + ' is invalid.')
         }
 
         if (!checkUnits(command.units)) {
@@ -181,16 +181,16 @@ define('FarmOverflow/Queue', [
 
         command.units = cleanZeroUnits(command.units)
 
-        let arriveTime = new Date(command.arrive).getTime()
-        let travelTime = getTravelTime(command.origin, command.target, command.units, command.type)
-        let sendTime = arriveTime - travelTime
+        var arriveTime = new Date(command.arrive).getTime()
+        var travelTime = getTravelTime(command.origin, command.target, command.units, command.type)
+        var sendTime = arriveTime - travelTime
 
         if (!checkArriveTime(sendTime)) {
             return errorCallback('This command should have already exited.')
         }
 
         // transform "true" to 1 because the game do like that
-        for (let officer in command.officers) {
+        for (var officer in command.officers) {
             command.officers[officer] = 1
         }
 
@@ -200,8 +200,8 @@ define('FarmOverflow/Queue', [
         command.origin = { coords: command.origin, name: null, id: null }
         command.target = { coords: command.target, name: null, id: null }
 
-        let checkVillages = new Promise(function (resolve, reject) {
-            let success = 0
+        var checkVillages = new Promise(function (resolve, reject) {
+            var success = 0
 
             updateVillageData(command, 'origin', function (villageData) {
                 if (!villageData.hasOwnProperty('id')) {
@@ -234,43 +234,43 @@ define('FarmOverflow/Queue', [
     }
 
     function show (_id) {
-        let gameTime = $timeHelper.gameTime()
+        var gameTime = $timeHelper.gameTime()
 
-        // let commandsTable = {}
+        // var commandsTable = {}
 
-        for (let i = 0; i < queue.length; i++) {
-            let cmd = queue[i]
+        for (var i = 0; i < queue.length; i++) {
+            var cmd = queue[i]
 
             if (_id && _id != cmd.id) {
                 continue
             }
             
-            let troops = joinTroopsLog(cmd.units)
-            let officers = joinOfficersLog(cmd.officers)
-            let $travelTime = readableMillisecondsFilter(cmd.travelTime)
-            let $sendTime = readableDateFilter(cmd.sendTime)
-            let $arrive = readableDateFilter(cmd.sendTime + cmd.travelTime)
-            let $remain = readableMillisecondsFilter(cmd.sendTime - gameTime)
+            var troops = joinTroopsLog(cmd.units)
+            var officers = joinOfficersLog(cmd.officers)
+            var $travelTime = readableMillisecondsFilter(cmd.travelTime)
+            var $sendTime = readableDateFilter(cmd.sendTime)
+            var $arrive = readableDateFilter(cmd.sendTime + cmd.travelTime)
+            var $remain = readableMillisecondsFilter(cmd.sendTime - gameTime)
 
-            console.log(`%c============= planeador.show #${cmd.id} =============`, 'background:#ccc')
-            console.log(`Identificação:  ${cmd.id}`)
-            console.log(`Saida em:       ${$remain}`)
-            console.log(`Duração:        ${$travelTime}`)
-            console.log(`Envio:          ${$sendTime}`)
-            console.log(`Chegada:        ${$arrive}`)
-            console.log(`Origem:         ${cmd.origin.name} (${cmd.origin.coords})`)
-            console.log(`Alvo:           ${cmd.target.name} (${cmd.target.coords})`)
-            console.log(`Tropas:         ${troops}`)
-            console.log(`Oficiais:       ${officers}`)
-            console.log(`Tipo:           ${cmd.type}`)
+            console.log('%c============= planeador.show #' + cmd.id + ' =============', 'background:#ccc')
+            console.log('Identificação:  ' + cmd.id)
+            console.log('Saida em:       ' + $remain)
+            console.log('Duração:        ' + $travelTime)
+            console.log('Envio:          ' + $sendTime)
+            console.log('Chegada:        ' + $arrive)
+            console.log('Origem:         ' + cmd.origin.name + ' (' + cmd.origin.coords + ')')
+            console.log('Alvo:           ' + cmd.target.name + ' (' + cmd.target.coords + ')')
+            console.log('Tropas:         ' + troops)
+            console.log('Oficiais:       ' + officers)
+            console.log('Tipo:           ' + cmd.type)
 
             // commandsTable[cmd.id] = {
             //     'Saida em': $remain,
             //     'Duração': $travelTime,
             //     'Envio': $sendTime,
             //     'Chegada': $arrive,
-            //     'Origem': `${cmd.target.name} (${cmd.target.coords})`,
-            //     'Alvo': `${cmd.target.name} (${cmd.target.coords})`,
+            //     'Origem': cmd.target.name + ' (' + cmd.target.coords + ')',
+            //     'Alvo': cmd.target.name + ' (' + cmd.target.coords + ')',
             //     'Tropas': troops,
             //     'Oficiais': officers,
             //     'Tipo': cmd.type
@@ -283,7 +283,7 @@ define('FarmOverflow/Queue', [
     function remove (id) {
         console.log('%c============= planeador.remove =============', 'background:#ccc')
 
-        for (let i = 0; i < queue.length; i++) {
+        for (var i = 0; i < queue.length; i++) {
             if (queue[i].id == id) {
                 console.log('ataque #' + id + ' removido!')
                 
@@ -297,9 +297,9 @@ define('FarmOverflow/Queue', [
 
     function listener () {
         setInterval(function () {
-            let gameTime = $timeHelper.gameTime()
-            let command
-            let i
+            var gameTime = $timeHelper.gameTime()
+            var command
+            var i
 
             if (!queue.length) {
                 return false

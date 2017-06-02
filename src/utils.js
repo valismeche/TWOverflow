@@ -4,9 +4,9 @@
  * @param {Object} units - Unidades do preset a serem filtradas.
  */
 function cleanPresetUnits (units) {
-    let pure = {}
+    var pure = {}
 
-    for (let unit in units) {
+    for (var unit in units) {
         if (units[unit] > 0) {
             pure[unit] = units[unit]
         }
@@ -24,8 +24,8 @@ function cleanPresetUnits (units) {
 function randomSeconds (base) {
     base = parseInt(base, 10)
     
-    let max = base + (base / 2)
-    let min = base - (base / 2)
+    var max = base + (base / 2)
+    var min = base - (base / 2)
 
     return Math.round(Math.random() * (max - min) + min)
 }
@@ -41,7 +41,7 @@ function time2seconds (time) {
     time[1] = parseInt(time[1], 10) * 60
     time[2] = parseInt(time[2], 10)
 
-    return time.reduce((a, b) => {
+    return time.reduce(function (a, b) {
         return a + b
     })
 }
@@ -59,14 +59,14 @@ function sprintf (format, replaces) {
  * http://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
  */
 function TemplateEngine (html, options) {
-    let re = /{{(.+?)}}/g
-    let reExp = /(^( )?(var|if|for|else|switch|case|break|{|}|;))(.*)?/g
-    let code = 'with(obj) { var r=[];\n'
-    let cursor = 0
-    let result
-    let match
+    var re = /{{(.+?)}}/g
+    var reExp = /(^( )?(var|if|for|else|switch|case|break|{|}|;))(.*)?/g
+    var code = 'with(obj) { var r=[];\n'
+    var cursor = 0
+    var result
+    var match
 
-    let add = function (line, js) {
+    var add = function (line, js) {
         if (js) {
             code += line.match(reExp)
                 ? line + '\n'
@@ -106,21 +106,21 @@ function TemplateEngine (html, options) {
  * @return {Object} 
  */
 function createButtonLink (type, text, id) {
-    let uid = Math.round(Math.random() * 1e5)
-    let template = '<a id="l{{ uid }}" class="img-link icon-20x20-' + 
+    var uid = Math.round(Math.random() * 1e5)
+    var template = '<a id="l{{ uid }}" class="img-link icon-20x20-' + 
         '{{ type }} btn btn-orange padded">{{ text }}</a>'
 
-    let html = TemplateEngine(template, {
+    var html = TemplateEngine(template, {
         type: type,
         text: text,
         uid: uid
     })
 
-    let elem = document.createElement('div')
+    var elem = document.createElement('div')
     elem.innerHTML = html
     elem = elem.firstChild
 
-    let handler
+    var handler
 
     switch (type) {
     case 'village':
@@ -153,7 +153,7 @@ function createButtonLink (type, text, id) {
  * @param {String} message - Texto a ser exibido
  */
 function emitNotif (type, message) {
-    let eventType = type === 'success'
+    var eventType = type === 'success'
         ? $eventType.MESSAGE_SUCCESS
         : $eventType.MESSAGE_ERROR
 

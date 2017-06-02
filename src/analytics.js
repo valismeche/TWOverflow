@@ -1,20 +1,20 @@
 define('FarmOverflow/analytics', function () {
-    let player = null
-    let uid = null
+    var player = null
+    var uid = null
 
-    let setPlayer = function (_player) {
+    var setPlayer = function (_player) {
         if (!player) {
             player = _player
         }
     }
 
-    let setUid = function (_uid) {
+    var setUid = function (_uid) {
         if (!uid) {
             uid = _uid
         }
     }
 
-    let init = function (_player) {
+    var init = function (_player) {
         setPlayer(_player)
         setUid(player.getWorldId() + '-' + player.getId())
 
@@ -33,7 +33,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'pageview')
     }
 
-    let attack = function () {
+    var attack = function () {
         if (!player) {
             return false
         }
@@ -41,7 +41,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'event', 'commands', 'attack')
     }
 
-    let attackError = function (error) {
+    var attackError = function (error) {
         if (!player) {
             return false
         }
@@ -49,7 +49,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'event', 'commands', 'attackError', error)
     }
 
-    let ignoreTarget = function () {
+    var ignoreTarget = function () {
         if (!player) {
             return false
         }
@@ -57,7 +57,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'event', 'commands', 'ignoreTarget')
     }
 
-    let priorityTarget = function () {
+    var priorityTarget = function () {
         if (!player) {
             return false
         }
@@ -65,7 +65,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'event', 'commands', 'priorityTarget')
     }
 
-    let start = function () {
+    var start = function () {
         if (!player) {
             return false
         }
@@ -73,7 +73,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'event', 'behavior', 'start')
     }
 
-    let pause = function () {
+    var pause = function () {
         if (!player) {
             return false
         }
@@ -81,7 +81,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'event', 'behavior', 'pause')
     }
 
-    let settingsChange = function (settings) {
+    var settingsChange = function (settings) {
         if (!player) {
             return false
         }
@@ -89,7 +89,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'event', 'behavior', 'settingsChange', settings)
     }
 
-    let villageChange = function () {
+    var villageChange = function () {
         if (!player) {
             return false
         }
@@ -97,7 +97,7 @@ define('FarmOverflow/analytics', function () {
         ga('FarmOverflow.send', 'event', 'behavior', 'villageChange')
     }
 
-    let remoteCommand = function () {
+    var remoteCommand = function () {
         if (!player) {
             return false
         }
@@ -109,8 +109,8 @@ define('FarmOverflow/analytics', function () {
         init: init,
         attack: attack,
         attackError: attackError,
-        ignoreTarget,
-        priorityTarget,
+        ignoreTarget: ignoreTarget,
+        priorityTarget: priorityTarget,
         start: start,
         pause: pause,
         settingsChange: settingsChange,

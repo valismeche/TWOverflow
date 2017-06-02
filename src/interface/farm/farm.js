@@ -9,8 +9,8 @@ define('FarmOverflow/FarmInterface', [
          * @param {Function} callback
          */
         function eachSetting (callback) {
-            for (let key in farmOverflow.settings) {
-                let $input = $(`[name="${key}"]`, farmInterface.$window)
+            for (var key in farmOverflow.settings) {
+                var $input = $('[name="' + key + '"]', farmInterface.$window)
 
                 if (!$input.length) {
                     continue
@@ -25,9 +25,9 @@ define('FarmOverflow/FarmInterface', [
          */
         function bindSettings () {
             // Insere os valores nas entradas
-            eachSetting(($input) => {
-                let type = $input[0].type
-                let name = $input[0].name
+            eachSetting(function ($input) {
+                var type = $input[0].type
+                var name = $input[0].name
 
                 if (type === 'select-one') {
                     if (name === 'language') {
@@ -43,7 +43,7 @@ define('FarmOverflow/FarmInterface', [
                         $input.parent().addClass(inputCheckedClass)
                     }
 
-                    $input.on('click', () => {
+                    $input.on('click', function () {
                         $input.parent().toggleClass(inputCheckedClass)
                     })
 
@@ -54,16 +54,16 @@ define('FarmOverflow/FarmInterface', [
             })
 
             // Quarda os valores quando salvos
-            $settings.on('submit', (event) => {
+            $settings.on('submit', function (event) {
                 event.preventDefault()
 
                 if ($settings[0].checkValidity()) {
-                    let settings = {}
+                    var settings = {}
 
-                    eachSetting(($input) => {
-                        let name = $input[0].name
-                        let type = $input[0].type
-                        let value = $input.val()
+                    eachSetting(function ($input) {
+                        var name = $input[0].name
+                        var type = $input[0].type
+                        var value = $input.val()
 
                         if ($input[0].type === 'number') {
                             value = parseInt(value, 10)
@@ -82,7 +82,7 @@ define('FarmOverflow/FarmInterface', [
                 return false
             })
 
-            $save.on('click', (event) => {
+            $save.on('click', function (event) {
                 $settings.find('input:submit')[0].click()
             })
         }
@@ -91,10 +91,10 @@ define('FarmOverflow/FarmInterface', [
          * Adiciona eventos na interface com base nos eventos do FarmOverflow.
          */
         function bindEvents () {
-            let settings = farmOverflow.settings
+            var settings = farmOverflow.settings
 
-            let listenEvents = {
-                sendCommand: (from, to) => {
+            var listenEvents = {
+                sendCommand: function (from, to) {
                     $status.html(farmOverflow.lang.events.attacking)
                     updateLastAttack($timeHelper.gameTime())
 
@@ -102,8 +102,8 @@ define('FarmOverflow/FarmInterface', [
                         return false
                     }
 
-                    let labelFrom = `${from.name} (${from.x}|${from.y})`
-                    let labelTo = `${to.name} (${to.x}|${to.y})`
+                    var labelFrom = from.name + ' (' + from.x + '|' + from.y + ')'
+                    var labelTo = to.name + ' (' + to.x + '|' + to.y + ')'
 
                     addEvent({
                         links: [
@@ -114,14 +114,14 @@ define('FarmOverflow/FarmInterface', [
                         type: 'sendCommand'
                     })
                 },
-                nextVillage: (next) => {
+                nextVillage: function (next) {
                     updateSelectedVillage()
                     
                     if (!settings.eventVillageChange) {
                         return false
                     }
 
-                    let label = `${next.name} (${next.x}|${next.y})`
+                    var label = next.name + ' (' + next.x + '|' + next.y + ')'
 
                     addEvent({
                         links: [
@@ -131,12 +131,12 @@ define('FarmOverflow/FarmInterface', [
                         type: 'nextVillage'
                     })
                 },
-                ignoredVillage: (target) => {
+                ignoredVillage: function (target) {
                     if (!settings.eventIgnoredVillage) {
                         return false
                     }
 
-                    let label = `${target.name} (${target.x}|${target.y})`
+                    var label = target.name + ' (' + target.x + '|' + target.y + ')'
 
                     addEvent({
                         links: [
@@ -146,12 +146,12 @@ define('FarmOverflow/FarmInterface', [
                         type: 'ignoredVillage'
                     })
                 },
-                priorityTargetAdded: (target) => {
+                priorityTargetAdded: function (target) {
                     if (!settings.eventPriorityAdd) {
                         return false
                     }
                     
-                    let label = `${target.name} (${target.x}|${target.y})`
+                    var label = target.name + ' (' + target.x + '|' + target.y + ')'
 
                     addEvent({
                         links: [
@@ -161,7 +161,7 @@ define('FarmOverflow/FarmInterface', [
                         type: 'priorityTargetAdded'
                     })
                 },
-                noPreset: () => {
+                noPreset: function () {
                     addEvent({
                         icon: 'info',
                         type: 'noPreset'
@@ -169,48 +169,48 @@ define('FarmOverflow/FarmInterface', [
 
                     $status.html(farmOverflow.lang.events.paused)
                 },
-                noUnits: () => {
+                noUnits: function () {
                     if (farmOverflow.singleVillage) {
                         $status.html(farmOverflow.lang.events.noUnits)
                     }
                 },
-                noUnitsNoCommands: () => {
+                noUnitsNoCommands: function () {
                     $status.html(farmOverflow.lang.events.noUnitsNoCommands)
                 },
-                start: () => {
+                start: function () {
                     $status.html(farmOverflow.lang.events.attacking)
                 },
-                pause: () => {
+                pause: function () {
                     $status.html(farmOverflow.lang.events.paused)
                 },
-                noVillages: () => {
+                noVillages: function () {
                     $status.html(farmOverflow.lang.events.noVillages)
                 },
-                villagesUpdate: () => {
+                villagesUpdate: function () {
                     updateSelectedVillage()
                 },
-                startLoadingTargers: () => {
+                startLoadingTargers: function () {
                     $status.html(farmOverflow.lang.events.loadingTargets)
                 },
-                endLoadingTargers: () => {
+                endLoadingTargers: function () {
                     $status.html(farmOverflow.lang.events.analyseTargets)
                 },
-                attacking: () => {
+                attacking: function () {
                     $status.html(farmOverflow.lang.events.attacking)
                 },
-                commandLimitSingle: () => {
+                commandLimitSingle: function () {
                     $status.html(farmOverflow.lang.events.commandLimit)
                 },
-                commandLimitMulti: () => {
+                commandLimitMulti: function () {
                     $status.html(farmOverflow.lang.events.noVillages)
                 },
-                resetEvents: () => {
+                resetEvents: function () {
                     visibleEventCount = 0
                     populateEvents()
                 }
             }
 
-            for (let e in listenEvents) {
+            for (var e in listenEvents) {
                 farmOverflow.on(e, listenEvents[e])
             }
         }
@@ -228,8 +228,8 @@ define('FarmOverflow/FarmInterface', [
                 }
             }
 
-            let readable = $filter('readableDateFilter')(lastAttack)
-            let langLast = farmOverflow.lang.events.lastAttack
+            var readable = $filter('readableDateFilter')(lastAttack)
+            var langLast = farmOverflow.lang.events.lastAttack
 
             $last.html(readable)
             updateQuickview()
@@ -243,7 +243,7 @@ define('FarmOverflow/FarmInterface', [
          *      a lista de eventos, então não é alterado o "banco de dados".
          */
         function addEvent (options, _populate) {
-            let limit = farmOverflow.settings.eventsLimit
+            var limit = farmOverflow.settings.eventsLimit
 
             if (visibleEventCount >= limit) {
                 $events.find('tr:last-child').remove()
@@ -272,14 +272,14 @@ define('FarmOverflow/FarmInterface', [
          *      a lista de eventos, então os elementos são adicionados no final da lista.
          */
         function addRow ($where, options, _populate) {
-            let links = []
+            var links = []
 
             // Copia o objeto porque ele será armazenado e não queremos os
             // dados guardados já renderizados.
             options = angular.copy(options)
 
             if (options.links) {
-                for (let i = 0; i < options.links.length; i++) {
+                for (var i = 0; i < options.links.length; i++) {
                     links.push(createButtonLink(
                         options.links[i].type,
                         options.links[i].name
@@ -293,7 +293,7 @@ define('FarmOverflow/FarmInterface', [
                 }
             }
 
-            let $tr = document.createElement('tr')
+            var $tr = document.createElement('tr')
 
             $tr.className = 'reduced'
             $tr.innerHTML = TemplateEngine('___htmlFarmEvent', {
@@ -308,7 +308,7 @@ define('FarmOverflow/FarmInterface', [
             }
 
             if (options.links) {
-                for (let i = 0; i < links.length; i++) {
+                for (var i = 0; i < links.length; i++) {
                     options.links[i].elem = $tr.querySelector('#' + links[i].id)
                     options.links[i].elem.addEventListener('click', function () {
                         $wds.openVillageInfo(options.links[i].id)
@@ -324,7 +324,7 @@ define('FarmOverflow/FarmInterface', [
          * Atualiza o elemento com a aldeias atualmente selecionada
          */
         function updateSelectedVillage () {
-            let selected = farmOverflow.village
+            var selected = farmOverflow.village
 
             if (!selected) {
                 $selected.html(farmOverflow.lang.general.none)
@@ -332,9 +332,9 @@ define('FarmOverflow/FarmInterface', [
                 return false
             }
 
-            let village = createButtonLink(
+            var village = createButtonLink(
                 'village',
-                `${selected.name} (${selected.x}|${selected.y})`,
+                selected.name + ' (' + selected.x + '|' + selected.y + ')',
                 farmOverflow.village.id
             )
 
@@ -347,19 +347,19 @@ define('FarmOverflow/FarmInterface', [
          * do FarmOverflow.
          */
         function populateEvents () {
-            let settings = farmOverflow.settings
+            var settings = farmOverflow.settings
             
             // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
             if (events.length > 0) {
                 $events.html('')
             }
 
-            for (let i = 0; i < events.length; i++) {
+            for (var i = 0; i < events.length; i++) {
                 if (visibleEventCount >= settings.eventsLimit) {
                     break
                 }
 
-                let event = events[i]
+                var event = events[i]
 
                 if (!settings.eventAttack && event.type === 'sendCommand') {
                     continue
@@ -385,24 +385,24 @@ define('FarmOverflow/FarmInterface', [
          * Atualiza a lista de grupos na aba de configurações.
          */
         function updateGroupList () {
-            let types = ['groupIgnore', 'groupInclude', 'groupOnly']
-            let groups = $model.getGroupList().getGroups()
+            var types = ['groupIgnore', 'groupInclude', 'groupOnly']
+            var groups = $model.getGroupList().getGroups()
 
-            for (let type in $groups) {
+            for (var type in $groups) {
                 $groups[type].html(
-                    `<option value="">${farmOverflow.lang.general.disabled}</option>`
+                    '<option value="">' + farmOverflow.lang.general.disabled + '</option>'
                 )
 
-                for (let id in groups) {
-                    let name = groups[id].name
-                    let selected = ''
+                for (var id in groups) {
+                    var name = groups[id].name
+                    var selected = ''
 
                     if (farmOverflow.settings[type] == id) {
                         selected = 'selected'
                     }
 
                     $groups[type].append(
-                        `<option value="${id}" ${selected}>${name}</option>`
+                        '<option value="' + id + '" ' + selected + '>' + name + '</option>'
                     )
                 }
             }
@@ -412,15 +412,15 @@ define('FarmOverflow/FarmInterface', [
          * Atualiza a lista de presets na aba de configurações.
          */
         function updatePresetList () {
-            let loaded = {}
-            let presets = $model.getPresetList().presets
+            var loaded = {}
+            var presets = $model.getPresetList().presets
             
             $preset.html(
-                `<option value="">${farmOverflow.lang.general.disabled}</option>`
+                '<option value="">' + farmOverflow.lang.general.disabled + '</option>'
             )
 
-            for (let id in presets) {
-                let cleanName = presets[id].name.replace(rpreset, '').trim()
+            for (var id in presets) {
+                var cleanName = presets[id].name.replace(rpreset, '').trim()
 
                 if (cleanName in loaded) {
                     continue
@@ -431,14 +431,14 @@ define('FarmOverflow/FarmInterface', [
                     continue
                 }
 
-                let selected = ''
+                var selected = ''
 
                 if (farmOverflow.settings.presetName === cleanName) {
                     selected = 'selected'
                 }
 
                 $preset.append(
-                    `<option value="${cleanName}" ${selected}>${cleanName}</option>`
+                    '<option value="' + cleanName + '" ' + selected + '>' + cleanName + '</option>'
                 )
 
                 loaded[cleanName] = true
@@ -446,12 +446,12 @@ define('FarmOverflow/FarmInterface', [
         }
 
         function updateQuickview () {
-            let last = farmOverflow.lang.events.lastAttack
+            var last = farmOverflow.lang.events.lastAttack
             
             return last + ': ' + $last.html()
         }
 
-        let farmInterface = new Interface('farmOverflow-farm', {
+        var farmInterface = new Interface('farmOverflow-farm', {
             activeTab: 'info',
             htmlTemplate: '___htmlFarmWindow',
             htmlReplaces: angular.merge({
@@ -460,31 +460,31 @@ define('FarmOverflow/FarmInterface', [
             }, farmOverflow.lang)
         })
 
-        let farmButton = new FrontButton({
+        var farmButton = new FrontButton({
             label: 'Farm',
             classHover: 'farmOverflow-show-status',
             classBlur: 'farmOverflow-hide-status',
             hoverText: updateQuickview
         })
 
-        let $window = $(farmInterface.$window)
+        var $window = $(farmInterface.$window)
 
-        let $settings = $window.find('.settings')
-        let $save = $window.find('.save')
-        let $start = $window.find('.start')
-        let $preset = $window.find('.preset')
-        let $selected = $window.find('.selected')
-        let $events = $window.find('.events')
-        let $status = $window.find('.status')
-        let $last = $window.find('.last')
-        let $groups = {
+        var $settings = $window.find('.settings')
+        var $save = $window.find('.save')
+        var $start = $window.find('.start')
+        var $preset = $window.find('.preset')
+        var $selected = $window.find('.selected')
+        var $events = $window.find('.events')
+        var $status = $window.find('.status')
+        var $last = $window.find('.last')
+        var $groups = {
             groupIgnore: $window.find('.ignore'),
             groupInclude: $window.find('.include'),
             groupOnly: $window.find('.only')
         }
 
-        let events = Lockr.get('lastEvents', [], true)
-        let visibleEventCount = 1
+        var events = Lockr.get('lastEvents', [], true)
+        var visibleEventCount = 1
 
         bindSettings()
         bindEvents()
@@ -497,41 +497,41 @@ define('FarmOverflow/FarmInterface', [
             updatePresetList()
         }
 
-        farmOverflow.on('groupsChanged', () => {
+        farmOverflow.on('groupsChanged', function () {
             updateGroupList()
         })
 
-        farmOverflow.on('presetsLoaded', () => {
+        farmOverflow.on('presetsLoaded', function () {
             updatePresetList()
         })
 
-        farmOverflow.on('presetsChange', () => {
+        farmOverflow.on('presetsChange', function () {
             updatePresetList()
         })
 
-        farmButton.click(() => {
+        farmButton.click(function () {
             farmInterface.openWindow()
         })
 
-        $start.on('click', () => {
+        $start.on('click', function () {
             farmOverflow.switch()
         })
 
-        $hotkeys.add(farmOverflow.settings.hotkeySwitch, () => {
+        $hotkeys.add(farmOverflow.settings.hotkeySwitch, function () {
             farmOverflow.switch()
         })
 
-        $hotkeys.add(farmOverflow.settings.hotkeyWindow, () => {
+        $hotkeys.add(farmOverflow.settings.hotkeyWindow, function () {
             farmInterface.openWindow()
         })
 
-        farmOverflow.on('start', () => {
+        farmOverflow.on('start', function () {
             $start.html(farmOverflow.lang.general.pause)
             $start.removeClass('btn-green').addClass('btn-red')
             farmButton.$elem.removeClass('btn-green').addClass('btn-red')
         })
 
-        farmOverflow.on('pause', () => {
+        farmOverflow.on('pause', function () {
             $start.html(farmOverflow.lang.general.start)
             $start.removeClass('btn-red').addClass('btn-green')
             farmButton.$elem.removeClass('btn-red').addClass('btn-green')

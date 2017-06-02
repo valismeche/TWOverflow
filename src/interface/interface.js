@@ -1,7 +1,7 @@
 define('FarmOverflow/Interface', [
     'queues/EventQueue'
 ], function ($eventQueue) {
-    let interfaceInstances = []
+    var interfaceInstances = []
 
     function closeAllInstances () {
         interfaceInstances.forEach(function (ui) {
@@ -15,7 +15,7 @@ define('FarmOverflow/Interface', [
      * Injeta o CSS geral de toda UI do FarmOverflow.
      */
     function buildStyle () {
-        let $style = document.createElement('style')
+        var $style = document.createElement('style')
         $style.type = 'text/css'
         $style.id = 'farmOverflow-style'
         $style.innerHTML = '___cssStyle'
@@ -29,26 +29,28 @@ define('FarmOverflow/Interface', [
      * @class
      */
     function Interface (windowId, settings) {
-        interfaceInstances.push(this)
+        var self = this
 
-        this.windowId = windowId
-        this.activeTab = settings.activeTab
-        this.settings = settings
+        interfaceInstances.push(self)
 
-        this.buildWindow()
-        this.bindTabs()
+        self.windowId = windowId
+        self.activeTab = settings.activeTab
+        self.settings = settings
 
-        let $close = this.$window.querySelector('.farmOverflow-close')
+        self.buildWindow()
+        self.bindTabs()
 
-        $close.addEventListener('click', () => {
-            this.closeWindow()
+        var $close = self.$window.querySelector('.farmOverflow-close')
+
+        $close.addEventListener('click', function () {
+            self.closeWindow()
         })
 
-        $root.$on($eventType.WINDOW_CLOSED, () => {
-            this.closeWindow()
+        $root.$on($eventType.WINDOW_CLOSED, function () {
+            self.closeWindow()
         })
 
-        return this
+        return self
     }
 
     /**
@@ -118,15 +120,17 @@ define('FarmOverflow/Interface', [
      * Controla o estado das abas.
      */
     Interface.prototype.tabsState = function () {
-        for (let $tab of this.$tabs) {
-            let name = $tab.getAttribute('tab')
+        var self = this
 
-            let $content = this.$window.querySelector(`.farmOverflow-content-${name}`)
-            let $buttons = this.$window.querySelectorAll(`.farmOverflow-button-${name}`)
-            let $inner = $tab.querySelector('.tab-inner > div')
-            let $a = $tab.querySelector('a')
+        self.$tabs.forEach(function ($tab) {
+            var name = $tab.getAttribute('tab')
 
-            if (this.activeTab === name) {
+            var $content = self.$window.querySelector('.farmOverflow-content-' + name)
+            var $buttons = self.$window.querySelectorAll('.farmOverflow-button-' + name)
+            var $inner = $tab.querySelector('.tab-inner > div')
+            var $a = $tab.querySelector('a')
+
+            if (self.activeTab === name) {
                 $content.style.display = ''
                 $tab.classList.add('tab-active')
                 $inner.classList.add('box-border-light')
@@ -138,7 +142,7 @@ define('FarmOverflow/Interface', [
                     })
                 }
 
-                this.$scrollbar.content = $content
+                self.$scrollbar.content = $content
             } else {
                 $content.style.display = 'none'
                 $tab.classList.remove('tab-active')
@@ -152,26 +156,28 @@ define('FarmOverflow/Interface', [
                 }
             }
 
-            this.$scrollbar.recalc()
-        }
+            self.$scrollbar.recalc()
+        })
     }
 
     /**
      * Listener das abas.
      */
     Interface.prototype.bindTabs = function () {
-        this.$tabs = this.$window.querySelectorAll('.tab')
+        var self = this
 
-        for (let tab of this.$tabs) {
-            let name = tab.getAttribute('tab')
+        self.$tabs = self.$window.querySelectorAll('.tab')
+
+        self.$tabs.forEach(function ($tab) {
+            var name = $tab.getAttribute('tab')
             
-            tab.addEventListener('click', () => {
-                this.activeTab = name
-                this.tabsState()
+            $tab.addEventListener('click', function () {
+                self.activeTab = name
+                self.tabsState()
             })
-        }
+        })
 
-        this.tabsState()
+        self.tabsState()
     }
 
     return Interface

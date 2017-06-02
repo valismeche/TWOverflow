@@ -24,8 +24,7 @@
     "grunt-contrib-less": "^1.4.1",
     "grunt-contrib-uglify": "^2.2.0",
     "grunt-eslint": "^19.0.0",
-    "grunt-replace": "^1.0.1",
-    "uglify-js": "git+https://github.com/mishoo/UglifyJS2.git#harmony"
+    "grunt-replace": "^1.0.1"
   },
   "scripts": {
     "build": "grunt build"

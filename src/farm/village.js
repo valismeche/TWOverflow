@@ -40,7 +40,7 @@ define('FarmOverflow/Village', [
     }
 
     Village.prototype.countCommands = function () {
-        let commands = this.original.getCommandListModel()
+        var commands = this.original.getCommandListModel()
 
         var outgoing = commands.getOutgoingCommands(true).length
         var incoming = commands.getIncomingCommands(true).length
@@ -49,18 +49,20 @@ define('FarmOverflow/Village', [
     }
 
     Village.prototype.updateCommands = function (callback) {
-        $socket.emit($route.GET_OWN_COMMANDS, {
-            village_id: this.id
-        }, (data) => {
-            let commandList = new CommandListModel([], this.id)
+        var self = this
 
-            for (let i = 0; i < data.commands.length; i++) {
-                let command = new CommandModel(data.commands[i])
+        $socket.emit($route.GET_OWN_COMMANDS, {
+            village_id: self.id
+        }, function (data) {
+            var commandList = new CommandListModel([], self.id)
+
+            for (var i = 0; i < data.commands.length; i++) {
+                var command = new CommandModel(data.commands[i])
 
                 commandList.add(command)
             }
 
-            this.original.setCommandListModel(commandList)
+            self.original.setCommandListModel(commandList)
 
             callback()
         })
@@ -87,8 +89,8 @@ define('FarmOverflow/Village', [
             return callback()
         }
 
-        let queue = 0
-        let loaded = 0
+        var queue = 0
+        var loaded = 0
 
         if (!this.commandsLoaded()) {
             queue++

@@ -11,22 +11,22 @@
 
 'use strict'
 
-let $root = angular.element(document).scope()
-let $model = injector.get('modelDataService')
-let $socket = injector.get('socketService')
-let $route = injector.get('routeProvider')
-let $eventType = injector.get('eventTypeProvider')
-let $filter = injector.get('$filter')
-let $wds = injector.get('windowDisplayService')
-let $wms = injector.get('windowManagerService')
-let $hotkeys = injector.get('hotkeys')
-let $armyService = injector.get('armyService')
-let $villageService = injector.get('villageService')
-let $autoCompleteService = injector.get('autoCompleteService')
-let $presetList = $model.getPresetList()
+var $root = angular.element(document).scope()
+var $model = injector.get('modelDataService')
+var $socket = injector.get('socketService')
+var $route = injector.get('routeProvider')
+var $eventType = injector.get('eventTypeProvider')
+var $filter = injector.get('$filter')
+var $wds = injector.get('windowDisplayService')
+var $wms = injector.get('windowManagerService')
+var $hotkeys = injector.get('hotkeys')
+var $armyService = injector.get('armyService')
+var $villageService = injector.get('villageService')
+var $autoCompleteService = injector.get('autoCompleteService')
+var $presetList = $model.getPresetList()
 
 // Limpa qualquer text entre (, [, {, " & ' do nome dos presets
 // para serem idetificados com o mesmo nome.
-let rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
+var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
 
-let inputCheckedClass = 'icon-26x26-checkbox-checked'
+var inputCheckedClass = 'icon-26x26-checkbox-checked'

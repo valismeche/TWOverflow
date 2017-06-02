@@ -10,26 +10,26 @@ define('FarmOverflow/QueueInterface', [
     $timeHelper
 ) {
     return function () {
-        let readableDateFilter = $filter('readableDateFilter')
-        let unitNames = $model.getGameData().getOrderedUnitNames()
-        let officerNames = $model.getGameData().getOrderedOfficerNames()
+        var readableDateFilter = $filter('readableDateFilter')
+        var unitNames = $model.getGameData().getOrderedUnitNames()
+        var officerNames = $model.getGameData().getOrderedOfficerNames()
 
         function genUnitsInput () {
-            let wrapper = ['<tr>']
+            var wrapper = ['<tr>']
 
-            unitNames.forEach((unit, index) => {
+            unitNames.forEach(function (unit, index) {
                 if (index % 2 === 0 && index !== 0) {
                     wrapper.push('</tr><tr>')
                 }
 
-                let name = $filter('i18n')(unit, $root.loc.ale, 'unit_names')
+                var name = $filter('i18n')(unit, $root.loc.ale, 'unit_names')
 
                 wrapper.push(
                     '<td class="cell-space-left">',
-                    `<span class="float-left icon-bg-black icon-44x44-unit-${unit}"></span>`,
+                    '<span class="float-left icon-bg-black icon-44x44-unit-' + unit + '"></span>',
                     '<div class="ff-cell-fix cell-space-44x44">',
-                    `<span class="ng-binding">${name}</span>`,
-                    `<input class="unit" type="number" name="${unit}" placeholder="0">`,
+                    '<span class="ng-binding">' + name + '</span>',
+                    '<input class="unit" type="number" name="' + unit + '" placeholder="0">',
                     '</div>',
                     '</td>'
                 )
@@ -41,16 +41,16 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function genOfficersInput () {
-            let wrapper = ['<tr>']
+            var wrapper = ['<tr>']
             
-            officerNames.forEach((officer, index) => {
-                let name = $filter('i18n')(officer, $root.loc.ale, 'officer_names')
+            officerNames.forEach(function (officer, index) {
+                var name = $filter('i18n')(officer, $root.loc.ale, 'officer_names')
 
                 wrapper.push(
                     '<td>',
-                    `<span class="icon-44x44-premium_officer_${officer}"></span>`,
+                    '<span class="icon-44x44-premium_officer_' + officer + '"></span>',
                     '<label class="size-34x34 btn-orange icon-26x26-checkbox">',
-                    `<input type="checkbox" name="${officer}">`,
+                    '<input type="checkbox" name="' + officer + '">',
                     '</label>',
                     '</td>'
                 )
@@ -74,35 +74,35 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function dateToString (date) {
-            let hour = zeroPad(date.getHours())
-            let min = zeroPad(date.getMinutes())
-            let sec = zeroPad(date.getSeconds())
-            let day = zeroPad(date.getDate())
-            let month = zeroPad(date.getMonth() + 1)
-            let year = date.getFullYear()
+            var hour = zeroPad(date.getHours())
+            var min = zeroPad(date.getMinutes())
+            var sec = zeroPad(date.getSeconds())
+            var day = zeroPad(date.getDate())
+            var month = zeroPad(date.getMonth() + 1)
+            var year = date.getFullYear()
 
-            return `${hour}:${min}:${sec} ${month}/${day}/${year}`
+            return hour + ':' + min + ':' + sec + ' ' + month + '/' + day + '/' + year
         }
 
         function bindAdd () {
-            let commandType = 'attack'
+            var commandType = 'attack'
 
-            $addForm.on('submit', (event) => {
+            $addForm.on('submit', function (event) {
                 event.preventDefault()
 
                 if (!$addForm[0].checkValidity()) {
                     return false
                 }
 
-                let command = {
+                var command = {
                     units: {},
                     officers: {},
                     type: commandType
                 }
 
-                inputsMap.forEach((name) => {
-                    let $input = $addForm.find(`[name="${name}"]`)
-                    let value = $input.val()
+                inputsMap.forEach(function (name) {
+                    var $input = $addForm.find('[name="' + name + '"]')
+                    var value = $input.val()
 
                     if ($input[0].type === 'number') {
                         value = parseInt(value, 10)
@@ -132,28 +132,28 @@ define('FarmOverflow/QueueInterface', [
                 $(this).parent().toggleClass(inputCheckedClass)
             })
 
-            $addAttack.on('click', (event) => {
+            $addAttack.on('click', function (event) {
                 commandType = 'attack'
                 $addForm.find('input:submit')[0].click()
             })
 
-            $addSupport.on('click', (event) => {
+            $addSupport.on('click', function (event) {
                 commandType = 'support'
                 $addForm.find('input:submit')[0].click()
             })
 
-            $addSelected.on('click', () => {
-                let pos = $model.getSelectedVillage().getPosition()
+            $addSelected.on('click', function () {
+                var pos = $model.getSelectedVillage().getPosition()
                 $origin.val(pos.x + '|' + pos.y)
             })
 
-            $addCurrentDate.on('click', () => {
-                let now = dateToString($timeHelper.gameDate())
+            $addCurrentDate.on('click', function () {
+                var now = dateToString($timeHelper.gameDate())
                 $arrive.val(now)
             })
         }
 
-        let queueInterface = new Interface('farmOverflow-queue', {
+        var queueInterface = new Interface('farmOverflow-queue', {
             activeTab: 'add',
             htmlTemplate: '___htmlQueueWindow',
             htmlReplaces: {
@@ -165,30 +165,30 @@ define('FarmOverflow/QueueInterface', [
             }
         })
 
-        let queueButton = new FrontButton({
+        var queueButton = new FrontButton({
             label: 'Queue'
         })
 
-        let $window = $(queueInterface.$window)
+        var $window = $(queueInterface.$window)
 
-        let $addForm = $window.find('form.addForm')
-        let $addAttack = $window.find('a.attack')
-        let $addSupport = $window.find('a.support')
-        let $switch = $window.find('a.switch')
-        let $addSelected = $window.find('a.addSelected')
-        let $addCurrentDate = $window.find('a.addCurrentDate')
-        let $origin = $window.find('input.origin')
-        let $arrive = $window.find('input.arrive')
-        let $officers = $window.find('table.officers input')
-        let $queue = $window.find('div.queue')
+        var $addForm = $window.find('form.addForm')
+        var $addAttack = $window.find('a.attack')
+        var $addSupport = $window.find('a.support')
+        var $switch = $window.find('a.switch')
+        var $addSelected = $window.find('a.addSelected')
+        var $addCurrentDate = $window.find('a.addCurrentDate')
+        var $origin = $window.find('input.origin')
+        var $arrive = $window.find('input.arrive')
+        var $officers = $window.find('table.officers input')
+        var $queue = $window.find('div.queue')
 
-        let inputsMap = ['origin', 'target', 'arrive']
+        var inputsMap = ['origin', 'target', 'arrive']
             .concat($model.getGameData().getOrderedUnitNames())
             .concat($model.getGameData().getOrderedOfficerNames())
 
         bindAdd()
 
-        queueButton.click(() => {
+        queueButton.click(function () {
             queueInterface.openWindow()
         })
 
@@ -201,18 +201,18 @@ define('FarmOverflow/QueueInterface', [
         })
 
         Queue.onAdd(function (command) {
-            let $command = document.createElement('div')
+            var $command = document.createElement('div')
             $command.className = 'command'
 
-            let originLabel = `${command.origin.name} (${command.origin.coords})`
-            let origin = createButtonLink('village', originLabel, command.origin.id)
+            var originLabel = command.origin.name + ' (' + command.origin.coords + ')'
+            var origin = createButtonLink('village', originLabel, command.origin.id)
 
-            let targetLabel = `${command.target.name} (${command.target.coords})`
-            let target = createButtonLink('village', targetLabel, command.target.id)
+            var targetLabel = command.target.name + ' (' + command.target.coords + ')'
+            var target = createButtonLink('village', targetLabel, command.target.id)
 
-            let typeClass = command.type === 'attack' ? 'attack-small' : 'support'
-            let arrive = readableDateFilter(command.sendTime + command.travelTime)
-            let sendTime = readableDateFilter(command.sendTime)
+            var typeClass = command.type === 'attack' ? 'attack-small' : 'support'
+            var arrive = readableDateFilter(command.sendTime + command.travelTime)
+            var sendTime = readableDateFilter(command.sendTime)
 
             $command.innerHTML = TemplateEngine('___htmlQueueCommand', {
                 sendTime: sendTime,
