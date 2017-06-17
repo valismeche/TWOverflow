@@ -25,7 +25,7 @@ define('FarmOverflow/Farm', [
      *
      * @type {Number}
      */
-    const INDEX_EXPIRE_TIME = 1000 * 60 * 30
+    var INDEX_EXPIRE_TIME = 1000 * 60 * 30
 
     /**
      * Tempo de validade dos alvos adicionados nas prioridades após o script
@@ -33,7 +33,7 @@ define('FarmOverflow/Farm', [
      *
      * @type {Number}
      */
-    const PRIORITY_EXPIRE_TIME = 1000 * 60 * 10
+    var PRIORITY_EXPIRE_TIME = 1000 * 60 * 10
 
     /**
      * Mesangem de retorno quando o farm é iniciado/pausado remotamente
@@ -41,7 +41,7 @@ define('FarmOverflow/Farm', [
      *
      * @type {String}
      */
-    const REMOTE_SWITCH_RESPONSE = '[color=0a8028]OK[/color]'
+    var REMOTE_SWITCH_RESPONSE = '[color=0a8028]OK[/color]'
 
     /**
      * @class
