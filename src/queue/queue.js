@@ -288,7 +288,7 @@ define('FarmOverflow/Queue', [
             if (i) {
                 queue.splice(0, i)
             }
-        }, 150)
+        }, 250)
     }
 
     function start () {
