@@ -155,7 +155,9 @@ define('FarmOverflow/QueueInterface', [
 
         function addCommandItem (command, section) {
             var $command = document.createElement('div')
-            $command.className = section === 'queue' ? 'command' : 'log'
+            var className = section === 'queue' ? 'command' : 'log'
+            $command.className = className
+            $command.id = className + '-' + command.id
 
             var originLabel = command.origin.name + ' (' + command.origin.coords + ')'
             var origin = createButtonLink('village', originLabel, command.origin.id)
@@ -175,6 +177,7 @@ define('FarmOverflow/QueueInterface', [
                 arrive: arrive,
                 units: command.units,
                 officers: command.officers,
+                section: section,
                 lang: {
                     out: 'Saída',
                     timeLeft: 'Tempo restante',
@@ -185,9 +188,26 @@ define('FarmOverflow/QueueInterface', [
                 }
             })
 
-            var $where = section === 'queue' ? $queue : $log
-            
-            $where.append($command)
+            if (section === 'queue') {
+                var $remove = $command.querySelector('.remove-command')
+
+                $remove.addEventListener('click', function (event) {
+                    Queue.remove(command.id)
+                })
+
+                return $queue.append($command)
+            }
+
+            $log.append($command)
+        }
+
+        function removeCommandItem (id, section) {
+            var _section = section === 'queue' ? 'command' : 'log'
+            var $command = document.getElementById(_section + '-' + id)
+
+            if ($command) {
+                $command.remove()
+            }
         }
 
         var queueInterface = new Interface('farmOverflow-queue', {
@@ -230,20 +250,28 @@ define('FarmOverflow/QueueInterface', [
             queueInterface.openWindow()
         })
 
-        Queue.onSuccess(function (msg) {
-            emitNotif('success', msg)
-        })
-
         Queue.onError(function (error) {
             emitNotif('error', error)
         })
 
+        Queue.onRemove(function (removed, id) {
+            if (!removed) {
+                return emitNotif('error', 'Nenhum comando foi removido!')
+            }
+
+            removeCommandItem(id, 'queue')
+            emitNotif('success', 'Comando #' + id + ' foi removido!')
+        })
+
         Queue.onAdd(function (command) {
             addCommandItem(command, 'queue')
+            emitNotif('success', 'Comando adicionado!')
         })
 
         Queue.onSend(function (command) {
+            removeCommandItem(command.id, 'queue')
             addCommandItem(command, 'log')
+            emitNotif('success', 'Comando #' + command.id + ' foi enviado!')
         })
     }
 })

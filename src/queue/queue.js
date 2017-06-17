@@ -4,8 +4,8 @@ define('FarmOverflow/Queue', [
     'helper/math'
 ], function (UNITS, $timeHelper, $math) {
     var errorCallback = function () {}
-    var successCallback = function () {}
     var addCallback = function () {}
+    var removeCallback = function () {}
     var sendCallback = function () {}
 
     var i18n = $filter('i18n')
@@ -156,12 +156,12 @@ define('FarmOverflow/Queue', [
         errorCallback = fn
     }
 
-    function onSuccess (fn) {
-        successCallback = fn
-    }
-
     function onAdd (fn) {
         addCallback = fn
+    }
+
+    function onRemove (fn) {
+        removeCallback = fn
     }
 
     function onSend (fn) {
@@ -231,7 +231,6 @@ define('FarmOverflow/Queue', [
             queue.push(command)
             orderQueue()
 
-            successCallback('Command added.')
             addCallback(command)
         })
 
@@ -295,10 +294,12 @@ define('FarmOverflow/Queue', [
                 console.log('ataque #' + id + ' removido!')
                 
                 queue.splice(i, i + 1)
+                removeCallback(true, id)
                 return
             }
         }
 
+        removeCallback(false)
         console.log('nenhum ataque removido!')
     }
 
@@ -334,8 +335,8 @@ define('FarmOverflow/Queue', [
         show: show,
         remove: remove,
         onError: onError,
-        onSuccess: onSuccess,
         onAdd: onAdd,
+        onRemove: onRemove,
         onSend: onSend
     }
 })
