@@ -136,19 +136,6 @@ define('FarmOverflow/Queue', [
             catapult_target: null
         })
 
-        console.log('============= planeador =============')
-        console.log('ataque #' + command.id + ' enviado')
-
-        console.log({
-            start_village: command.origin.id,
-            target_village: command.target.id,
-            type: command.type,
-            units: command.units,
-            icon: 0,
-            officers: command.officers,
-            catapult_target: null
-        })
-
         sendCallback(command)
     }
 
@@ -168,7 +155,6 @@ define('FarmOverflow/Queue', [
         sendCallback = fn
     }
 
-    // function add (origin, target, units, arrive, type, officers) {
     function add (command) {
         if (!command.origin || !command.target) {
             return errorCallback('Origin/target has errors.')
@@ -239,68 +225,17 @@ define('FarmOverflow/Queue', [
         })
     }
 
-    function show (_id) {
-        var gameTime = $timeHelper.gameTime()
-
-        // var commandsTable = {}
-
-        for (var i = 0; i < queue.length; i++) {
-            var cmd = queue[i]
-
-            if (_id && _id != cmd.id) {
-                continue
-            }
-            
-            var troops = joinTroopsLog(cmd.units)
-            var officers = joinOfficersLog(cmd.officers)
-            var $travelTime = readableMillisecondsFilter(cmd.travelTime)
-            var $sendTime = readableDateFilter(cmd.sendTime)
-            var $arrive = readableDateFilter(cmd.sendTime + cmd.travelTime)
-            var $remain = readableMillisecondsFilter(cmd.sendTime - gameTime)
-
-            console.log('%c============= planeador.show #' + cmd.id + ' =============', 'background:#ccc')
-            console.log('Identificação:  ' + cmd.id)
-            console.log('Saida em:       ' + $remain)
-            console.log('Duração:        ' + $travelTime)
-            console.log('Envio:          ' + $sendTime)
-            console.log('Chegada:        ' + $arrive)
-            console.log('Origem:         ' + cmd.origin.name + ' (' + cmd.origin.coords + ')')
-            console.log('Alvo:           ' + cmd.target.name + ' (' + cmd.target.coords + ')')
-            console.log('Tropas:         ' + troops)
-            console.log('Oficiais:       ' + officers)
-            console.log('Tipo:           ' + cmd.type)
-
-            // commandsTable[cmd.id] = {
-            //     'Saida em': $remain,
-            //     'Duração': $travelTime,
-            //     'Envio': $sendTime,
-            //     'Chegada': $arrive,
-            //     'Origem': cmd.target.name + ' (' + cmd.target.coords + ')',
-            //     'Alvo': cmd.target.name + ' (' + cmd.target.coords + ')',
-            //     'Tropas': troops,
-            //     'Oficiais': officers,
-            //     'Tipo': cmd.type
-            // }
-        }
-
-        // console.table(commandsTable)
-    }
-
     function remove (id) {
-        console.log('%c============= planeador.remove =============', 'background:#ccc')
-
         for (var i = 0; i < queue.length; i++) {
             if (queue[i].id == id) {
-                console.log('ataque #' + id + ' removido!')
-                
                 queue.splice(i, i + 1)
                 removeCallback(true, id)
-                return
+
+                return false
             }
         }
 
         removeCallback(false)
-        console.log('nenhum ataque removido!')
     }
 
     function listener () {
