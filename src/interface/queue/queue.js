@@ -153,56 +153,9 @@ define('FarmOverflow/QueueInterface', [
             })
         }
 
-        var queueInterface = new Interface('farmOverflow-queue', {
-            activeTab: 'add',
-            htmlTemplate: '___htmlQueueWindow',
-            htmlReplaces: {
-                version: Queue.version,
-                author: ___author,
-                title: 'CommandQueue',
-                unitsInput: genUnitsInput(),
-                officersInput: genOfficersInput()
-            }
-        })
-
-        var queueButton = new FrontButton({
-            label: 'Queue'
-        })
-
-        var $window = $(queueInterface.$window)
-
-        var $addForm = $window.find('form.addForm')
-        var $addAttack = $window.find('a.attack')
-        var $addSupport = $window.find('a.support')
-        var $switch = $window.find('a.switch')
-        var $addSelected = $window.find('a.addSelected')
-        var $addCurrentDate = $window.find('a.addCurrentDate')
-        var $origin = $window.find('input.origin')
-        var $arrive = $window.find('input.arrive')
-        var $officers = $window.find('table.officers input')
-        var $queue = $window.find('div.queue')
-
-        var inputsMap = ['origin', 'target', 'arrive']
-            .concat($model.getGameData().getOrderedUnitNames())
-            .concat($model.getGameData().getOrderedOfficerNames())
-
-        bindAdd()
-
-        queueButton.click(function () {
-            queueInterface.openWindow()
-        })
-
-        Queue.onSuccess(function (msg) {
-            emitNotif('success', msg)
-        })
-
-        Queue.onError(function (error) {
-            emitNotif('error', error)
-        })
-
-        Queue.onAdd(function (command) {
+        function addCommandItem (command, section) {
             var $command = document.createElement('div')
-            $command.className = 'command'
+            $command.className = section === 'queue' ? 'command' : 'log'
 
             var originLabel = command.origin.name + ' (' + command.origin.coords + ')'
             var origin = createButtonLink('village', originLabel, command.origin.id)
@@ -232,7 +185,65 @@ define('FarmOverflow/QueueInterface', [
                 }
             })
 
-            $queue.append($command)
+            var $where = section === 'queue' ? $queue : $log
+            
+            $where.append($command)
+        }
+
+        var queueInterface = new Interface('farmOverflow-queue', {
+            activeTab: 'add',
+            htmlTemplate: '___htmlQueueWindow',
+            htmlReplaces: {
+                version: Queue.version,
+                author: ___author,
+                title: 'CommandQueue',
+                unitsInput: genUnitsInput(),
+                officersInput: genOfficersInput()
+            }
+        })
+
+        var queueButton = new FrontButton({
+            label: 'Queue'
+        })
+
+        var $window = $(queueInterface.$window)
+
+        var $addForm = $window.find('form.addForm')
+        var $addAttack = $window.find('a.attack')
+        var $addSupport = $window.find('a.support')
+        var $switch = $window.find('a.switch')
+        var $addSelected = $window.find('a.addSelected')
+        var $addCurrentDate = $window.find('a.addCurrentDate')
+        var $origin = $window.find('input.origin')
+        var $arrive = $window.find('input.arrive')
+        var $officers = $window.find('table.officers input')
+        var $queue = $window.find('div.queue')
+        var $log = $window.find('div.log')
+
+        var inputsMap = ['origin', 'target', 'arrive']
+            .concat($model.getGameData().getOrderedUnitNames())
+            .concat($model.getGameData().getOrderedOfficerNames())
+
+        bindAdd()
+
+        queueButton.click(function () {
+            queueInterface.openWindow()
+        })
+
+        Queue.onSuccess(function (msg) {
+            emitNotif('success', msg)
+        })
+
+        Queue.onError(function (error) {
+            emitNotif('error', error)
+        })
+
+        Queue.onAdd(function (command) {
+            addCommandItem(command, 'queue')
+        })
+
+        Queue.onSend(function (command) {
+            addCommandItem(command, 'log')
         })
     }
 })

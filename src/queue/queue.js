@@ -6,6 +6,7 @@ define('FarmOverflow/Queue', [
     var errorCallback = function () {}
     var successCallback = function () {}
     var addCallback = function () {}
+    var sendCallback = function () {}
 
     var i18n = $filter('i18n')
     var readableMillisecondsFilter = $filter('readableMillisecondsFilter')
@@ -147,6 +148,8 @@ define('FarmOverflow/Queue', [
             officers: command.officers,
             catapult_target: null
         })
+
+        sendCallback(command)
     }
 
     function onError (fn) {
@@ -159,6 +162,10 @@ define('FarmOverflow/Queue', [
 
     function onAdd (fn) {
         addCallback = fn
+    }
+
+    function onSend (fn) {
+        sendCallback = fn
     }
 
     // function add (origin, target, units, arrive, type, officers) {
@@ -319,7 +326,7 @@ define('FarmOverflow/Queue', [
         }, 150)
     }
 
-    // listener()
+    listener()
 
     return {
         version: '0.1.0',
@@ -328,6 +335,7 @@ define('FarmOverflow/Queue', [
         remove: remove,
         onError: onError,
         onSuccess: onSuccess,
-        onAdd: onAdd
+        onAdd: onAdd,
+        onSend: onSend
     }
 })
