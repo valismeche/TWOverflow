@@ -132,6 +132,14 @@ define('FarmOverflow/QueueInterface', [
                 $(this).parent().toggleClass(inputCheckedClass)
             })
 
+            $switch.on('click', function (event) {
+                if (Queue.isRunning()) {
+                    Queue.stop()
+                } else {
+                    Queue.start()
+                }
+            })
+
             $addAttack.on('click', function (event) {
                 commandType = 'attack'
                 $addForm.find('input:submit')[0].click()
@@ -263,6 +271,11 @@ define('FarmOverflow/QueueInterface', [
             emitNotif('success', 'Comando #' + id + ' foi removido!')
         })
 
+        Queue.onExpired(function (id) {
+            removeCommandItem(id, 'queue')
+            emitNotif('error', 'Comando #' + id + ' expirou! Planeador está desativado!')
+        })
+
         Queue.onAdd(function (command) {
             addCommandItem(command, 'queue')
             emitNotif('success', 'Comando adicionado!')
@@ -272,6 +285,24 @@ define('FarmOverflow/QueueInterface', [
             removeCommandItem(command.id, 'queue')
             addCommandItem(command, 'log')
             emitNotif('success', 'Comando #' + command.id + ' foi enviado!')
+        })
+
+        Queue.onStart(function () {
+            queueButton.$elem.removeClass('btn-green').addClass('btn-red')
+
+            $switch.removeClass('btn-green').addClass('btn-red')
+            $switch.html('Desativar')
+
+            emitNotif('success', 'CommandQueue está ativado!')
+        })
+
+        Queue.onStop(function () {
+            queueButton.$elem.removeClass('btn-red').addClass('btn-green')
+            
+            $switch.removeClass('btn-red').addClass('btn-green')
+            $switch.html('Ativar')
+
+            emitNotif('success', 'CommandQueue está desativado!')
         })
     }
 })

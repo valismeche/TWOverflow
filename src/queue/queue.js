@@ -7,6 +7,9 @@ define('FarmOverflow/Queue', [
     var addCallback = function () {}
     var removeCallback = function () {}
     var sendCallback = function () {}
+    var startCallback = function () {}
+    var stopCallback = function () {}
+    var expiredCallback = function () {}
 
     var i18n = $filter('i18n')
     var readableMillisecondsFilter = $filter('readableMillisecondsFilter')
@@ -14,6 +17,7 @@ define('FarmOverflow/Queue', [
 
     var queue = []
     var index = 0
+    var running = false
 
     function joinTroopsLog (units) {
         var troops = []
@@ -155,6 +159,18 @@ define('FarmOverflow/Queue', [
         sendCallback = fn
     }
 
+    function onStart (fn) {
+        startCallback = fn
+    }
+
+    function onStop (fn) {
+        stopCallback = fn
+    }
+
+    function onExpired (fn) {
+        expiredCallback = fn
+    }
+
     function add (command) {
         if (!command.origin || !command.target) {
             return errorCallback('Origin/target has errors.')
@@ -225,17 +241,26 @@ define('FarmOverflow/Queue', [
         })
     }
 
-    function remove (id) {
+    function remove (id, reason) {
         for (var i = 0; i < queue.length; i++) {
             if (queue[i].id == id) {
                 queue.splice(i, i + 1)
-                removeCallback(true, id)
+
+                if (reason === 'expired') {
+                    expiredCallback(id)
+                } else {
+                    removeCallback(true, id)
+                }
 
                 return false
             }
         }
 
         removeCallback(false)
+    }
+
+    function expiredCommand (id) {
+        remove(id, 'expired')
     }
 
     function listener () {
@@ -250,7 +275,11 @@ define('FarmOverflow/Queue', [
 
             for (i = 0; i < queue.length; i++) {
                 if (queue[i].sendTime - gameTime < 0) {
-                    sendCommand(queue[i])
+                    if (running) {
+                        sendCommand(queue[i])
+                    } else {
+                        expiredCommand(queue[i].id)
+                    }
                 } else {
                     break
                 }
@@ -262,16 +291,35 @@ define('FarmOverflow/Queue', [
         }, 150)
     }
 
+    function start () {
+        running = true
+        startCallback()
+    }
+
+    function stop () {
+        running = false
+        stopCallback()
+    }
+
+    function isRunning () {
+        return !!running
+    }
+
     listener()
 
     return {
         version: '0.1.0',
         add: add,
-        show: show,
         remove: remove,
         onError: onError,
         onAdd: onAdd,
         onRemove: onRemove,
-        onSend: onSend
+        onSend: onSend,
+        onStart: onStart,
+        onStop: onStop,
+        onExpired: onExpired,
+        start: start,
+        stop: stop,
+        isRunning: isRunning
     }
 })
