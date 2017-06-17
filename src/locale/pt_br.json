@@ -54,7 +54,7 @@
         ],
         "presets": [
             "Configurando predefinições",
-            "O FarmOverflow utiliza as próprias predefinições do jogo configuradas por você, basta selecionar uma na aba configurações, sallet e iniciar!",
+            "O FarmOverflow utiliza as próprias predefinições do jogo configuradas por você, basta selecionar uma na aba configurações, salvar e iniciar!",
             "Como o jogo só permite enviar predefinições que estejam ativas na aldeia, o FarmOverflow irá ativa-las automaticamente caso já não estejam.",
             "Você pode usar mais de uma predefinição, <strong>desde que tenham o mesmo nome</strong> (você pode adicionar uma pequena descrição na frente do nome para identifica-las melhor).",
             "Veja alguns exemplos para os nomes das predefinições:",
@@ -101,7 +101,7 @@
         "presetName": "Predefinição das tropas",
         "randomBase": "Base do intervalo aleatório (segundos)",
         "ignoreOnLoss": "Ignorar aldeias que causarem perdas<br/>(Necessita de um grupo de ignorados ativo)",
-        "save": "Sallet configurações",
+        "save": "Salvar configurações",
         "saved": "Configurações salvas!",
         "filters": "Filtros",
         "presets": "Predefinições",
