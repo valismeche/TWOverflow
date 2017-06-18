@@ -226,36 +226,36 @@ define('FarmOverflow/Queue', [
         command.origin = { coords: command.origin, name: null, id: null }
         command.target = { coords: command.target, name: null, id: null }
 
-        var checkVillages = new Promise(function (resolve, reject) {
-            var success = 0
-
+        var updateOrigin = new Promise(function (resolve, reject) {
             updateVillageData(command, 'origin', function (villageData) {
                 if (!villageData.hasOwnProperty('id')) {
-                    reject('Origin village does not exist.')
-                } else if (++success === 2) {
-                    resolve()
+                    return reject('Origin village does not exist.')
                 }
-            })
 
+                resolve()
+            })
+        })
+
+        var updateTarget = new Promise(function (resolve, reject) {
             updateVillageData(command, 'target', function (villageData) {
                 if (!villageData.hasOwnProperty('id')) {
-                    reject('Target village does not exist.')
-                } else if (++success === 2) {
-                    resolve()
+                    return reject('Target village does not exist.')
                 }
+
+                resolve()
             })
         })
 
-        checkVillages.then(function () {
-            queue.push(command)
-            orderQueue()
+        Promise.all([updateOrigin, updateTarget])
+            .then(function () {
+                queue.push(command)
+                orderQueue()
 
-            Queue.trigger('add', [command])
-        })
-
-        checkVillages.catch(function (error) {
-            Queue.trigger('error', [error])
-        })
+                Queue.trigger('add', [command])
+            })
+            .catch(function (error) {
+                Queue.trigger('error', [error])
+            })
     }
 
     Queue.removeCommand = function (id, reason) {
