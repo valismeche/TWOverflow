@@ -1,9 +1,10 @@
 require([
     'FarmOverflow/Farm',
     'FarmOverflow/FarmInterface',
+    'FarmOverflow/Queue',
     'FarmOverflow/QueueInterface',
     'FarmOverflow/analytics'
-], function (Farm, FarmInterface, QueueInterface, analytics) {
+], function (Farm, FarmInterface, Queue, QueueInterface, analytics) {
     if (Farm.initialized) {
         return false
     } else {
@@ -20,6 +21,8 @@ require([
 
         farmOverflow = new Farm()
         FarmInterface(farmOverflow)
+
+        Queue.init()
         QueueInterface()
     }
 

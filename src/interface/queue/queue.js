@@ -125,7 +125,7 @@ define('FarmOverflow/QueueInterface', [
 
                 console.log('command', command)
 
-                Queue.add(command)
+                Queue.addCommand(command)
             })
 
             $officers.on('click', function () {
@@ -200,7 +200,7 @@ define('FarmOverflow/QueueInterface', [
                 var $remove = $command.querySelector('.remove-command')
 
                 $remove.addEventListener('click', function (event) {
-                    Queue.remove(command.id)
+                    Queue.removeCommand(command.id)
                 })
 
                 return $queue.append($command)
@@ -258,11 +258,11 @@ define('FarmOverflow/QueueInterface', [
             queueInterface.openWindow()
         })
 
-        Queue.onError(function (error) {
+        Queue.bind('error', function (error) {
             emitNotif('error', error)
         })
 
-        Queue.onRemove(function (removed, id) {
+        Queue.bind('remove', function (removed, id) {
             if (!removed) {
                 return emitNotif('error', 'Nenhum comando foi removido!')
             }
@@ -271,23 +271,24 @@ define('FarmOverflow/QueueInterface', [
             emitNotif('success', 'Comando #' + id + ' foi removido!')
         })
 
-        Queue.onExpired(function (id) {
+        Queue.bind('expired', function (id) {
             removeCommandItem(id, 'queue')
             emitNotif('error', 'Comando #' + id + ' expirou! Planeador está desativado!')
         })
 
-        Queue.onAdd(function (command) {
+        Queue.bind('add', function (command) {
+            console.log(arguments)
             addCommandItem(command, 'queue')
             emitNotif('success', 'Comando adicionado!')
         })
 
-        Queue.onSend(function (command) {
+        Queue.bind('send', function (command) {
             removeCommandItem(command.id, 'queue')
             addCommandItem(command, 'log')
             emitNotif('success', 'Comando #' + command.id + ' foi enviado!')
         })
 
-        Queue.onStart(function () {
+        Queue.bind('start', function () {
             queueButton.$elem.removeClass('btn-green').addClass('btn-red')
 
             $switch.removeClass('btn-green').addClass('btn-red')
@@ -296,7 +297,7 @@ define('FarmOverflow/QueueInterface', [
             emitNotif('success', 'CommandQueue está ativado!')
         })
 
-        Queue.onStop(function () {
+        Queue.bind('stop', function () {
             queueButton.$elem.removeClass('btn-red').addClass('btn-green')
             
             $switch.removeClass('btn-red').addClass('btn-green')

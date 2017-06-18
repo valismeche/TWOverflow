@@ -3,21 +3,16 @@ define('FarmOverflow/Queue', [
     'helper/time',
     'helper/math'
 ], function (UNITS, $timeHelper, $math) {
-    var errorCallback = function () {}
-    var addCallback = function () {}
-    var removeCallback = function () {}
-    var sendCallback = function () {}
-    var startCallback = function () {}
-    var stopCallback = function () {}
-    var expiredCallback = function () {}
-
     var i18n = $filter('i18n')
     var readableMillisecondsFilter = $filter('readableMillisecondsFilter')
     var readableDateFilter = $filter('readableDateFilter')
 
+    var listeners = {}
     var queue = []
     var index = 0
     var running = false
+
+    // privates
 
     function joinTroopsLog (units) {
         var troops = []
@@ -89,12 +84,6 @@ define('FarmOverflow/Queue', [
         return true
     }
 
-    function orderQueue () {
-        queue = queue.sort(function (a, b) {
-            return a.sendTime - b.sendTime
-        })
-    }
-
     function getTravelTime (origin, target, units, type, officers) {
         var army = {
             units: units,
@@ -129,7 +118,63 @@ define('FarmOverflow/Queue', [
         return totalTravelTime * 1000
     }
 
-    function sendCommand (command) {
+    function orderQueue () {
+        queue = queue.sort(function (a, b) {
+            return a.sendTime - b.sendTime
+        })
+    }
+
+    // publics
+
+    var Queue = {
+        version: '0.1.0'
+    }
+
+    Queue.init = function () {
+        setInterval(function () {
+            var gameTime = $timeHelper.gameTime()
+            var command
+            var i
+
+            if (!queue.length) {
+                return false
+            }
+
+            for (i = 0; i < queue.length; i++) {
+                if (queue[i].sendTime - gameTime < 0) {
+                    if (running) {
+                        Queue.sendCommand(queue[i])
+                    } else {
+                        Queue.expireCommand(queue[i].id)
+                    }
+                } else {
+                    break
+                }
+            }
+
+            if (i) {
+                queue.splice(0, i)
+            }
+        }, 250)
+    }
+
+    Queue.trigger = function (event, args) {
+        if (event in listeners && listeners[event].length) {
+            listeners[event].forEach(function (handler) {
+                handler.apply(this, args)
+            })
+        }
+    }
+
+    Queue.bind = function (event, handler) {
+        if (!listeners.hasOwnProperty(event)) {
+            listeners[event] = []
+        }
+
+        listeners[event].push(handler)
+    }
+
+    Queue.sendCommand = function (command) {
         $socket.emit($route.SEND_CUSTOM_ARMY, {
             start_village: command.origin.id,
             target_village: command.target.id,
@@ -140,52 +185,24 @@ define('FarmOverflow/Queue', [
             catapult_target: null
         })
 
-        sendCallback(command)
+        Queue.trigger('send', [command])
     }
 
-    function onError (fn) {
-        errorCallback = fn
-    }
-
-    function onAdd (fn) {
-        addCallback = fn
-    }
-
-    function onRemove (fn) {
-        removeCallback = fn
-    }
-
-    function onSend (fn) {
-        sendCallback = fn
-    }
-
-    function onStart (fn) {
-        startCallback = fn
-    }
-
-    function onStop (fn) {
-        stopCallback = fn
-    }
-
-    function onExpired (fn) {
-        expiredCallback = fn
-    }
-
-    function add (command) {
+    Queue.addCommand = function (command) {
         if (!command.origin || !command.target) {
-            return errorCallback('Origin/target has errors.')
+            return Queue.trigger('error', ['Origin/target has errors.'])
         }
 
         if (!checkCoords(command.origin)) {
-            return errorCallback('Origin coords format ' + origin + ' is invalid.')
+            return Queue.trigger('error', ['Origin coords format ' + origin + ' is invalid.'])
         }
 
         if (!checkCoords(command.target)) {
-            return errorCallback('Origin coords format ' + target + ' is invalid.')
+            return Queue.trigger('error', ['Origin coords format ' + target + ' is invalid.'])
         }
 
         if (!checkUnits(command.units)) {
-            return errorCallback('You need to specify an amount of units.')
+            return Queue.trigger('error', ['You need to specify an amount of units.'])
         }
 
         command.units = cleanZeroUnits(command.units)
@@ -195,7 +212,7 @@ define('FarmOverflow/Queue', [
         var sendTime = arriveTime - travelTime
 
         if (!checkArriveTime(sendTime)) {
-            return errorCallback('This command should have already exited.')
+            return Queue.trigger('error', ['This command should have already exited.'])
         }
 
         // transform "true" to 1 because the game do like that
@@ -233,93 +250,49 @@ define('FarmOverflow/Queue', [
             queue.push(command)
             orderQueue()
 
-            addCallback(command)
+            Queue.trigger('add', [command])
         })
 
         checkVillages.catch(function (error) {
-            errorCallback(error)
+            Queue.trigger('error', [error])
         })
     }
 
-    function remove (id, reason) {
+    Queue.removeCommand = function (id, reason) {
         for (var i = 0; i < queue.length; i++) {
             if (queue[i].id == id) {
                 queue.splice(i, i + 1)
 
                 if (reason === 'expired') {
-                    expiredCallback(id)
+                    Queue.trigger('expired', [id])
                 } else {
-                    removeCallback(true, id)
+                    Queue.trigger('remove', [true, id])
                 }
 
                 return false
             }
         }
 
-        removeCallback(false)
+        Queue.trigger('remove', [false])
     }
 
-    function expiredCommand (id) {
-        remove(id, 'expired')
+    Queue.expireCommand = function (id) {
+        Queue.removeCommand(id, 'expired')
     }
 
-    function listener () {
-        setInterval(function () {
-            var gameTime = $timeHelper.gameTime()
-            var command
-            var i
-
-            if (!queue.length) {
-                return false
-            }
-
-            for (i = 0; i < queue.length; i++) {
-                if (queue[i].sendTime - gameTime < 0) {
-                    if (running) {
-                        sendCommand(queue[i])
-                    } else {
-                        expiredCommand(queue[i].id)
-                    }
-                } else {
-                    break
-                }
-            }
-
-            if (i) {
-                queue.splice(0, i)
-            }
-        }, 250)
-    }
-
-    function start () {
+    Queue.start = function () {
         running = true
-        startCallback()
+        Queue.trigger('start')
     }
 
-    function stop () {
+    Queue.stop = function () {
         running = false
-        stopCallback()
+        Queue.trigger('stop')
     }
 
-    function isRunning () {
+    Queue.isRunning = function () {
         return !!running
     }
 
-    listener()
-
-    return {
-        version: '0.1.0',
-        add: add,
-        remove: remove,
-        onError: onError,
-        onAdd: onAdd,
-        onRemove: onRemove,
-        onSend: onSend,
-        onStart: onStart,
-        onStop: onStop,
-        onExpired: onExpired,
-        start: start,
-        stop: stop,
-        isRunning: isRunning
-    }
+    return Queue
 })
