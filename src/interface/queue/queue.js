@@ -161,7 +161,18 @@ define('FarmOverflow/QueueInterface', [
             })
         }
 
+        function removeEmptyMessage (section) {
+            var $where = section === 'queue' ? $queue : $log
+            var $msg = $where.find('p.nothingYet')
+
+            if ($msg.length) {
+                $msg.remove()
+            }
+        }
+
         function addCommandItem (command, section) {
+            removeEmptyMessage(section)
+
             var $command = document.createElement('div')
             var className = section === 'queue' ? 'command' : 'log'
             $command.className = className

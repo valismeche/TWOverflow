@@ -32,23 +32,18 @@
             <td class="units">
                 {{ for (var unit in this.units) { }}
                     <div class="unit">
-                        <span class="icon-34x34-unit-{{ unit }}"></span>
-                        <br>
-                        <span>{{ this.units[unit] }}</span>
+                        <span class="icon-34x34-unit-{{ unit }} icon"></span><span class="amount">{{ this.units[unit] }}</span>
                     </div>
+                {{ } }}
+
+                {{ if (Object.keys(this.officers).length) { }}
+                    {{ for (var officer in this.officers) { }}
+                        <div class="officer">
+                            <span class="icon-34x34-premium_officer_{{ officer }}"></span>
+                        </div>
+                    {{ } }}
                 {{ } }}
             </td>
         </tr>
-
-        {{ if (Object.keys(this.officers).length) { }}
-            <tr>
-                <td>{{ this.lang.officers }}</td>
-                <td class="officers">
-                    {{ for (var officer in this.officers) { }}
-                        <span class="icon-34x34-premium_officer_{{ officer }}"></span>
-                    {{ } }}
-                </td>
-            </tr>
-        {{ } }}
     </tbody>
 </table>

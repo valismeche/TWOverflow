@@ -137,14 +137,26 @@
     }
 
     .units {
-        span[class^="icon"] {
-            vertical-align: -4px;
+        div.unit {
+            float: left;
+
+            span.icon {
+                zoom: 0.6;
+            }
+
+            span.amount {
+                vertical-align: -2px;
+                margin: 0 5px 0 2px;
+            }
         }
 
-        div.unit {
-            width: 40px;
+        div.officer {
             float: left;
-            text-align: center;
+            margin: 0 2px;
+
+            span {
+                zoom: 0.6;
+            }
         }
     }
 }
