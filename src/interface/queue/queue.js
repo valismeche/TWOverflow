@@ -207,6 +207,17 @@ define('FarmOverflow/QueueInterface', [
                 }
             })
 
+            var $originButton = $command.querySelector('#' + origin.id)
+            var $targetButton = $command.querySelector('#' + target.id)
+
+            $originButton.addEventListener('click', function () {
+                $wds.openVillageInfo(command.origin.id)
+            })
+
+            $targetButton.addEventListener('click', function () {
+                $wds.openVillageInfo(command.target.id)
+            })
+
             if (section === 'queue') {
                 var $remove = $command.querySelector('.remove-command')
 
@@ -214,10 +225,10 @@ define('FarmOverflow/QueueInterface', [
                     Queue.removeCommand(command.id)
                 })
 
-                return $queue.append($command)
+                $queue.append($command)
+            } else {
+                $log.append($command)
             }
-
-            $log.append($command)
         }
 
         function removeCommandItem (id, section) {
