@@ -85,7 +85,7 @@ define('FarmOverflow/Farm', [
          *
          * @type {String}
          */
-        this.version = '___version'
+        this.version = '___farmOverlflowVersion'
 
         /**
          * Objeto com dados do jogador.

@@ -127,7 +127,7 @@ define('FarmOverflow/Queue', [
     // publics
 
     var Queue = {
-        version: '0.1.0'
+        version: '___commandQueueVersion'
     }
 
     Queue.init = function () {

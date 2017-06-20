@@ -61,7 +61,8 @@ module.exports = function (grunt) {
                     patterns: [{
                         json: {
                             title: '<%= pkg.title %>',
-                            version: '<%= pkg.version %>',
+                            farmOverlflowVersion: '<%= pkg.farmOverlflowVersion %>',
+                            commandQueueVersion: '<%= pkg.commandQueueVersion %>',
                             license: '<%= pkg.license %>',
                             author: '<%= pkg.author %>',
                             authorName: '<%= pkg.author.name %>',
