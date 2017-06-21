@@ -71,7 +71,7 @@ define('FarmOverflow/Farm', [
             hotkeyWindow: 'z'
         }
 
-        var localSettings = Lockr.get('settings', {}, true)
+        var localSettings = Lockr.get('farm-settings', {}, true)
 
         /**
          * Obtem configurações locais.
@@ -199,7 +199,7 @@ define('FarmOverflow/Farm', [
          *
          * @type {Object}
          */
-        this.indexes = Lockr.get('indexes', {}, true)
+        this.indexes = Lockr.get('farm-indexes', {}, true)
 
         /**
          * Armazena todas aldeias que não estão em confições de enviar comandos.
@@ -252,7 +252,7 @@ define('FarmOverflow/Farm', [
          *
          * @type {Number}
          */
-        this.lastActivity = Lockr.get('lastActivity', $timeHelper.gameTime(), true)
+        this.lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
 
         /**
          * Timestamp da última atividade do FarmOverflow como atques e
@@ -260,7 +260,7 @@ define('FarmOverflow/Farm', [
          *
          * @type {Number}
          */
-        this.lastAttack = Lockr.get('lastAttack', -1, true)
+        this.lastAttack = Lockr.get('farm-lastAttack', -1, true)
 
         this.updateExceptionGroups()
         this.updateExceptionVillages()
@@ -311,7 +311,7 @@ define('FarmOverflow/Farm', [
         // Reseta a lista índices caso tenha expirado
         if (now > this.lastActivity + INDEX_EXPIRE_TIME) {
             this.indexes = {}
-            Lockr.set('indexes', {})
+            Lockr.set('farm-indexes', {})
         }
 
         this.commander = new Commander(this)
@@ -359,7 +359,7 @@ define('FarmOverflow/Farm', [
      */
     FarmOverflow.prototype.updateActivity = function () {
         this.lastActivity = $timeHelper.gameTime()
-        Lockr.set('lastActivity', this.lastActivity)
+        Lockr.set('farm-lastActivity', this.lastActivity)
     }
 
     /**
@@ -367,7 +367,7 @@ define('FarmOverflow/Farm', [
      */
     FarmOverflow.prototype.updateLastAttack = function () {
         this.lastAttack = $timeHelper.gameTime()
-        Lockr.set('lastAttack', this.lastAttack)
+        Lockr.set('farm-lastAttack', this.lastAttack)
     }
 
     /**
@@ -419,7 +419,7 @@ define('FarmOverflow/Farm', [
             self.settings[key] = changes[key]
         }
 
-        Lockr.set('settings', self.settings)
+        Lockr.set('farm-settings', self.settings)
 
         // Nenhuma alteração nas configurações
         if (angular.equals(modify, {})) {
@@ -538,7 +538,7 @@ define('FarmOverflow/Farm', [
             this.indexes[sid] = 0
         }
 
-        Lockr.set('indexes', this.indexes)
+        Lockr.set('farm-indexes', this.indexes)
 
         return true
     }
@@ -748,12 +748,12 @@ define('FarmOverflow/Farm', [
                 if (self.indexes[sid] > self.targets[sid].length) {
                     self.indexes[sid] = 0
 
-                    Lockr.set('indexes', self.indexes)
+                    Lockr.set('farm-indexes', self.indexes)
                 }
             } else {
                 self.indexes[sid] = 0
 
-                Lockr.set('indexes', self.indexes)
+                Lockr.set('farm-indexes', self.indexes)
             }
 
             callback()

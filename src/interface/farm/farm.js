@@ -260,7 +260,7 @@ define('FarmOverflow/FarmInterface', [
                 options.timestamp = $timeHelper.gameTime()
                 events.unshift(options)
                 
-                Lockr.set('lastEvents', events)
+                Lockr.set('farm-lastEvents', events)
             }
         }
 
@@ -483,7 +483,7 @@ define('FarmOverflow/FarmInterface', [
             groupOnly: $window.find('.only')
         }
 
-        var events = Lockr.get('lastEvents', [], true)
+        var events = Lockr.get('farm-lastEvents', [], true)
         var visibleEventCount = 1
 
         bindSettings()
