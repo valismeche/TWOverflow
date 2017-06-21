@@ -9,10 +9,13 @@ define('FarmOverflow/Queue', [
 
     var listeners = {}
     var queue = []
-    var index = 0
     var running = false
 
     // privates
+
+    function guid () {
+        return Math.floor((Math.random()) * 0x1000000).toString(16)
+    }
 
     function joinTroopsLog (units) {
         var troops = []
@@ -227,7 +230,7 @@ define('FarmOverflow/Queue', [
             command.officers[officer] = 1
         }
 
-        command.id = index++
+        command.id = guid()
         command.sendTime = sendTime
         command.travelTime = travelTime
         command.origin = { coords: command.origin, name: null, id: null }
