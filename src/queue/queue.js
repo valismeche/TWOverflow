@@ -9,6 +9,8 @@ define('FarmOverflow/Queue', [
 
     var listeners = {}
     var queue = []
+    var sendedCommands = []
+    var expiredCommands = []
     var running = false
 
     // privates
@@ -135,6 +137,8 @@ define('FarmOverflow/Queue', [
 
     Queue.init = function () {
         queue = Lockr.get('queue-commands', [], true)
+        sendedCommands = Lockr.get('queue-sended', [], true)
+        expiredCommands = Lockr.get('queue-expired', [], true)
 
         if (queue.length) {
             for (var i = 0; i < queue.length; i++) {
@@ -190,11 +194,17 @@ define('FarmOverflow/Queue', [
             catapult_target: null
         })
 
+        sendedCommands.push(command)
+        Lockr.set('queue-sended', sendedCommands)
+
         Queue.removeCommand(command, 'sended')
         Queue.trigger('send', [command])
     }
 
     Queue.expireCommand = function (command) {
+        expiredCommands.push(command)
+        Lockr.set('queue-expired', expiredCommands)
+
         Queue.removeCommand(command, 'expired')
     }
 
@@ -306,6 +316,14 @@ define('FarmOverflow/Queue', [
 
     Queue.getCommands = function () {
         return queue
+    }
+
+    Queue.getSended = function () {
+        return sendedCommands
+    }
+
+    Queue.getExpired = function () {
+        return expiredCommands
     }
 
     return Queue

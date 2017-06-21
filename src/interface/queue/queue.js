@@ -262,14 +262,26 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function loadCommandsToInterface () {
-            var commands = Queue.getCommands()
+            var queueCommands = Queue.getCommands()
+            var sendedCommands = Queue.getSended()
+            var expiredCommands = Queue.getExpired()
 
-            if (!commands.length) {
-                return false
+            if (queueCommands.length) {
+                for (var i = 0; i < queueCommands.length; i++) {
+                    addCommandItem(queueCommands[i], 'queue')
+                }
             }
 
-            for (var i = 0; i < commands.length; i++) {
-                addCommandItem(commands[i], 'queue')
+            if (sendedCommands.length) {
+                for (var i = 0; i < sendedCommands.length; i++) {
+                    addCommandItem(sendedCommands[i], 'sended')
+                }
+            }
+
+            if (expiredCommands.length) {
+                for (var i = 0; i < expiredCommands.length; i++) {
+                    addCommandItem(expiredCommands[i], 'expired')
+                }
             }
         }
 
