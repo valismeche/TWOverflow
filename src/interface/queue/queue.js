@@ -69,17 +69,21 @@ define('FarmOverflow/QueueInterface', [
             return officerNames.includes(value)
         }
 
-        function zeroPad (number) {
-            return number <= 9 ? ('0' + number) : number;
+        function zeroPad (number, width) {
+            number = number + ''
+
+            return number.length >= width
+                ? number
+                : new Array(width - number.length + 1).join('0') + number
         }
 
         function dateToString (date) {
-            var ms = zeroPad(date.getMilliseconds())
-            var sec = zeroPad(date.getSeconds())
-            var min = zeroPad(date.getMinutes())
-            var hour = zeroPad(date.getHours())
-            var day = zeroPad(date.getDate())
-            var month = zeroPad(date.getMonth() + 1)
+            var ms = zeroPad(date.getMilliseconds(), 3)
+            var sec = zeroPad(date.getSeconds(), 2)
+            var min = zeroPad(date.getMinutes(), 2)
+            var hour = zeroPad(date.getHours(), 2)
+            var day = zeroPad(date.getDate(), 2)
+            var month = zeroPad(date.getMonth() + 1, 2)
             var year = date.getFullYear()
 
             return hour + ':' + min + ':' + sec + ':' + ms + ' ' + month + '/' + day + '/' + year
