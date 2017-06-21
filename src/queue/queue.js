@@ -145,7 +145,7 @@ define('FarmOverflow/Queue', [
                     if (running) {
                         Queue.sendCommand(queue[i])
                     } else {
-                        Queue.expireCommand(queue[i].id)
+                        Queue.expireCommand(queue[i])
                     }
                 } else {
                     break
@@ -258,15 +258,15 @@ define('FarmOverflow/Queue', [
             })
     }
 
-    Queue.removeCommand = function (id, reason) {
+    Queue.removeCommand = function (command, reason) {
         for (var i = 0; i < queue.length; i++) {
-            if (queue[i].id == id) {
+            if (queue[i].id == command.id) {
                 queue.splice(i, i + 1)
 
                 if (reason === 'expired') {
-                    Queue.trigger('expired', [id])
+                    Queue.trigger('expired', [command.id])
                 } else {
-                    Queue.trigger('remove', [true, id])
+                    Queue.trigger('remove', [true, command.id])
                 }
 
                 return false
@@ -276,8 +276,8 @@ define('FarmOverflow/Queue', [
         Queue.trigger('remove', [false])
     }
 
-    Queue.expireCommand = function (id) {
-        Queue.removeCommand(id, 'expired')
+    Queue.expireCommand = function (command) {
+        Queue.removeCommand(command, 'expired')
     }
 
     Queue.start = function () {
