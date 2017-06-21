@@ -260,7 +260,7 @@ define('FarmOverflow/Queue', [
     Queue.removeCommand = function (command, reason) {
         for (var i = 0; i < queue.length; i++) {
             if (queue[i].id == command.id) {
-                queue.splice(i, i + 1)
+                queue.splice(i, 1)
 
                 // Sem trigger quando o comando é removido após ser enviado
                 // o trigger é emitido através da própria função de envio Queue.sendCommand
