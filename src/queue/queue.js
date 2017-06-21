@@ -131,6 +131,14 @@ define('FarmOverflow/Queue', [
     }
 
     Queue.init = function () {
+        queue = Lockr.get('queue-commands', [], true)
+
+        if (queue.length) {
+            for (var i = 0; i < queue.length; i++) {
+                Queue.addCommand(queue[i])
+            }
+        }
+
         setInterval(function () {
             if (!queue.length) {
                 return false
@@ -249,7 +257,7 @@ define('FarmOverflow/Queue', [
             .then(function () {
                 queue.push(command)
                 orderQueue()
-
+                Lockr.set('queue-commands', queue)
                 Queue.trigger('add', [command])
             })
             .catch(function (error) {
@@ -267,6 +275,8 @@ define('FarmOverflow/Queue', [
                 } else if (reason === 'removed') {
                     Queue.trigger('remove', [true, command])
                 }
+
+                Lockr.set('queue-commands', queue)
 
                 return true
             }

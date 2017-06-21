@@ -261,6 +261,18 @@ define('FarmOverflow/QueueInterface', [
             showEmptyMessage(section)
         }
 
+        function loadCommandsToInterface () {
+            var commands = Queue.getCommands()
+
+            if (!commands.length) {
+                return false
+            }
+
+            for (var i = 0; i < commands.length; i++) {
+                addCommandItem(commands[i], 'queue')
+            }
+        }
+
         function updateQuickview () {
             var commands = Queue.getCommands()
             var sendTime = !commands.length
@@ -309,8 +321,6 @@ define('FarmOverflow/QueueInterface', [
         var inputsMap = ['origin', 'target', 'arrive']
             .concat($model.getGameData().getOrderedUnitNames())
             .concat($model.getGameData().getOrderedOfficerNames())
-
-        bindAdd()
 
         queueButton.click(function () {
             queueInterface.openWindow()
@@ -365,5 +375,8 @@ define('FarmOverflow/QueueInterface', [
 
             emitNotif('success', 'CommandQueue está desativado!')
         })
+
+        bindAdd()
+        loadCommandsToInterface()
     }
 })
