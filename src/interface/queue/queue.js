@@ -161,17 +161,26 @@ define('FarmOverflow/QueueInterface', [
             })
         }
 
-        function removeEmptyMessage (section) {
+        function showEmptyMessage (section) {
             var $where = section === 'queue' ? $queue : $log
             var $msg = $where.find('p.nothingYet')
 
-            if ($msg.length) {
-                $msg.remove()
+            if (Queue.getCommands().length === 0) {
+                $msg.css('display', '')
+            }
+        }
+
+        function hideEmptyMessage (section) {
+            var $where = section === 'queue' ? $queue : $log
+            var $msg = $where.find('p.nothingYet')
+
+            if (Queue.getCommands().length > 0) {
+                $msg.css('display', 'none')
             }
         }
 
         function addCommandItem (command, section) {
-            removeEmptyMessage(section)
+            hideEmptyMessage(section)
 
             var $command = document.createElement('div')
             var className = section === 'queue' ? 'command' : 'log'
@@ -232,6 +241,8 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function removeCommandItem (id, section) {
+            showEmptyMessage(section)
+
             var _section = section === 'queue' ? 'command' : 'log'
             var $command = document.getElementById(_section + '-' + id)
 

@@ -294,5 +294,9 @@ define('FarmOverflow/Queue', [
         return !!running
     }
 
+    Queue.getCommands = function () {
+        return queue
+    }
+
     return Queue
 })
