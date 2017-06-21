@@ -153,6 +153,10 @@ define('FarmOverflow/QueueInterface', [
                 $addForm.find('input:submit')[0].click()
             })
 
+            $clearRegisters.on('click', function (event) {
+                clearRegisters()
+            })
+
             $addSelected.on('click', function () {
                 var pos = $model.getSelectedVillage().getPosition()
                 $origin.val(pos.x + '|' + pos.y)
@@ -285,6 +289,25 @@ define('FarmOverflow/QueueInterface', [
             }
         }
 
+        function clearRegisters () {
+            var sendedCommands = Queue.getSended()
+            var expiredCommands = Queue.getExpired()
+
+            if (sendedCommands.length) {
+                for (var i = 0; i < sendedCommands.length; i++) {
+                    removeCommandItem(sendedCommands[i], 'sended')
+                }
+            }
+
+            if (expiredCommands.length) {
+                for (var i = 0; i < expiredCommands.length; i++) {
+                    removeCommandItem(expiredCommands[i], 'expired')
+                }
+            }
+
+            Queue.clearRegisters()
+        }
+
         function updateQuickview () {
             var commands = Queue.getCommands()
             var sendTime = !commands.length
@@ -319,6 +342,7 @@ define('FarmOverflow/QueueInterface', [
         var $addAttack = $window.find('a.attack')
         var $addSupport = $window.find('a.support')
         var $switch = $window.find('a.switch')
+        var $clearRegisters = $window.find('a.clear')
         var $addSelected = $window.find('a.addSelected')
         var $addCurrentDate = $window.find('a.addCurrentDate')
         var $origin = $window.find('input.origin')

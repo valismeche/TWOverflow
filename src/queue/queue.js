@@ -311,6 +311,13 @@ define('FarmOverflow/Queue', [
         return false
     }
 
+    Queue.clearRegisters = function () {
+        Lockr.set('queue-expired', [])
+        Lockr.set('queue-sended', [])
+        expiredCommands = []
+        sendedCommands = []
+    }
+
     Queue.start = function (firstRun) {
         running = true
         Queue.trigger('start', [firstRun])
