@@ -8,7 +8,7 @@
     <tbody>
         <tr>
             <th colspan="2">
-                {{ this.lang.out }}: {{ this.sendTime }}
+                {{ this.lang.out }}: {{ this.sendTime }} | {{ this.lang.arrive }}: {{ this.arrive }}
 
                 {{ if (this.section === "queue") { }}
                     <a href="#" class="remove-command size-20x20 btn-red icon-20x20-close"></a>
@@ -22,10 +22,6 @@
                 <span class="icon-bg-red icon-26x26-{{ this.typeClass }} command-type"></span>
                 {{ this.target }}
             </td>
-        </tr>
-        <tr>
-            <td>{{ this.lang.arrive }}</td>
-            <td>{{ this.arrive }}</td>
         </tr>
         <tr>
             <td>{{ this.lang.units }}</td>
