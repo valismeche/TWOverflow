@@ -262,23 +262,19 @@ define('FarmOverflow/Queue', [
             if (queue[i].id == command.id) {
                 queue.splice(i, 1)
 
-                // Sem trigger quando o comando é removido após ser enviado
-                // o trigger é emitido através da própria função de envio Queue.sendCommand
-                if (reason === 'sended') {
-                    return false
-                }
-
                 if (reason === 'expired') {
                     Queue.trigger('expired', [command])
-                } else {
+                } else if (reason === 'removed') {
                     Queue.trigger('remove', [true, command])
                 }
 
-                return false
+                return true
             }
         }
 
         Queue.trigger('remove', [false])
+        
+        return false
     }
 
     Queue.start = function (firstRun) {

@@ -242,7 +242,7 @@ define('FarmOverflow/QueueInterface', [
                 var $remove = $command.querySelector('.remove-command')
 
                 $remove.addEventListener('click', function (event) {
-                    Queue.removeCommand(command, 'remove')
+                    Queue.removeCommand(command, 'removed')
                 })
             }
 
