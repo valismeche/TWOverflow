@@ -123,8 +123,6 @@ define('FarmOverflow/QueueInterface', [
                     command[name] = value
                 })
 
-                console.log('command', command)
-
                 Queue.addCommand(command)
             })
 
@@ -162,30 +160,38 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function showEmptyMessage (section) {
-            var $where = section === 'queue' ? $queue : $log
-            var $msg = $where.find('p.nothingYet')
+            var $where = $commandSections[section]
+            var $msg = $where.find('p.nothing')
 
-            if (Queue.getCommands().length === 0) {
-                $msg.css('display', '')
+            if (section === 'queue') {
+                if (Queue.getCommands().length === 0) {
+                    $msg.css('display', '')
+                }
+            } else {
+                if ($where.find('div').length === 0) {
+                    $msg.css('display', '')
+                }
             }
         }
 
         function hideEmptyMessage (section) {
-            var $where = section === 'queue' ? $queue : $log
-            var $msg = $where.find('p.nothingYet')
+            var $where = $commandSections[section]
+            var $msg = $where.find('p.nothing')
 
-            if (Queue.getCommands().length > 0) {
-                $msg.css('display', 'none')
+            if (section === 'queue') {
+                if (Queue.getCommands().length > 0) {
+                    $msg.css('display', 'none')
+                }
+            } else {
+                if ($where.find('div').length > 0) {
+                    $msg.css('display', 'none')
+                }
             }
         }
 
         function addCommandItem (command, section) {
-            hideEmptyMessage(section)
-
             var $command = document.createElement('div')
-            var className = section === 'queue' ? 'command' : 'log'
-            $command.className = className
-            $command.id = className + '-' + command.id
+            $command.id = section + '-' + command.id
 
             var originLabel = command.origin.name + ' (' + command.origin.coords + ')'
             var origin = createButtonLink('village', originLabel, command.origin.id)
@@ -233,22 +239,21 @@ define('FarmOverflow/QueueInterface', [
                 $remove.addEventListener('click', function (event) {
                     Queue.removeCommand(command)
                 })
-
-                $queue.append($command)
-            } else {
-                $log.append($command)
             }
+
+            $commandSections[section].append($command)
+
+            hideEmptyMessage(section)
         }
 
-        function removeCommandItem (id, section) {
-            showEmptyMessage(section)
-
-            var _section = section === 'queue' ? 'command' : 'log'
-            var $command = document.getElementById(_section + '-' + id)
+        function removeCommandItem (command, section) {
+            var $command = document.getElementById(section + '-' + command.id)
 
             if ($command) {
                 $command.remove()
             }
+
+            showEmptyMessage(section)
         }
 
         var queueInterface = new Interface('farmOverflow-queue', {
@@ -278,8 +283,11 @@ define('FarmOverflow/QueueInterface', [
         var $origin = $window.find('input.origin')
         var $arrive = $window.find('input.arrive')
         var $officers = $window.find('table.officers input')
-        var $queue = $window.find('div.queue')
-        var $log = $window.find('div.log')
+        var $commandSections = {
+            queue: $window.find('div.queue'),
+            sended: $window.find('div.sended'),
+            expired: $window.find('div.expired')
+        }
 
         var inputsMap = ['origin', 'target', 'arrive']
             .concat($model.getGameData().getOrderedUnitNames())
@@ -295,29 +303,29 @@ define('FarmOverflow/QueueInterface', [
             emitNotif('error', error)
         })
 
-        Queue.bind('remove', function (removed, id) {
+        Queue.bind('remove', function (removed, command) {
             if (!removed) {
                 return emitNotif('error', 'Nenhum comando foi removido!')
             }
 
-            removeCommandItem(id, 'queue')
-            emitNotif('success', 'Comando #' + id + ' foi removido!')
+            removeCommandItem(command, 'queue')
+            emitNotif('success', 'Comando #' + command.id + ' foi removido!')
         })
 
-        Queue.bind('expired', function (id) {
-            removeCommandItem(id, 'queue')
-            emitNotif('error', 'Comando #' + id + ' expirou! Planeador está desativado!')
+        Queue.bind('expired', function (command) {
+            removeCommandItem(command, 'queue')
+            addCommandItem(command, 'expired')
+            emitNotif('error', 'Comando #' + command.id + ' expirou! Planeador está desativado!')
         })
 
         Queue.bind('add', function (command) {
-            console.log(arguments)
             addCommandItem(command, 'queue')
             emitNotif('success', 'Comando adicionado!')
         })
 
         Queue.bind('send', function (command) {
-            removeCommandItem(command.id, 'queue')
-            addCommandItem(command, 'log')
+            removeCommandItem(command, 'queue')
+            addCommandItem(command, 'sended')
             emitNotif('success', 'Comando #' + command.id + ' foi enviado!')
         })
 

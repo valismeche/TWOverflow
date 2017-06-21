@@ -132,15 +132,13 @@ define('FarmOverflow/Queue', [
 
     Queue.init = function () {
         setInterval(function () {
-            var gameTime = $timeHelper.gameTime()
-            var command
-            var i
-
             if (!queue.length) {
                 return false
             }
 
-            for (i = 0; i < queue.length; i++) {
+            var gameTime = $timeHelper.gameTime()
+
+            for (var i = 0; i < queue.length; i++) {
                 if (queue[i].sendTime - gameTime < 0) {
                     if (running) {
                         Queue.sendCommand(queue[i])
@@ -150,10 +148,6 @@ define('FarmOverflow/Queue', [
                 } else {
                     break
                 }
-            }
-
-            if (i) {
-                queue.splice(0, i)
             }
         }, 250)
     }
@@ -185,7 +179,12 @@ define('FarmOverflow/Queue', [
             catapult_target: null
         })
 
+        Queue.removeCommand(command, 'sended')
         Queue.trigger('send', [command])
+    }
+
+    Queue.expireCommand = function (command) {
+        Queue.removeCommand(command, 'expired')
     }
 
     Queue.addCommand = function (command) {
@@ -263,10 +262,16 @@ define('FarmOverflow/Queue', [
             if (queue[i].id == command.id) {
                 queue.splice(i, i + 1)
 
+                // Sem trigger quando o comando é removido após ser enviado
+                // o trigger é emitido através da própria função de envio Queue.sendCommand
+                if (reason === 'sended') {
+                    return false
+                }
+
                 if (reason === 'expired') {
-                    Queue.trigger('expired', [command.id])
+                    Queue.trigger('expired', [command])
                 } else {
-                    Queue.trigger('remove', [true, command.id])
+                    Queue.trigger('remove', [true, command])
                 }
 
                 return false
@@ -274,10 +279,6 @@ define('FarmOverflow/Queue', [
         }
 
         Queue.trigger('remove', [false])
-    }
-
-    Queue.expireCommand = function (command) {
-        Queue.removeCommand(command, 'expired')
     }
 
     Queue.start = function () {
