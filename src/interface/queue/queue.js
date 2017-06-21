@@ -261,6 +261,15 @@ define('FarmOverflow/QueueInterface', [
             showEmptyMessage(section)
         }
 
+        function updateQuickview () {
+            var commands = Queue.getCommands()
+            var sendTime = !commands.length
+                ? 'nenhum'
+                : $filter('readableDateFilter')(commands[0].sendTime)
+
+            return 'Próximo comando: ' + sendTime
+        }
+
         var queueInterface = new Interface('farmOverflow-queue', {
             activeTab: 'add',
             htmlTemplate: '___htmlQueueWindow',
@@ -274,7 +283,10 @@ define('FarmOverflow/QueueInterface', [
         })
 
         var queueButton = new FrontButton({
-            label: 'Queue'
+            label: 'Queue',
+            classHover: 'expand-button',
+            classBlur: 'contract-button',
+            hoverText: updateQuickview
         })
 
         var $window = $(queueInterface.$window)
