@@ -281,9 +281,9 @@ define('FarmOverflow/Queue', [
         Queue.trigger('remove', [false])
     }
 
-    Queue.start = function () {
+    Queue.start = function (firstRun) {
         running = true
-        Queue.trigger('start')
+        Queue.trigger('start', [firstRun])
     }
 
     Queue.stop = function () {

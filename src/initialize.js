@@ -24,6 +24,7 @@ require([
 
         Queue.init()
         QueueInterface()
+        Queue.start(true)
     }
 
     var $map = document.querySelector('#map')

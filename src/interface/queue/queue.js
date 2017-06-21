@@ -329,13 +329,15 @@ define('FarmOverflow/QueueInterface', [
             emitNotif('success', 'Comando #' + command.id + ' foi enviado!')
         })
 
-        Queue.bind('start', function () {
+        Queue.bind('start', function (firstRun) {
             queueButton.$elem.removeClass('btn-green').addClass('btn-red')
 
             $switch.removeClass('btn-green').addClass('btn-red')
             $switch.html('Desativar')
 
-            emitNotif('success', 'CommandQueue está ativado!')
+            if (!firstRun) {
+                emitNotif('success', 'CommandQueue está ativado!')
+            }
         })
 
         Queue.bind('stop', function () {
