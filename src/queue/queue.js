@@ -129,6 +129,22 @@ define('FarmOverflow/Queue', [
         })
     }
 
+    function loadStoredCommands () {
+        var storedQueue = Lockr.get('queue-commands', [], true)
+
+        if (storedQueue.length) {
+            for (var i = 0; i < storedQueue.length; i++) {
+                var command = storedQueue[i]
+
+                if ($timeHelper.gameTime() > command.sendTime) {
+                    Queue.expireCommand(command)
+                } else {
+                    queue.push(command)
+                }
+            }
+        }
+    }
+
     // publics
 
     var Queue = {
@@ -136,15 +152,10 @@ define('FarmOverflow/Queue', [
     }
 
     Queue.init = function () {
-        queue = Lockr.get('queue-commands', [], true)
+        loadStoredCommands()
+
         sendedCommands = Lockr.get('queue-sended', [], true)
         expiredCommands = Lockr.get('queue-expired', [], true)
-
-        if (queue.length) {
-            for (var i = 0; i < queue.length; i++) {
-                Queue.addCommand(queue[i])
-            }
-        }
 
         setInterval(function () {
             if (!queue.length) {

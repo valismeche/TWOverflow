@@ -261,7 +261,7 @@ define('FarmOverflow/QueueInterface', [
             showEmptyMessage(section)
         }
 
-        function loadCommandsToInterface () {
+        function showStoredCommands () {
             var queueCommands = Queue.getCommands()
             var sendedCommands = Queue.getSended()
             var expiredCommands = Queue.getExpired()
@@ -389,6 +389,6 @@ define('FarmOverflow/QueueInterface', [
         })
 
         bindAdd()
-        loadCommandsToInterface()
+        showStoredCommands()
     }
 })
