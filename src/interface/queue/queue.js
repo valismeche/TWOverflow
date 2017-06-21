@@ -263,6 +263,7 @@ define('FarmOverflow/QueueInterface', [
             }
 
             showEmptyMessage(section)
+            queueInterface.$scrollbar.recalc()
         }
 
         function showStoredCommands () {
