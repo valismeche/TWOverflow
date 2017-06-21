@@ -462,8 +462,8 @@ define('FarmOverflow/FarmInterface', [
 
         var farmButton = new FrontButton({
             label: 'Farm',
-            classHover: 'farmOverflow-show-status',
-            classBlur: 'farmOverflow-hide-status',
+            classHover: 'expand-button',
+            classBlur: 'contract-button',
             hoverText: updateQuickview
         })
 
