@@ -271,7 +271,7 @@ define('FarmOverflow/QueueInterface', [
         }
 
         var queueInterface = new Interface('farmOverflow-queue', {
-            activeTab: 'add',
+            activeTab: 'info',
             htmlTemplate: '___htmlQueueWindow',
             htmlReplaces: {
                 version: Queue.version,

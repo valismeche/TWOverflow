@@ -8,11 +8,11 @@
     <tbody>
         <tr>
             <th colspan="2">
-                {{ if (this.section === "queue") { }}
-                    <a href="#" class="remove-command size-26x26 btn-red icon-26x26-close"></a>
-                {{ } }}
-
                 {{ this.lang.out }}: {{ this.sendTime }}
+
+                {{ if (this.section === "queue") { }}
+                    <a href="#" class="remove-command size-20x20 btn-red icon-20x20-close"></a>
+                {{ } }}
             </th>
         </tr>
         <tr>
