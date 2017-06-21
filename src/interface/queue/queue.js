@@ -74,14 +74,15 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function dateToString (date) {
-            var hour = zeroPad(date.getHours())
-            var min = zeroPad(date.getMinutes())
+            var ms = zeroPad(date.getMilliseconds())
             var sec = zeroPad(date.getSeconds())
+            var min = zeroPad(date.getMinutes())
+            var hour = zeroPad(date.getHours())
             var day = zeroPad(date.getDate())
             var month = zeroPad(date.getMonth() + 1)
             var year = date.getFullYear()
 
-            return hour + ':' + min + ':' + sec + ' ' + month + '/' + day + '/' + year
+            return hour + ':' + min + ':' + sec + ':' + ms + ' ' + month + '/' + day + '/' + year
         }
 
         function bindAdd () {
