@@ -189,34 +189,15 @@ define('FarmOverflow/QueueInterface', [
             })
         }
 
-        function showEmptyMessage (section) {
+        function toggleEmptyMessage (section) {
             var $where = $commandSections[section]
             var $msg = $where.find('p.nothing')
 
-            if (section === 'queue') {
-                if (Queue.getCommands().length === 0) {
-                    $msg.css('display', '')
-                }
-            } else {
-                if ($where.find('div').length === 0) {
-                    $msg.css('display', '')
-                }
-            }
-        }
+            var condition = section === 'queue'
+                ? Queue.getCommands()
+                : $where.find('div')
 
-        function hideEmptyMessage (section) {
-            var $where = $commandSections[section]
-            var $msg = $where.find('p.nothing')
-
-            if (section === 'queue') {
-                if (Queue.getCommands().length > 0) {
-                    $msg.css('display', 'none')
-                }
-            } else {
-                if ($where.find('div').length > 0) {
-                    $msg.css('display', 'none')
-                }
-            }
+            $msg.css('display', condition.length === 0 ? '' : 'none')
         }
 
         function addCommandItem (command, section) {
@@ -273,7 +254,7 @@ define('FarmOverflow/QueueInterface', [
 
             $commandSections[section].append($command)
 
-            hideEmptyMessage(section)
+            toggleEmptyMessage(section)
         }
 
         function removeCommandItem (command, section) {
@@ -283,7 +264,7 @@ define('FarmOverflow/QueueInterface', [
                 $command.remove()
             }
 
-            showEmptyMessage(section)
+            toggleEmptyMessage(section)
             queueInterface.$scrollbar.recalc()
         }
 
