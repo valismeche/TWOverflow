@@ -373,28 +373,36 @@ define('FarmOverflow/QueueInterface', [
 
         Queue.bind('remove', function (removed, command) {
             if (!removed) {
-                return emitNotif('error', 'Nenhum comando foi removido!')
+                return emitNotif('error', 'Erro ao remover comando.')
             }
 
+            var commandType = command.type === 'attack' ? 'Ataque' : 'Apoio'
+
             removeCommandItem(command, 'queue')
-            emitNotif('success', 'Comando #' + command.id + ' foi removido!')
+            emitNotif('success', commandType + ' removido.')
         })
 
         Queue.bind('expired', function (command) {
+            var commandType = command.type === 'attack' ? 'Ataque' : 'Apoio'
+
             removeCommandItem(command, 'queue')
             addCommandItem(command, 'expired')
-            emitNotif('error', 'Comando #' + command.id + ' expirou! Planeador está desativado!')
+            emitNotif('error', commandType + ' expirado.')
         })
 
         Queue.bind('add', function (command) {
+            var commandType = command.type === 'attack' ? 'Ataque' : 'Apoio'
+
             addCommandItem(command, 'queue')
-            emitNotif('success', 'Comando adicionado!')
+            emitNotif('success', commandType + ' adicionado.')
         })
 
         Queue.bind('send', function (command) {
+            var commandType = command.type === 'attack' ? 'Ataque' : 'Apoio'
+
             removeCommandItem(command, 'queue')
             addCommandItem(command, 'sended')
-            emitNotif('success', 'Comando #' + command.id + ' foi enviado!')
+            emitNotif('success', commandType + ' enviado.')
         })
 
         Queue.bind('start', function (firstRun) {
@@ -404,7 +412,7 @@ define('FarmOverflow/QueueInterface', [
             $switch.html('Desativar')
 
             if (!firstRun) {
-                emitNotif('success', 'CommandQueue está ativado!')
+                emitNotif('success', 'CommandQueue ativado.')
             }
         })
 
@@ -414,7 +422,7 @@ define('FarmOverflow/QueueInterface', [
             $switch.removeClass('btn-red').addClass('btn-green')
             $switch.html('Ativar')
 
-            emitNotif('success', 'CommandQueue está desativado!')
+            emitNotif('success', 'CommandQueue desativado.')
         })
 
         bindAdd()
