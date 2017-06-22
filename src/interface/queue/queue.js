@@ -90,6 +90,7 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function bindAdd () {
+            var mapSelectedVillage = false
             var commandType = 'attack'
 
             $addForm.on('submit', function (event) {
@@ -166,9 +167,25 @@ define('FarmOverflow/QueueInterface', [
                 $origin.val(pos.x + '|' + pos.y)
             })
 
+            $addMapSelected.on('click', function () {
+                if (!mapSelectedVillage) {
+                    return emitNotif('error', 'Nenhuma aldeia selecionada no mapa.')
+                }
+
+                $target.val(mapSelectedVillage.join('|'))
+            })
+
             $addCurrentDate.on('click', function () {
                 var now = dateToString($timeHelper.gameDate())
                 $arrive.val(now)
+            })
+
+            $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
+                mapSelectedVillage = [menu.data.x, menu.data.y]
+            })
+
+            $root.$on($eventType.DESTROY_CONTEXT_MENU, function () {
+                mapSelectedVillage = false
             })
         }
 
@@ -349,8 +366,10 @@ define('FarmOverflow/QueueInterface', [
         var $switch = $window.find('a.switch')
         var $clearRegisters = $window.find('a.clear')
         var $addSelected = $window.find('a.addSelected')
+        var $addMapSelected = $window.find('a.addMapSelected')
         var $addCurrentDate = $window.find('a.addCurrentDate')
         var $origin = $window.find('input.origin')
+        var $target = $window.find('input.target')
         var $arrive = $window.find('input.arrive')
         var $officers = $window.find('table.officers input')
         var $commandSections = {
