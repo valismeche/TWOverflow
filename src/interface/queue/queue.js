@@ -29,7 +29,7 @@ define('FarmOverflow/QueueInterface', [
                     '<span class="float-left icon-bg-black icon-44x44-unit-' + unit + '"></span>',
                     '<div class="ff-cell-fix cell-space-44x44">',
                     '<span class="ng-binding">' + name + '</span>',
-                    '<input class="unit" type="number" name="' + unit + '" placeholder="0">',
+                    '<input class="unit" type="text" name="' + unit + '" placeholder="0">',
                     '</div>',
                     '</td>'
                 )
@@ -109,8 +109,12 @@ define('FarmOverflow/QueueInterface', [
                     var $input = $addForm.find('[name="' + name + '"]')
                     var value = $input.val()
 
-                    if ($input[0].type === 'number') {
-                        value = parseInt(value, 10)
+                    if ($input[0].className === 'unit') {
+                        if (isNaN(value) && value !== '*') {
+                            return false
+                        }
+
+                        value = isNaN(value) ? value : parseInt(value, 10)
                     }
 
                     if (!value) {

@@ -71,9 +71,9 @@ define('FarmOverflow/Queue', [
         var cleanUnits = {}
 
         for (var unit in units) {
-            var amount = parseInt(units[unit], 10)
+            var amount = units[unit]
 
-            if (amount > 0) {
+            if (amount === '*' || amount !== 0) {
                 cleanUnits[unit] = amount
             }
         }
@@ -145,6 +145,40 @@ define('FarmOverflow/Queue', [
         }
     }
 
+    function parseDynamicUnits (command) {
+        var playerVillages = $model.getVillages()
+        var village = playerVillages[command.origin.id]
+
+        if (!village) {
+            return false
+        }
+
+        var villageUnits = village.unitInfo.units
+        var parsedUnits = {}
+
+        for (var unit in command.units) {
+            var amount = command.units[unit]
+
+            if (amount === '*') {
+                amount = villageUnits[unit].available
+
+                if (amount === 0) {
+                    continue
+                }
+            } else if (amount < 0) {
+                amount = villageUnits[unit].available - Math.abs(amount)
+
+                if (amount < 0) {
+                    return false
+                }
+            }
+
+            parsedUnits[unit] = amount
+        }
+
+        return parsedUnits
+    }
+
     // publics
 
     var Queue = {
@@ -195,6 +229,12 @@ define('FarmOverflow/Queue', [
     }
 
     Queue.sendCommand = function (command) {
+        command.units = parseDynamicUnits(command)
+
+        if (!command.units) {
+            return Queue.trigger('error', ['No units enought to send the attack!'])
+        }
+
         $socket.emit($route.SEND_CUSTOM_ARMY, {
             start_village: command.origin.id,
             target_village: command.target.id,
