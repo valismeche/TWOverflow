@@ -7,14 +7,14 @@ module.exports = function (grunt) {
                     'src/libs/lockr.js',
                     'src/header.js',
                     'src/utils.js',
-                    'src/farm/farm.js',
-                    'src/farm/commander.js',
-                    'src/farm/village.js',
-                    'src/queue/queue.js',
+                    'src/modules/farm/farm.js',
+                    'src/modules/farm/commander.js',
+                    'src/modules/farm/village.js',
+                    'src/modules/farm/interface/farm.js',
+                    'src/modules/queue/queue.js',
+                    'src/modules/queue/interface/queue.js',
                     'src/interface/interface.js',
                     'src/interface/button.js',
-                    'src/interface/farm/farm.js',
-                    'src/interface/queue/queue.js',
                     'src/analytics.js',
                     'src/footer.js',
                     'src/initialize.js'
@@ -46,11 +46,11 @@ module.exports = function (grunt) {
                     collapseWhitespace: true
                 },
                 files: {
-                    'dist/temp/button.html': 'src/interface/button.html',
-                    'dist/temp/farm/window.html': 'src/interface/farm/window.html',
-                    'dist/temp/farm/event.html': 'src/interface/farm/event.html',
-                    'dist/temp/queue/window.html': 'src/interface/queue/window.html',
-                    'dist/temp/queue/command.html': 'src/interface/queue/command.html'
+                    'dist/temp/interface/button.html': 'src/interface/button.html',
+                    'dist/temp/modules/farm/interface/window.html': 'src/modules/farm/interface/window.html',
+                    'dist/temp/modules/farm/interface/event.html': 'src/modules/farm/interface/event.html',
+                    'dist/temp/modules/queue/interface/window.html': 'src/modules/queue/interface/window.html',
+                    'dist/temp/modules/queue/interface/command.html': 'src/modules/queue/interface/command.html'
                 }
             }
         },
@@ -73,11 +73,11 @@ module.exports = function (grunt) {
                             analytics: '<%= pkg.analytics %>',
 
                             // script replaces
-                            htmlFarmWindow: '<%= grunt.file.read("dist/temp/farm/window.html") %>',
-                            htmlFarmEvent: '<%= grunt.file.read("dist/temp/farm/event.html") %>',
-                            htmlQueueWindow: '<%= grunt.file.read("dist/temp/queue/window.html") %>',
-                            htmlQueueCommand: '<%= grunt.file.read("dist/temp/queue/command.html") %>',
-                            htmlButton: '<%= grunt.file.read("dist/temp/button.html") %>',
+                            htmlFarmWindow: '<%= grunt.file.read("dist/temp/modules/farm/interface/window.html") %>',
+                            htmlFarmEvent: '<%= grunt.file.read("dist/temp/modules/farm/interface/event.html") %>',
+                            htmlQueueWindow: '<%= grunt.file.read("dist/temp/modules/queue/interface/window.html") %>',
+                            htmlQueueCommand: '<%= grunt.file.read("dist/temp/modules/queue/interface/command.html") %>',
+                            htmlButton: '<%= grunt.file.read("dist/temp/interface/button.html") %>',
                             cssStyle: '<%= grunt.file.read("dist/temp/style.css") %>',
                             langPt_br: '<%= grunt.file.read("src/locale/pt_br.json") %>',
                             langEn_us: '<%= grunt.file.read("src/locale/en_us.json") %>'
