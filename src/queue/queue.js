@@ -19,6 +19,12 @@ define('FarmOverflow/Queue', [
         return Math.floor((Math.random()) * 0x1000000).toString(16)
     }
 
+    function worldPrefix (id) {
+        var wid = $model.getSelectedCharacter().getWorldId()
+
+        return wid + '-' + id
+    }
+
     function joinTroopsLog (units) {
         var troops = []
 
@@ -130,7 +136,7 @@ define('FarmOverflow/Queue', [
     }
 
     function loadStoredCommands () {
-        var storedQueue = Lockr.get('queue-commands', [], true)
+        var storedQueue = Lockr.get(worldPrefix('queue-commands'), [], true)
 
         if (storedQueue.length) {
             for (var i = 0; i < storedQueue.length; i++) {
@@ -188,8 +194,8 @@ define('FarmOverflow/Queue', [
     Queue.init = function () {
         loadStoredCommands()
 
-        sendedCommands = Lockr.get('queue-sended', [], true)
-        expiredCommands = Lockr.get('queue-expired', [], true)
+        sendedCommands = Lockr.get(worldPrefix('queue-sended'), [], true)
+        expiredCommands = Lockr.get(worldPrefix('queue-expired'), [], true)
 
         setInterval(function () {
             if (!queue.length) {
@@ -246,7 +252,7 @@ define('FarmOverflow/Queue', [
         })
 
         sendedCommands.push(command)
-        Lockr.set('queue-sended', sendedCommands)
+        Lockr.set(worldPrefix('queue-sended'), sendedCommands)
 
         Queue.removeCommand(command, 'sended')
         Queue.trigger('send', [command])
@@ -254,7 +260,7 @@ define('FarmOverflow/Queue', [
 
     Queue.expireCommand = function (command) {
         expiredCommands.push(command)
-        Lockr.set('queue-expired', expiredCommands)
+        Lockr.set(worldPrefix('queue-expired'), expiredCommands)
 
         Queue.removeCommand(command, 'expired')
     }
@@ -321,7 +327,7 @@ define('FarmOverflow/Queue', [
             .then(function () {
                 queue.push(command)
                 orderQueue()
-                Lockr.set('queue-commands', queue)
+                Lockr.set(worldPrefix('queue-commands'), queue)
                 Queue.trigger('add', [command])
             })
             .catch(function (error) {
@@ -340,7 +346,7 @@ define('FarmOverflow/Queue', [
                     Queue.trigger('remove', [true, command])
                 }
 
-                Lockr.set('queue-commands', queue)
+                Lockr.set(worldPrefix('queue-commands'), queue)
 
                 return true
             }
@@ -352,8 +358,8 @@ define('FarmOverflow/Queue', [
     }
 
     Queue.clearRegisters = function () {
-        Lockr.set('queue-expired', [])
-        Lockr.set('queue-sended', [])
+        Lockr.set(worldPrefix('queue-expired'), [])
+        Lockr.set(worldPrefix('queue-sended'), [])
         expiredCommands = []
         sendedCommands = []
     }
