@@ -203,6 +203,7 @@ define('FarmOverflow/QueueInterface', [
         function addCommandItem (command, section) {
             var $command = document.createElement('div')
             $command.id = section + '-' + command.id
+            $command.className = 'command'
 
             var originLabel = command.origin.name + ' (' + command.origin.coords + ')'
             var origin = createButtonLink('village', originLabel, command.origin.id)
