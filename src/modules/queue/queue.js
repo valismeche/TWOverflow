@@ -216,6 +216,12 @@ define('FarmOverflow/Queue', [
                 }
             }
         }, 250)
+
+        window.addEventListener('beforeunload', function (event) {
+            if (running && queue.length) {
+                event.returnValue = true
+            }
+        })
     }
 
     Queue.trigger = function (event, args) {
