@@ -2,39 +2,39 @@ define('FarmOverflow/Farm/analytics', function () {
     return function (farmOverflow, trackId) {
         ga('create', trackId, 'auto', 'FarmOverflowFarm')
 
-        farmOverflow.on('start', function () {
+        farmOverflow.bind('start', function () {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'start')
         })
 
-        farmOverflow.on('pause', function () {
+        farmOverflow.bind('pause', function () {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'pause')
         })
 
-        farmOverflow.on('sendCommandError', function (error) {
+        farmOverflow.bind('sendCommandError', function (error) {
             ga('FarmOverflowFarm.send', 'event', 'commands', 'attackError', error)
         })
 
-        farmOverflow.on('ignoredVillage', function () {
+        farmOverflow.bind('ignoredVillage', function () {
             ga('FarmOverflowFarm.send', 'event', 'commands', 'ignoreTarget')
         })
         
-        farmOverflow.on('priorityTargetAdded', function () {
+        farmOverflow.bind('priorityTargetAdded', function () {
             ga('FarmOverflowFarm.send', 'event', 'commands', 'priorityTarget')
         })
 
-        farmOverflow.on('settingsChange', function (settings) {
+        farmOverflow.bind('settingsChange', function (settings) {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'settingsChange', settings)
         })
 
-        farmOverflow.on('remoteCommand', function (code) {
+        farmOverflow.bind('remoteCommand', function (code) {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'remoteCommand', code)
         })
 
-        farmOverflow.on('nextVillage', function (village) {
+        farmOverflow.bind('nextVillage', function (village) {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'villageChange', village.id)
         })
 
-        farmOverflow.on('sendCommand', function () {
+        farmOverflow.bind('sendCommand', function () {
             var player = injector.get('modelDataService').getPlayer()
             var character = player.getSelectedCharacter()
             var data = []

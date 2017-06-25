@@ -319,7 +319,7 @@ define('FarmOverflow/Farm', [
             emitNotif('success', this.lang.general.started)
         }
 
-        this.event('start')
+        this.trigger('start')
 
         return true
     }
@@ -336,7 +336,7 @@ define('FarmOverflow/Farm', [
             emitNotif('success', this.lang.general.paused)
         }
 
-        this.event('pause')
+        this.trigger('pause')
 
         return true
     }
@@ -442,7 +442,7 @@ define('FarmOverflow/Farm', [
         }
 
         if (modify.events) {
-            self.event('resetEvents')
+            self.trigger('resetEvents')
         }
 
         if (self.commander.running && self.globalWaiting) {
@@ -452,7 +452,7 @@ define('FarmOverflow/Farm', [
             })
         }
 
-        self.event('settingsChange', [Lockr.get('farm-settings')])
+        self.trigger('settingsChange', [Lockr.get('farm-settings')])
     }
 
     /**
@@ -518,7 +518,7 @@ define('FarmOverflow/Farm', [
             var target = villageTargets[index]
 
             if (this.ignoredVillages.includes(target.id)) {
-                this.event('ignoredTarget', [target])
+                this.trigger('ignoredTarget', [target])
 
                 continue
             }
@@ -663,7 +663,7 @@ define('FarmOverflow/Farm', [
             if (loaded) {
                 loop()
             } else {
-                self.event('startLoadingTargers')
+                self.trigger('startLoadingTargers')
 
                 var loads = $convert.scaledGridCoordinates(x, y, w, h, chunk)
                 var length = loads.length
@@ -671,7 +671,7 @@ define('FarmOverflow/Farm', [
 
                 $mapData.loadTownDataAsync(x, y, w, h, function () {
                     if (++index === length) {
-                        self.event('endLoadingTargers')
+                        self.trigger('endLoadingTargers')
 
                         loop()
                     }
@@ -732,7 +732,7 @@ define('FarmOverflow/Farm', [
                 if (hasVillages) {
                     self.getTargets(callback)
                 } else {
-                    self.event('noTargets')
+                    self.trigger('noTargets')
                 }
 
                 return false
@@ -777,18 +777,18 @@ define('FarmOverflow/Farm', [
         })
 
         if (!free.length) {
-            self.event('noVillages')
+            self.trigger('noVillages')
             return false
         } else if (free.length === 1) {
             self.village = free[0]
-            self.event('nextVillage', [self.village])
+            self.trigger('nextVillage', [self.village])
             return true
         }
 
         var index = free.indexOf(self.village) + 1
         self.village = free[index] ? free[index] : free[0]
         
-        self.event('nextVillage', [self.village])
+        self.trigger('nextVillage', [self.village])
         self.updateActivity()
 
         return true
@@ -819,7 +819,7 @@ define('FarmOverflow/Farm', [
      * @param {String} - Nome do evento.
      * @param {Array} data - Argumentos que serão passados no callback.
      */
-    FarmOverflow.prototype.event = function (type, data) {
+    FarmOverflow.prototype.trigger   = function (type, data) {
         if (!this.eventsEnabled) {
             return this
         }
@@ -841,7 +841,7 @@ define('FarmOverflow/Farm', [
      * @param {String} type - Nome do evento.
      * @param {Function} handler - Função chamada quando o evento for disparado.
      */
-    FarmOverflow.prototype.on = function (type, handler) {
+    FarmOverflow.prototype.bind = function (type, handler) {
         if (typeof handler === 'function') {
             if (!(type in this.eventListeners)) {
                 this.eventListeners[type] = []
@@ -897,7 +897,7 @@ define('FarmOverflow/Farm', [
             updatePresets($presetList.presets)
         } else {
             $socket.emit($route.GET_PRESETS, {}, function (data) {
-                self.event('presetsLoaded')
+                self.trigger('presetsLoaded')
                 updatePresets(data.presets)
             })
         }
@@ -926,7 +926,7 @@ define('FarmOverflow/Farm', [
     FarmOverflow.prototype.checkPresets = function (callback) {
         if (!this.presets.length) {
             this.stop()
-            this.event('noPreset')
+            this.trigger('noPreset')
 
             return false
         }
@@ -1042,7 +1042,7 @@ define('FarmOverflow/Farm', [
             }
         }
 
-        self.event('villagesUpdate')
+        self.trigger('villagesUpdate')
     }
 
     /**
@@ -1061,7 +1061,7 @@ define('FarmOverflow/Farm', [
             group_id: self.groupIgnore.id,
             village_id: target.id
         }, function () {
-            self.event('ignoredVillage', [target])
+            self.trigger('ignoredVillage', [target])
         })
     }
 
@@ -1130,11 +1130,11 @@ define('FarmOverflow/Farm', [
         // no script.
         var updatePresets = function () {
             self.updatePresets()
-            self.event('presetsChange')
+            self.trigger('presetsChange')
 
             if (!self.presets.length) {
                 if (self.commander.running) {
-                    self.event('noPreset')
+                    self.trigger('noPreset')
                     self.stop()
                 }
             }
@@ -1147,7 +1147,7 @@ define('FarmOverflow/Farm', [
             self.updateExceptionGroups()
             self.updateExceptionVillages()
 
-            self.event('groupsChanged')
+            self.trigger('groupsChanged')
         }
 
         // Detecta grupos que foram adicionados nas aldeias.
@@ -1192,7 +1192,7 @@ define('FarmOverflow/Farm', [
 
             self.priorityTargets[vid].push(tid)
 
-            self.event('priorityTargetAdded', [{
+            self.trigger('priorityTargetAdded', [{
                 id: tid,
                 name: report.defVillageName,
                 x: report.defVillageX,
@@ -1278,7 +1278,7 @@ define('FarmOverflow/Farm', [
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                self.event('remoteCommand', ['on'])
+                self.trigger('remoteCommand', ['on'])
 
                 break
             case 'off':
@@ -1287,7 +1287,7 @@ define('FarmOverflow/Farm', [
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                self.event('remoteCommand', ['off'])
+                self.trigger('remoteCommand', ['off'])
 
                 break
             case 'status':
@@ -1303,7 +1303,7 @@ define('FarmOverflow/Farm', [
                 ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)
-                self.event('remoteCommand', ['status'])
+                self.trigger('remoteCommand', ['status'])
 
                 break
             }
@@ -1341,35 +1341,35 @@ define('FarmOverflow/Farm', [
         var events = self.lang.events
 
         // Lista de eventos para atualizar o último status do FarmOverflow.
-        self.on('sendCommand', function () {
+        self.bind('sendCommand', function () {
             self.updateLastAttack()
             self.updateLastStatus(events.attacking)
         })
-        self.on('noPreset', function () {
+        self.bind('noPreset', function () {
             self.updateLastStatus(events.paused)
         })
-        self.on('noUnits', function () {
+        self.bind('noUnits', function () {
             self.updateLastStatus(events.noUnits)
         })
-        self.on('noUnitsNoCommands', function () {
+        self.bind('noUnitsNoCommands', function () {
             self.updateLastStatus(events.noUnitsNoCommands)
         })
-        self.on('start', function () {
+        self.bind('start', function () {
             self.updateLastStatus(events.attacking)
         })
-        self.on('pause', function () {
+        self.bind('pause', function () {
             self.updateLastStatus(events.paused)
         })
-        self.on('startLoadingTargers', function () {
+        self.bind('startLoadingTargers', function () {
             self.updateLastStatus(events.loadingTargets)
         })
-        self.on('endLoadingTargers', function () {
+        self.bind('endLoadingTargers', function () {
             self.updateLastStatus(events.analyseTargets)
         })
-        self.on('commandLimitSingle', function () {
+        self.bind('commandLimitSingle', function () {
             self.updateLastStatus(events.commandLimit)
         })
-        self.on('commandLimitMulti', function () {
+        self.bind('commandLimitMulti', function () {
             self.updateLastStatus(events.noVillages)
         })
     }

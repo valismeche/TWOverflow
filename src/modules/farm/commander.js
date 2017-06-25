@@ -32,13 +32,13 @@ define('FarmOverflow/Farm/Commander', [
     }
 
     Commander.prototype.start = function () {
-        this.farmOverflow.event('start')
+        this.farmOverflow.trigger('start')
         this.running = true
         this.analyse()
     }
 
     Commander.prototype.stop = function () {
-        this.farmOverflow.event('pause')
+        this.farmOverflow.trigger('pause')
         this.running = false
         clearTimeout(this.timeoutId)
     }
@@ -53,13 +53,13 @@ define('FarmOverflow/Farm/Commander', [
 
         if (!farm.presets.length) {
             farm.stop()
-            farm.event('noPreset')
+            farm.trigger('noPreset')
 
             return
         }
 
         if (!farm.hasVillage()) {
-            return farm.event('noVillageSelected')
+            return farm.trigger('noVillageSelected')
         }
 
         if (!farm.village.loaded()) {
@@ -74,7 +74,7 @@ define('FarmOverflow/Farm/Commander', [
             if (farm.nextVillage()) {
                 self.analyse()
             } else {
-                farm.event(farm.lastError)
+                farm.trigger(farm.lastError)
             }
 
             return
@@ -96,7 +96,7 @@ define('FarmOverflow/Farm/Commander', [
             if (farm.nextVillage()) {
                 self.analyse()
             } else {
-                farm.event('noTargets')
+                farm.trigger('noTargets')
             }
 
             return
@@ -141,7 +141,7 @@ define('FarmOverflow/Farm/Commander', [
 
             break
         case 'noUnits':
-            farm.event('noUnits', [
+            farm.trigger('noUnits', [
                 farm.village
             ])
             
@@ -149,7 +149,7 @@ define('FarmOverflow/Farm/Commander', [
             
             if (farm.singleVillage) {
                 if (farm.village.countCommands() === 0) {
-                    return farm.event('noUnitsNoCommands')
+                    return farm.trigger('noUnitsNoCommands')
                 } else {
                     farm.globalWaiting = true
                 }
@@ -168,12 +168,12 @@ define('FarmOverflow/Farm/Commander', [
             if (farm.singleVillage) {
                 farm.globalWaiting = true
 
-                farm.event('commandLimitSingle', [
+                farm.trigger('commandLimitSingle', [
                     farm.village
                 ])
             } else {
                 if (farm.isAllWaiting()) {
-                    farm.event('commandLimitMulti', [
+                    farm.trigger('commandLimitMulti', [
                         farm.village
                     ])
 
@@ -371,7 +371,7 @@ define('FarmOverflow/Farm/Commander', [
                 return false
             }
 
-            farm.event('sendCommand', [
+            farm.trigger('sendCommand', [
                 farm.village,
                 farm.target
             ])
@@ -400,7 +400,7 @@ define('FarmOverflow/Farm/Commander', [
                 return false
             }
 
-            farmOverflow.event('sendCommandError', [data.code])
+            farmOverflow.trigger('sendCommandError', [data.code])
 
             unbind()
             callback()

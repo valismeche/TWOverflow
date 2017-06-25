@@ -211,7 +211,7 @@ define('FarmOverflow/FarmInterface', [
             }
 
             for (var e in listenEvents) {
-                farmOverflow.on(e, listenEvents[e])
+                farmOverflow.bind(e, listenEvents[e])
             }
         }
 
@@ -497,15 +497,15 @@ define('FarmOverflow/FarmInterface', [
             updatePresetList()
         }
 
-        farmOverflow.on('groupsChanged', function () {
+        farmOverflow.bind('groupsChanged', function () {
             updateGroupList()
         })
 
-        farmOverflow.on('presetsLoaded', function () {
+        farmOverflow.bind('presetsLoaded', function () {
             updatePresetList()
         })
 
-        farmOverflow.on('presetsChange', function () {
+        farmOverflow.bind('presetsChange', function () {
             updatePresetList()
         })
 
@@ -525,13 +525,13 @@ define('FarmOverflow/FarmInterface', [
             farmInterface.openWindow()
         })
 
-        farmOverflow.on('start', function () {
+        farmOverflow.bind('start', function () {
             $start.html(farmOverflow.lang.general.pause)
             $start.removeClass('btn-green').addClass('btn-red')
             farmButton.$elem.removeClass('btn-green').addClass('btn-red')
         })
 
-        farmOverflow.on('pause', function () {
+        farmOverflow.bind('pause', function () {
             $start.html(farmOverflow.lang.general.start)
             $start.removeClass('btn-red').addClass('btn-green')
             farmButton.$elem.removeClass('btn-red').addClass('btn-green')
