@@ -819,7 +819,7 @@ define('FarmOverflow/Farm', [
      * @param {String} - Nome do evento.
      * @param {Array} data - Argumentos que serão passados no callback.
      */
-    FarmOverflow.prototype.trigger   = function (type, data) {
+    FarmOverflow.prototype.trigger = function (type, data) {
         if (!this.eventsEnabled) {
             return this
         }

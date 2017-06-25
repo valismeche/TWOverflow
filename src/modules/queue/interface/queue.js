@@ -194,7 +194,7 @@ define('FarmOverflow/QueueInterface', [
             var $msg = $where.find('p.nothing')
 
             var condition = section === 'queue'
-                ? Queue.getCommands()
+                ? Queue.getWaitingCommands()
                 : $where.find('div')
 
             $msg.css('display', condition.length === 0 ? '' : 'none')
@@ -270,9 +270,9 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function showStoredCommands () {
-            var queueCommands = Queue.getCommands()
-            var sendedCommands = Queue.getSended()
-            var expiredCommands = Queue.getExpired()
+            var queueCommands = Queue.getWaitingCommands()
+            var sendedCommands = Queue.getSendedCommands()
+            var expiredCommands = Queue.getExpiredCommands()
 
             if (queueCommands.length) {
                 for (var i = 0; i < queueCommands.length; i++) {
@@ -294,8 +294,8 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function clearRegisters () {
-            var sendedCommands = Queue.getSended()
-            var expiredCommands = Queue.getExpired()
+            var sendedCommands = Queue.getSendedCommands()
+            var expiredCommands = Queue.getExpiredCommands()
 
             if (sendedCommands.length) {
                 for (var i = 0; i < sendedCommands.length; i++) {
@@ -313,7 +313,7 @@ define('FarmOverflow/QueueInterface', [
         }
 
         function updateQuickview () {
-            var commands = Queue.getCommands()
+            var commands = Queue.getWaitingCommands()
             var sendTime = !commands.length
                 ? 'nenhum'
                 : $filter('readableDateFilter')(commands[0].sendTime)

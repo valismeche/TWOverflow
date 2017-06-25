@@ -1,14 +1,12 @@
 define('FarmOverflow/Queue', [
-    'conf/unitTypes',
     'helper/time',
     'helper/math'
-], function (UNITS, $timeHelper, $math) {
-    var i18n = $filter('i18n')
+], function ($timeHelper, $math) {
     var readableMillisecondsFilter = $filter('readableMillisecondsFilter')
     var readableDateFilter = $filter('readableDateFilter')
 
-    var listeners = {}
-    var queue = []
+    var eventListeners = {}
+    var waitingCommands = []
     var sendedCommands = []
     var expiredCommands = []
     var running = false
@@ -25,52 +23,29 @@ define('FarmOverflow/Queue', [
         return wid + '-' + id
     }
 
-    function joinTroopsLog (units) {
-        var troops = []
-
-        for (var unit in units) {
-            troops.push(unit + ': ' + units[unit]);
-        }
-
-        return troops.join(',')
-    }
-
-    function joinOfficersLog (officers) {
-        var string = []
-
-        for (var officer in officers) {
-            string.push(officer)
-        }
-
-        return string.join(', ')
-    }
-
-    function updateVillageData (command, prop, _callback) {
-        var coords = command[prop].coords.split('|').map(function (coord) {
+    function getVillageByCoords (coords, callback) {
+        coords = coords.split('|').map(function (coord) {
             return parseInt(coord, 10)
         })
 
         $autoCompleteService.villageByCoordinates({
             x: coords[0],
             y: coords[1]
-        }, function (villageData) {
-            command[prop].id = villageData.id
-            command[prop].name = villageData.name
-
-            _callback && _callback(villageData)
+        }, function (data) {
+            callback(data.hasOwnProperty('id') ? data : false)
         })
     }
 
-    function checkCoords (xy) {
-        return /\d{3}\|\d{3}/.test(xy)
+    function isValidCoords (xy) {
+        return /\s*\d{3}\|\d{3}\s*/.test(xy)
     }
 
-    function checkUnits (units) {
-        for (var u in units) {
-            return true
+    function isValidArriveTime (sendTime) {
+        if ($timeHelper.gameTime() > sendTime) {
+            return false
         }
 
-        return false
+        return true
     }
 
     function cleanZeroUnits (units) {
@@ -85,14 +60,6 @@ define('FarmOverflow/Queue', [
         }
 
         return cleanUnits
-    }
-
-    function checkArriveTime (sendTime) {
-        if ($timeHelper.gameTime() > sendTime) {
-            return false
-        }
-
-        return true
     }
 
     function getTravelTime (origin, target, units, type, officers) {
@@ -129,10 +96,34 @@ define('FarmOverflow/Queue', [
         return totalTravelTime * 1000
     }
 
-    function orderQueue () {
-        queue = queue.sort(function (a, b) {
+    function orderWaitingQueue () {
+        waitingCommands = waitingCommands.sort(function (a, b) {
             return a.sendTime - b.sendTime
         })
+    }
+
+    function pushWaitinCommand (command) {
+        waitingCommands.push(command)
+    }
+
+    function pushSendedCommand (command) {
+        sendedCommands.push(command)
+    }
+
+    function pushExpiredCommand (command) {
+        expiredCommands.push(command)
+    }
+
+    function storeWaitingQueue () {
+        Lockr.set(worldPrefix('queue-commands'), waitingCommands)
+    }
+
+    function storeSendedQueue () {
+        Lockr.set(worldPrefix('queue-sended'), sendedCommands)
+    }
+
+    function storeExpiredQueue () {
+        Lockr.set(worldPrefix('queue-expired'), expiredCommands)
     }
 
     function loadStoredCommands () {
@@ -145,7 +136,7 @@ define('FarmOverflow/Queue', [
                 if ($timeHelper.gameTime() > command.sendTime) {
                     Queue.expireCommand(command)
                 } else {
-                    queue.push(command)
+                    pushCommand(command)
                 }
             }
         }
@@ -198,18 +189,18 @@ define('FarmOverflow/Queue', [
         expiredCommands = Lockr.get(worldPrefix('queue-expired'), [], true)
 
         setInterval(function () {
-            if (!queue.length) {
+            if (!waitingCommands.length) {
                 return false
             }
 
             var gameTime = $timeHelper.gameTime()
 
-            for (var i = 0; i < queue.length; i++) {
-                if (queue[i].sendTime - gameTime < 0) {
+            for (var i = 0; i < waitingCommands.length; i++) {
+                if (waitingCommands[i].sendTime - gameTime < 0) {
                     if (running) {
-                        Queue.sendCommand(queue[i])
+                        Queue.sendCommand(waitingCommands[i])
                     } else {
-                        Queue.expireCommand(queue[i])
+                        Queue.expireCommand(waitingCommands[i])
                     }
                 } else {
                     break
@@ -218,26 +209,26 @@ define('FarmOverflow/Queue', [
         }, 250)
 
         window.addEventListener('beforeunload', function (event) {
-            if (running && queue.length) {
+            if (running && waitingCommands.length) {
                 event.returnValue = true
             }
         })
     }
 
     Queue.trigger = function (event, args) {
-        if (event in listeners && listeners[event].length) {
-            listeners[event].forEach(function (handler) {
+        if (eventListeners.hasOwnProperty(event)) {
+            eventListeners[event].forEach(function (handler) {
                 handler.apply(this, args)
             })
         }
     }
 
     Queue.bind = function (event, handler) {
-        if (!listeners.hasOwnProperty(event)) {
-            listeners[event] = []
+        if (!eventListeners.hasOwnProperty(event)) {
+            eventListeners[event] = []
         }
 
-        listeners[event].push(handler)
+        eventListeners[event].push(handler)
     }
 
     Queue.sendCommand = function (command) {
@@ -257,16 +248,16 @@ define('FarmOverflow/Queue', [
             catapult_target: null
         })
 
-        sendedCommands.push(command)
-        Lockr.set(worldPrefix('queue-sended'), sendedCommands)
+        pushSendedCommand(command)
+        storeSendedQueue()
 
         Queue.removeCommand(command, 'sended')
         Queue.trigger('send', [command])
     }
 
     Queue.expireCommand = function (command) {
-        expiredCommands.push(command)
-        Lockr.set(worldPrefix('queue-expired'), expiredCommands)
+        pushExpiredCommand(command)
+        storeExpiredQueue()
 
         Queue.removeCommand(command, 'expired')
     }
@@ -276,29 +267,33 @@ define('FarmOverflow/Queue', [
             return Queue.trigger('error', ['Origin/target has errors.'])
         }
 
-        if (!checkCoords(command.origin)) {
+        if (!isValidCoords(command.origin)) {
             return Queue.trigger('error', ['Origin coords format ' + origin + ' is invalid.'])
         }
 
-        if (!checkCoords(command.target)) {
+        if (!isValidCoords(command.target)) {
             return Queue.trigger('error', ['Origin coords format ' + target + ' is invalid.'])
         }
 
-        if (!checkUnits(command.units)) {
+        if (angular.equals(command.units, {})) {
             return Queue.trigger('error', ['You need to specify an amount of units.'])
         }
 
+        command.origin = command.origin.trim()
+        command.target = command.target.trim()
+        command.arrive = command.arrive.trim()
         command.units = cleanZeroUnits(command.units)
 
         var arriveTime = new Date(command.arrive).getTime()
         var travelTime = getTravelTime(command.origin, command.target, command.units, command.type)
         var sendTime = arriveTime - travelTime
 
-        if (!checkArriveTime(sendTime)) {
+        if (!isValidArriveTime(sendTime)) {
             return Queue.trigger('error', ['This command should have already exited.'])
         }
 
-        // transform "true" to 1 because the game do like that
+        // Originalmente o jogo envia os oficiais por quantidade,
+        // mesmo que seja sempre 1.
         for (var officer in command.officers) {
             command.officers[officer] = 1
         }
@@ -306,45 +301,59 @@ define('FarmOverflow/Queue', [
         command.id = guid()
         command.sendTime = sendTime
         command.travelTime = travelTime
-        command.origin = { coords: command.origin, name: null, id: null }
-        command.target = { coords: command.target, name: null, id: null }
 
-        var updateOrigin = new Promise(function (resolve, reject) {
-            updateVillageData(command, 'origin', function (villageData) {
-                if (!villageData.hasOwnProperty('id')) {
+        var getOriginVillage = new Promise(function (resolve, reject) {
+            getVillageByCoords(command.origin, function (data) {
+                if (!data) {
                     return reject('Origin village does not exist.')
                 }
 
-                resolve()
+                data.type = 'origin'
+                resolve(data)
             })
         })
 
-        var updateTarget = new Promise(function (resolve, reject) {
-            updateVillageData(command, 'target', function (villageData) {
-                if (!villageData.hasOwnProperty('id')) {
+        var getTargetVillage = new Promise(function (resolve, reject) {
+            getVillageByCoords(command.target, function (data) {
+                if (!data) {
                     return reject('Target village does not exist.')
                 }
 
-                resolve()
+                data.type = 'target'
+                resolve(data)
             })
         })
 
-        Promise.all([updateOrigin, updateTarget])
-            .then(function () {
-                queue.push(command)
-                orderQueue()
-                Lockr.set(worldPrefix('queue-commands'), queue)
-                Queue.trigger('add', [command])
+        var loadVillagesData = Promise.all([
+            getOriginVillage,
+            getTargetVillage
+        ])
+        
+        loadVillagesData.then(function (villages) {
+            villages.forEach(function (village) {
+                command[village.type] = {
+                    coords: command[village.type],
+                    name: village.name,
+                    id: village.id
+                }
             })
-            .catch(function (error) {
-                Queue.trigger('error', [error])
-            })
+
+            pushWaitinCommand(command)
+            orderWaitingQueue()
+            storeWaitingQueue()
+
+            Queue.trigger('add', [command])
+        })
+        
+        loadVillagesData.catch(function (error) {
+            Queue.trigger('error', [error])
+        })
     }
 
     Queue.removeCommand = function (command, reason) {
-        for (var i = 0; i < queue.length; i++) {
-            if (queue[i].id == command.id) {
-                queue.splice(i, 1)
+        for (var i = 0; i < waitingCommands.length; i++) {
+            if (waitingCommands[i].id == command.id) {
+                waitingCommands.splice(i, 1)
 
                 if (reason === 'expired') {
                     Queue.trigger('expired', [command])
@@ -352,15 +361,11 @@ define('FarmOverflow/Queue', [
                     Queue.trigger('remove', [true, command, true /*manual*/])
                 }
 
-                Lockr.set(worldPrefix('queue-commands'), queue)
-
-                return true
+                return storeWaitingQueue()
             }
         }
 
         Queue.trigger('remove', [false])
-        
-        return false
     }
 
     Queue.clearRegisters = function () {
@@ -381,18 +386,18 @@ define('FarmOverflow/Queue', [
     }
 
     Queue.isRunning = function () {
-        return !!running
+        return running
     }
 
-    Queue.getCommands = function () {
-        return queue
+    Queue.getWaitingCommands = function () {
+        return waitingCommands
     }
 
-    Queue.getSended = function () {
+    Queue.getSendedCommands = function () {
         return sendedCommands
     }
 
-    Queue.getExpired = function () {
+    Queue.getExpiredCommands = function () {
         return expiredCommands
     }
 
