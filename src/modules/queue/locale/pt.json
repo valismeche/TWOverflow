@@ -23,7 +23,7 @@
         "info.active2": "Para que os comandos sejam enviados, o CommandQueue precisa estar em modo ativado! Todos os comandos que você adicionou serão expirados ao invés de serem enviados caso esteja desaativado.",
         "info.active3": "Para ativar/desativar apenar o botão Ativar/Desativar no rodapé dessa janela.",
         "info.dynamic1": "Quantidade de tropas dinâmica",
-        "info.dynamic2": "Para que seja enviado a quantidade máxima de uma unidade específica você deve color um simples * (asterisco) no lugar de um número.",
+        "info.dynamic2": "Para que seja enviado a quantidade máxima de uma unidade específica você deve colocar um simples * (asterisco) no lugar de um número.",
         "info.dynamic3": "Para poupar uma certa quantidade de tropas na aldeia, você deve especificar um número negativo, assim quando o comando for enviado, será utilizada a quantidade máxima da unidade menos a quantidade que você especificou.",
         "info.delay1": "Delay nos envios",
         "info.delay2": "Se sua internet ter um tempo de resposta rápido o bastante, os comandos chegarão no momento exato que você especificar.",
