@@ -816,41 +816,35 @@ define('FarmOverflow/Farm', [
     /**
      * Chama os eventos.
      *
-     * @param {String} - Nome do evento.
-     * @param {Array} data - Argumentos que serão passados no callback.
+     * @param {String} event - Nome do evento.
+     * @param {Array} args - Argumentos que serão passados no callback.
      */
-    FarmOverflow.prototype.trigger = function (type, data) {
-        if (!this.eventsEnabled) {
-            return this
+    FarmOverflow.prototype.trigger = function (event, args) {
+        var self = this
+
+        if (!self.eventsEnabled) {
+            return
         }
 
-        if (type in this.eventListeners) {
-            var listeners = this.eventListeners[type]
-
-            for (var i = 0; i < listeners.length; i++) {
-                listeners[i].apply(this, data)
-            }
+        if (self.eventListeners.hasOwnProperty(event)) {
+            self.eventListeners[event].forEach(function (handler) {
+                handler.apply(self, args)
+            })
         }
-
-        return this
     }
 
     /**
      * Registra um evento.
      *
-     * @param {String} type - Nome do evento.
+     * @param {String} event - Nome do evento.
      * @param {Function} handler - Função chamada quando o evento for disparado.
      */
-    FarmOverflow.prototype.bind = function (type, handler) {
-        if (typeof handler === 'function') {
-            if (!(type in this.eventListeners)) {
-                this.eventListeners[type] = []
-            }
-
-            this.eventListeners[type].push(handler)
+    FarmOverflow.prototype.bind = function (event, handler) {
+        if (!this.eventListeners.hasOwnProperty(event)) {
+            this.eventListeners[event] = []
         }
 
-        return this
+        this.eventListeners[event].push(handler)
     }
 
     /**
