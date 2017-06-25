@@ -1,4 +1,4 @@
-define('FarmOverflow/Commander', [
+define('FarmOverflow/Farm/Commander', [
     'helper/math'
 ], function ($math) {
     /**

@@ -1,6 +1,6 @@
 define('FarmOverflow/Farm', [
-    'FarmOverflow/Commander',
-    'FarmOverflow/Village',
+    'FarmOverflow/Farm/Commander',
+    'FarmOverflow/Farm/Village',
     'helper/math',
     'conf/conf',
     'struct/MapData',
