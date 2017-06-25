@@ -1,0 +1,65 @@
+{
+    "values": {
+        "title": "CommandQueue",
+
+        "attack": "ataque",
+        "support": "apoio",
+
+        "general.info": "Informações",
+        "general.add": "Adicionar",
+        "general.waiting": "Em espera",
+        "general.registers": "Registros",
+        "general.clear": "Limpar registros",
+        "general.attack": "Ataque",
+        "general.support": "Apoio",
+        "general.active": "Ativar",
+        "general.units": "Unidades",
+        "general.officers": "Oficiais",
+
+        "info.dev1": "Em desenvolvimento!",
+        "info.dev2": "Esta ferramenta ainda está em desenvolvimento, portanto, pode não funcionar como esperado.",
+        "info.dev3": "Atenção! Todos comandos adicionados e registros serão apagados assim que a página for recarregada.",
+        "info.active1": "Ativar/desativar",
+        "info.active2": "Para que os comandos sejam enviados, o CommandQueue precisa estar em modo ativado! Todos os comandos que você adicionou serão expirados ao invés de serem enviados caso esteja desaativado.",
+        "info.active3": "Para ativar/desativar apenar o botão Ativar/Desativar no rodapé dessa janela.",
+        "info.dynamic1": "Quantidade de tropas dinâmica",
+        "info.dynamic2": "Para que seja enviado a quantidade máxima de uma unidade específica você deve color um simples * (asterisco) no lugar de um número.",
+        "info.dynamic3": "Para poupar uma certa quantidade de tropas na aldeia, você deve especificar um número negativo, assim quando o comando for enviado, será utilizada a quantidade máxima da unidade menos a quantidade que você especificou.",
+        "info.delay1": "Delay nos envios",
+        "info.delay2": "Se sua internet ter um tempo de resposta rápido o bastante, os comandos chegarão no momento exato que você especificar.",
+        "info.delay3": "Dependendo do tempo de resposta da conexão com o servidor do jogo, os comandos podem não chegar no momento exato que você especificou.",
+        "info.delay4": "Faça testes antes e veja quanto tempo demora do momento em que você preciona para enviar o comando e quando ele realmente é enviado, então use essa diferença na hora de especificar o horário de chegada dos comandos.",
+        "info.date1": "Data de chegada",
+        "info.date2": "O formato da data é MM/DD/AAAA, e não DD/MM/AAAA. Esse é o padrão dos navegadores.",
+        "info.date3": "É possível especificar os milésimos no horário de chegada para uma maior precisão.",
+
+        "add.villages": "Aldeias",
+        "add.origin": "Origem",
+        "add.addSelected": "Aldeia ativa",
+        "add.target": "Alvo",
+        "add.addMapSelected": "Aldeia selecionada no mapa",
+        "add.arrive": "Data de chegada",
+        "add.currentDate": "Data atual",
+
+        "queue.waiting": "Comandos em espera",
+        "queue.noneAdded": "Nenhum comando adicionado.",
+        "queue.sended": "Comandos enviados",
+        "queue.noneSended": "Nenhum comando enviado.",
+        "queue.expired": "Comandos expirados",
+        "queue.noneExpired": "Nenhum comando expirado.",
+
+        "command.out": "Saída",
+        "command.timeLeft": "Tempo restante",
+        "command.village": "Aldeia",
+        "command.arrive": "Chegada",
+
+        "error.noUnitsEnough": "Sem unidades o sulficientes para enviar o comando!",
+        "error.origin": "Coordendas \"%{origin}\" da aldeia de origem incorreta!",
+        "error.target": "Coordendas \"%{target}\" da aldeia alvo incorreta!",
+        "error.noUnits": "Nenhuma unidade especificada!",
+        "error.alreadySent": "O %{type} deveria ter saído %{date}",
+        "error.originNotExist": "Aldeia de origem especificada não existe!",
+        "error.targetNotExist": "Aldeia alvo especificada não existe!",
+        "error.noMapSelectedVillage": "Nenhuma aldeia selecionada no mapa."
+    }
+}

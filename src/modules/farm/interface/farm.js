@@ -75,7 +75,7 @@ define('FarmOverflow/FarmInterface', [
                     farmOverflow.updateSettings(settings)
 
                     if (farmOverflow.notifsEnabled) {
-                        emitNotif('success', farmOverflow.lang.settings.saved)
+                        emitNotif('success', farmOverflow.lang('settings.saved'))
                     }
                 }
 
@@ -95,7 +95,7 @@ define('FarmOverflow/FarmInterface', [
 
             var listenEvents = {
                 sendCommand: function (from, to) {
-                    $status.html(farmOverflow.lang.events.attacking)
+                    $status.html(farmOverflow.lang('events.attacking'))
                     updateLastAttack($timeHelper.gameTime())
 
                     if (!settings.eventAttack) {
@@ -167,42 +167,42 @@ define('FarmOverflow/FarmInterface', [
                         type: 'noPreset'
                     })
 
-                    $status.html(farmOverflow.lang.events.paused)
+                    $status.html(farmOverflow.lang('events.paused'))
                 },
                 noUnits: function () {
                     if (farmOverflow.singleVillage) {
-                        $status.html(farmOverflow.lang.events.noUnits)
+                        $status.html(farmOverflow.lang('events.noUnits'))
                     }
                 },
                 noUnitsNoCommands: function () {
-                    $status.html(farmOverflow.lang.events.noUnitsNoCommands)
+                    $status.html(farmOverflow.lang('events.noUnitsNoCommands'))
                 },
                 start: function () {
-                    $status.html(farmOverflow.lang.events.attacking)
+                    $status.html(farmOverflow.lang('events.attacking'))
                 },
                 pause: function () {
-                    $status.html(farmOverflow.lang.events.paused)
+                    $status.html(farmOverflow.lang('events.paused'))
                 },
                 noVillages: function () {
-                    $status.html(farmOverflow.lang.events.noVillages)
+                    $status.html(farmOverflow.lang('events.noVillages'))
                 },
                 villagesUpdate: function () {
                     updateSelectedVillage()
                 },
                 startLoadingTargers: function () {
-                    $status.html(farmOverflow.lang.events.loadingTargets)
+                    $status.html(farmOverflow.lang('events.loadingTargets'))
                 },
                 endLoadingTargers: function () {
-                    $status.html(farmOverflow.lang.events.analyseTargets)
+                    $status.html(farmOverflow.lang('events.analyseTargets'))
                 },
                 attacking: function () {
-                    $status.html(farmOverflow.lang.events.attacking)
+                    $status.html(farmOverflow.lang('events.attacking'))
                 },
                 commandLimitSingle: function () {
-                    $status.html(farmOverflow.lang.events.commandLimit)
+                    $status.html(farmOverflow.lang('events.commandLimit'))
                 },
                 commandLimitMulti: function () {
-                    $status.html(farmOverflow.lang.events.noVillages)
+                    $status.html(farmOverflow.lang('events.noVillages'))
                 },
                 resetEvents: function () {
                     visibleEventCount = 0
@@ -229,7 +229,7 @@ define('FarmOverflow/FarmInterface', [
             }
 
             var readable = $filter('readableDateFilter')(lastAttack)
-            var langLast = farmOverflow.lang.events.lastAttack
+            var langLast = farmOverflow.lang('events.lastAttack')
 
             $last.html(readable)
             updateQuickview()
@@ -286,11 +286,10 @@ define('FarmOverflow/FarmInterface', [
                     ))
                 }
 
-                if (!options.type) {
-                    options.text = sprintf(options.text, links)
-                } else {
-                    options.text = sprintf(farmOverflow.lang.events[options.type], links)
-                }
+                options.text = farmOverflow.lang('events.' + options.type, {
+                    origin: links[0].html,
+                    target: links[1].html
+                })
             }
 
             var $tr = document.createElement('tr')
@@ -327,7 +326,7 @@ define('FarmOverflow/FarmInterface', [
             var selected = farmOverflow.village
 
             if (!selected) {
-                $selected.html(farmOverflow.lang.general.none)
+                $selected.html(farmOverflow.lang('general.none'))
 
                 return false
             }
@@ -390,7 +389,7 @@ define('FarmOverflow/FarmInterface', [
 
             for (var type in $groups) {
                 $groups[type].html(
-                    '<option value="">' + farmOverflow.lang.general.disabled + '</option>'
+                    '<option value="">' + farmOverflow.lang('general.disabled') + '</option>'
                 )
 
                 for (var id in groups) {
@@ -416,7 +415,7 @@ define('FarmOverflow/FarmInterface', [
             var presets = $model.getPresetList().presets
             
             $preset.html(
-                '<option value="">' + farmOverflow.lang.general.disabled + '</option>'
+                '<option value="">' + farmOverflow.lang('general.disabled') + '</option>'
             )
 
             for (var id in presets) {
@@ -446,7 +445,7 @@ define('FarmOverflow/FarmInterface', [
         }
 
         function updateQuickview () {
-            var last = farmOverflow.lang.events.lastAttack
+            var last = farmOverflow.lang('events.lastAttack')
             
             return last + ': ' + $last.html()
         }
@@ -454,10 +453,11 @@ define('FarmOverflow/FarmInterface', [
         var farmInterface = new Interface('farmOverflow-farm', {
             activeTab: 'info',
             htmlTemplate: '___htmlFarmWindow',
-            htmlReplaces: angular.merge({
+            htmlReplaces: {
                 version: farmOverflow.version,
-                author: ___author
-            }, farmOverflow.lang)
+                author: ___author,
+                lang: farmOverflow.lang
+            }
         })
 
         var farmButton = new FrontButton({
@@ -526,13 +526,13 @@ define('FarmOverflow/FarmInterface', [
         })
 
         farmOverflow.bind('start', function () {
-            $start.html(farmOverflow.lang.general.pause)
+            $start.html(farmOverflow.lang('general.pause'))
             $start.removeClass('btn-green').addClass('btn-red')
             farmButton.$elem.removeClass('btn-green').addClass('btn-red')
         })
 
         farmOverflow.bind('pause', function () {
-            $start.html(farmOverflow.lang.general.start)
+            $start.html(farmOverflow.lang('general.start'))
             $start.removeClass('btn-red').addClass('btn-green')
             farmButton.$elem.removeClass('btn-red').addClass('btn-green')
         })

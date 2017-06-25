@@ -5,15 +5,18 @@ module.exports = function (grunt) {
             prod: {
                 src: [
                     'src/libs/lockr.js',
+                    'src/libs/i18n.js',
                     'src/header.js',
                     'src/utils.js',
                     'src/modules/farm/farm.js',
                     'src/modules/farm/commander.js',
                     'src/modules/farm/village.js',
                     'src/modules/farm/analytics.js',
+                    'src/modules/farm/locale.js',
                     'src/modules/farm/interface/farm.js',
                     'src/modules/queue/queue.js',
                     'src/modules/queue/analytics.js',
+                    'src/modules/queue/locale.js',
                     'src/modules/queue/interface/queue.js',
                     'src/interface/interface.js',
                     'src/interface/button.js',
@@ -81,8 +84,11 @@ module.exports = function (grunt) {
                             htmlQueueCommand: '<%= grunt.file.read("dist/temp/modules/queue/interface/command.html") %>',
                             htmlButton: '<%= grunt.file.read("dist/temp/interface/button.html") %>',
                             cssStyle: '<%= grunt.file.read("dist/temp/style.css") %>',
-                            langPt_br: '<%= grunt.file.read("src/locale/pt_br.json") %>',
-                            langEn_us: '<%= grunt.file.read("src/locale/en_us.json") %>'
+                            
+                            langFarmPt: '<%= grunt.file.read("src/modules/farm/locale/pt.json") %>',
+                            langFarmEn: '<%= grunt.file.read("src/modules/farm/locale/en.json") %>',
+
+                            langQueuePt: '<%= grunt.file.read("src/modules/queue/locale/pt.json") %>'
                         }
                     }]
                 },

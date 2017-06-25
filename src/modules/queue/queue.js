@@ -1,7 +1,8 @@
 define('FarmOverflow/Queue', [
+    'FarmOverflow/Queue/locale',
     'helper/time',
     'helper/math'
-], function ($timeHelper, $math) {
+], function (QueueLocale, $timeHelper, $math) {
     var readableMillisecondsFilter = $filter('readableMillisecondsFilter')
     var readableDateFilter = $filter('readableDateFilter')
 
@@ -235,7 +236,7 @@ define('FarmOverflow/Queue', [
         command.units = parseDynamicUnits(command)
 
         if (!command.units) {
-            return Queue.trigger('error', ['No units enought to send the attack!'])
+            return Queue.trigger('error', [QueueLocale('error.noUnitsEnough')])
         }
 
         $socket.emit($route.SEND_CUSTOM_ARMY, {
@@ -263,20 +264,20 @@ define('FarmOverflow/Queue', [
     }
 
     Queue.addCommand = function (command) {
-        if (!command.origin || !command.target) {
-            return Queue.trigger('error', ['Origin/target has errors.'])
-        }
-
         if (!isValidCoords(command.origin)) {
-            return Queue.trigger('error', ['Origin coords format ' + origin + ' is invalid.'])
+            return Queue.trigger('error', [QueueLocale('error.origin', {
+                origin: command.origin
+            })])
         }
 
         if (!isValidCoords(command.target)) {
-            return Queue.trigger('error', ['Origin coords format ' + target + ' is invalid.'])
+            return Queue.trigger('error', [QueueLocale('error.target', {
+                target: command.target
+            })])
         }
 
         if (angular.equals(command.units, {})) {
-            return Queue.trigger('error', ['You need to specify an amount of units.'])
+            return Queue.trigger('error', [QueueLocale('error.noUnits')])
         }
 
         command.origin = command.origin.trim()
@@ -289,7 +290,10 @@ define('FarmOverflow/Queue', [
         var sendTime = arriveTime - travelTime
 
         if (!isValidArriveTime(sendTime)) {
-            return Queue.trigger('error', ['This command should have already exited.'])
+            return Queue.trigger('error', [QueueLocale('error.alreadySent', {
+                date: readableDateFilter(sendTime),
+                type: QueueLocale(command.type)
+            })])
         }
 
         // Originalmente o jogo envia os oficiais por quantidade,
@@ -305,7 +309,7 @@ define('FarmOverflow/Queue', [
         var getOriginVillage = new Promise(function (resolve, reject) {
             getVillageByCoords(command.origin, function (data) {
                 if (!data) {
-                    return reject('Origin village does not exist.')
+                    return reject('error.originNotExist')
                 }
 
                 data.type = 'origin'
@@ -316,7 +320,7 @@ define('FarmOverflow/Queue', [
         var getTargetVillage = new Promise(function (resolve, reject) {
             getVillageByCoords(command.target, function (data) {
                 if (!data) {
-                    return reject('Target village does not exist.')
+                    return reject('error.originNotExist')
                 }
 
                 data.type = 'target'
@@ -346,7 +350,7 @@ define('FarmOverflow/Queue', [
         })
         
         loadVillagesData.catch(function (error) {
-            Queue.trigger('error', [error])
+            Queue.trigger('error', [QueueLocale(error)])
         })
     }
 

@@ -5,8 +5,7 @@ define('FarmOverflow/Farm', [
     'conf/conf',
     'struct/MapData',
     'helper/mapconvert',
-    'helper/time',
-    'conf/locale'
+    'helper/time'
 ], function (
     Commander,
     Village,
@@ -14,8 +13,7 @@ define('FarmOverflow/Farm', [
     $conf,
     $mapData,
     $convert,
-    $timeHelper,
-    gameLocale
+    $timeHelper
 ) {
     /**
      * Tempo de validade dos índices dos alvos, é resetado quando o
@@ -260,19 +258,18 @@ define('FarmOverflow/Farm', [
          */
         this.lastAttack = Lockr.get('farm-lastAttack', -1, true)
 
-        this.updateExceptionGroups()
-        this.updateExceptionVillages()
-        this.updatePlayerVillages()
-        this.updatePresets()
-        this.languages()
-        this.listeners()
-
         /**
          * Status do FarmOverflow.
          *
          * @type {String}
          */
-        this.status = this.lang.events.paused
+        this.status = 'events.paused'
+
+        this.updateExceptionGroups()
+        this.updateExceptionVillages()
+        this.updatePlayerVillages()
+        this.updatePresets()
+        this.listeners()
 
         return this
     }
@@ -285,7 +282,7 @@ define('FarmOverflow/Farm', [
     FarmOverflow.prototype.start = function () {
         if (!this.presets.length) {
             if (this.notifsEnabled) {
-                emitNotif('error', this.lang.events.presetFirst)
+                emitNotif('error', this.lang('events.presetFirst'))
             }
 
             return false
@@ -293,7 +290,7 @@ define('FarmOverflow/Farm', [
 
         if (!this.village) {
             if (this.notifsEnabled) {
-                emitNotif('error', this.lang.events.noSelectedVillage)
+                emitNotif('error', this.lang('events.noSelectedVillage'))
             }
             
             return false
@@ -316,7 +313,7 @@ define('FarmOverflow/Farm', [
         this.commander.start()
 
         if (this.notifsEnabled) {
-            emitNotif('success', this.lang.general.started)
+            emitNotif('success', this.lang('general.started'))
         }
 
         this.trigger('start')
@@ -333,7 +330,7 @@ define('FarmOverflow/Farm', [
         this.commander.stop()
         
         if (this.notifsEnabled) {
-            emitNotif('success', this.lang.general.paused)
+            emitNotif('success', this.lang('general.paused'))
         }
 
         this.trigger('pause')
@@ -372,7 +369,7 @@ define('FarmOverflow/Farm', [
      * Atualiza o timestamp do último ataque enviado com o FarmOverflow.
      */
     FarmOverflow.prototype.updateLastStatus = function (status) {
-        this.status = status
+        this.status = this.lang(status)
     }
 
     /**
@@ -1290,10 +1287,10 @@ define('FarmOverflow/Farm', [
                 var lastAttack = $filter('readableDateFilter')(self.lastAttack)
 
                 var bbcodeMessage = [
-                    '[b]' + self.lang.events.status + ':[/b] ' + self.status + '[br]',
-                    '[b]' + self.lang.events.selectedVillage + ':[/b] ',
+                    '[b]' + self.lang('events.status') + ':[/b] ' + self.lang('events.' + self.status) + '[br]',
+                    '[b]' + self.lang('events.selectedVillage') + ':[/b] ',
                     '[village=' + village.id + ']' + villageLabel + '[/village][br]',
-                    '[b]' + self.lang.events.lastAttack + ':[/b] ' + lastAttack
+                    '[b]' + self.lang('events.lastAttack') + ':[/b] ' + lastAttack
                 ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)
@@ -1332,39 +1329,46 @@ define('FarmOverflow/Farm', [
             $socket.emit($route.MAP_GETVILLAGES, args)
         })
 
-        var events = self.lang.events
-
         // Lista de eventos para atualizar o último status do FarmOverflow.
         self.bind('sendCommand', function () {
             self.updateLastAttack()
-            self.updateLastStatus(events.attacking)
+            self.updateLastStatus('events.attacking')
         })
+
         self.bind('noPreset', function () {
-            self.updateLastStatus(events.paused)
+            self.updateLastStatus('events.paused')
         })
+
         self.bind('noUnits', function () {
-            self.updateLastStatus(events.noUnits)
+            self.updateLastStatus('events.noUnits')
         })
+
         self.bind('noUnitsNoCommands', function () {
-            self.updateLastStatus(events.noUnitsNoCommands)
+            self.updateLastStatus('events.noUnitsNoCommands')
         })
+
         self.bind('start', function () {
-            self.updateLastStatus(events.attacking)
+            self.updateLastStatus('events.attacking')
         })
+
         self.bind('pause', function () {
-            self.updateLastStatus(events.paused)
+            self.updateLastStatus('events.paused')
         })
+
         self.bind('startLoadingTargers', function () {
-            self.updateLastStatus(events.loadingTargets)
+            self.updateLastStatus('events.loadingTargets')
         })
+
         self.bind('endLoadingTargers', function () {
-            self.updateLastStatus(events.analyseTargets)
+            self.updateLastStatus('events.analyseTargets')
         })
+
         self.bind('commandLimitSingle', function () {
-            self.updateLastStatus(events.commandLimit)
+            self.updateLastStatus('events.commandLimit')
         })
+
         self.bind('commandLimitMulti', function () {
-            self.updateLastStatus(events.noVillages)
+            self.updateLastStatus('events.noVillages')
         })
     }
 
@@ -1394,35 +1398,6 @@ define('FarmOverflow/Farm', [
         }
 
         return true
-    }
-
-    /**
-     * Define a linguagem da interface
-     */
-    FarmOverflow.prototype.languages = function () {
-        var i18n = {
-            pt_br: ___langPt_br,
-            en_us: ___langEn_us
-        }
-
-        var gameLang = gameLocale.LANGUAGE
-
-        var aliases = {
-            'pt_pt': 'pt_br',
-            'en_dk': 'en_us'
-        }
-
-        if (gameLang in aliases) {
-            gameLang = aliases[gameLang]
-        }
-
-        if (this.settings.language) {
-            this.lang = i18n[this.settings.language]
-        } else {
-            var lang = gameLang in i18n ? gameLang : 'en_us'
-            this.lang = i18n[lang]
-            this.settings.language = lang
-        }
     }
 
     return FarmOverflow

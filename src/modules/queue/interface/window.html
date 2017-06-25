@@ -1,6 +1,6 @@
 <div class="win-content message-list-wrapper searchable-list ng-scope">
     <header class="win-head">
-        <h2 class="ng-binding">{{ this.title }} <span class="small">v{{ this.version }}</span></h2>
+        <h2 class="ng-binding">{{ this.lang("title") }} <span class="small">v{{ this.version }}</span></h2>
         <ul class="list-btn">
             <li><a href="#" class="farmOverflow-close size-34x34 btn-red icon-26x26-close"></a></li>
         </ul>
@@ -12,22 +12,22 @@
             <div class="tabs-four-col">
                 <div class="tab" tab="info">
                     <div class="tab-inner">
-                        <div><a href="#" class="btn-icon btn-orange">Informações</a></div>
+                        <div><a href="#" class="btn-icon btn-orange">{{ this.lang("general.info") }}</a></div>
                     </div>
                 </div>
                 <div class="tab" tab="add">
                     <div class="tab-inner">
-                        <div><a href="#" class="btn-icon btn-orange">Adicionar</a></div>
+                        <div><a href="#" class="btn-icon btn-orange">{{ this.lang("general.add") }}</a></div>
                     </div>
                 </div>
                 <div class="tab" tab="queue">
                     <div class="tab-inner">
-                        <div><a href="#" class="btn-icon btn-orange">Em espera</a></div>
+                        <div><a href="#" class="btn-icon btn-orange">{{ this.lang("general.waiting") }}</a></div>
                     </div>
                 </div>
                 <div class="tab" tab="log">
                     <div class="tab-inner">
-                        <div><a href="#" class="btn-icon btn-orange">Registros</a></div>
+                        <div><a href="#" class="btn-icon btn-orange">{{ this.lang("general.registers") }}</a></div>
                     </div>
                 </div>
             </div>
@@ -35,42 +35,42 @@
 
         <!-- INFO -->
         <div class="box-paper footer has-footer-upper farmOverflow-content-info">
-            <h5 class="twx-section">Em desenvolvimento!</h5>
+            <h5 class="twx-section">{{ this.lang("info.dev1") }}</h5>
             <div>
-                <p>Esta ferramenta ainda está em desenvolvimento, portanto, pode não funcionar como esperado.</p>
-                <p>Atenção! Todos comandos adicionados e registros serão apagados assim que a página for recarregada.</p>
+                <p>{{ this.lang("info.dev2") }}</p>
+                <p>{{ this.lang("info.dev3") }}</p>
             </div>
 
-            <h5 class="twx-section">Ativar/desativar</h5>
+            <h5 class="twx-section">{{ this.lang("info.active1") }}</h5>
             <div>
-                <p>Para que os comandos sejam enviados, o CommandQueue precisa estar em modo ativado! Todos os comandos que você adicionou serão expirados ao invés de serem enviados caso esteja desaativado.</p>
-                <p>Para ativar/desativar apenar o botão Ativar/Desativar no rodapé dessa janela.</p>
+                <p>{{ this.lang("info.active2") }}</p>
+                <p>{{ this.lang("info.active3") }}</p>
             </div>
 
-            <h5 class="twx-section">Quantidade de tropas dinâmica</h5>
+            <h5 class="twx-section">{{ this.lang("info.dynamic1") }}</h5>
             <div>
-                <p>Para que seja enviado a quantidade máxima de uma unidade específica você deve color um simples * (asterisco) no lugar de um número.</p>
-                <p>Para poupar uma certa quantidade de tropas na aldeia, você deve especificar um número negativo, assim quando o comando for enviado, será utilizada a quantidade máxima da unidade menos a quantidade que você especificou.</p>
+                <p>{{ this.lang("info.dynamic2") }}</p>
+                <p>{{ this.lang("info.dynamic3") }}</p>
             </div>
 
-            <h5 class="twx-section">Delay nos envios</h5>
+            <h5 class="twx-section">{{ this.lang("info.dynamic1") }}</h5>
             <div>
-                <p>Se sua internet ter um tempo de resposta rápido o bastante, os comandos chegarão no momento exato que você especificar.</p>
-                <p>Dependendo do tempo de resposta da conexão com o servidor do jogo, os comandos podem não chegar no momento exato que você especificou.</p>
-                <p>Faça testes antes e veja quanto tempo demora do momento em que você preciona para enviar o comando e quando ele realmente é enviado, então use essa diferença na hora de especificar o horário de chegada dos comandos.</p>
+                <p>{{ this.lang("info.dynamic2") }}</p>
+                <p>{{ this.lang("info.dynamic3") }}</p>
+                <p>{{ this.lang("info.dynamic4") }}</p>
             </div>
 
-            <h5 class="twx-section">Data de chegada</h5>
+            <h5 class="twx-section">{{ this.lang("info.date1") }}</h5>
             <div>
-                <p>O formato da data é MM/DD/AAAA, e não DD/MM/AAAA. Esse é o padrão dos navegadores.</p>
-                <p>É possível especificar os milésimos no horário de chegada para uma maior precisão.</p>
+                <p>{{ this.lang("info.date2") }}</p>
+                <p>{{ this.lang("info.date3") }}</p>
             </div>
         </div>
 
         <!-- ADD COMANDO -->
         <div class="box-paper footer has-footer-upper rich-text farmOverflow-content-add">
             <form class="addForm">
-                <h5 class="twx-section">Aldeias</h5>
+                <h5 class="twx-section">{{ this.lang("add.villages") }}</h5>
                 <table class="tbl-border-light tbl-striped">
                     <colgroup>
                         <col width="25%">
@@ -79,37 +79,37 @@
                     <tbody>
                         <tr>
                             <td>
-                                <span class="ff-cell-fix">Origem</span>
+                                <span class="ff-cell-fix">{{ this.lang("add.origin") }}</span>
                             </td>
                             <td>
                                 <input name="origin" type="text" class="textfield-border origin" pattern="\\\\d{2,3}\\\\|\\\\d{2,3}" placeholder="000|000" required>
-                                <a class="img-link btn btn-orange padded addSelected">&laquo; Aldeia ativa</a>
+                                <a class="img-link btn btn-orange padded addSelected">&laquo; {{ this.lang("add.addSelected") }}</a>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <span class="ff-cell-fix">Alvo</span>
+                                <span class="ff-cell-fix">{{ this.lang("add.target") }}</span>
                             </td>
                             <td>
                                 <input name="target" type="text" class="textfield-border target" pattern="\\\\d{2,3}\\\\|\\\\d{2,3}" placeholder="000|000" required>
-                                <a class="img-link btn btn-orange padded addMapSelected">&laquo; Aldeia selecionada no mapa</a>
+                                <a class="img-link btn btn-orange padded addMapSelected">&laquo; {{ this.lang("add.addMapSelected") }}</a>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <span class="ff-cell-fix">Data de chegada</span>
+                                <span class="ff-cell-fix">{{ this.lang("add.arrive") }}</span>
                             </td>
                             <td>
                                 <input name="arrive" type="text" class="textfield-border arrive" pattern="\\\\s*\\\\d{1,2}:\\\\d{1,2}:\\\\d{1,2}(:\\\\d{1,3})? \\\\d{1,2}\\\\/\\\\d{1,2}\\\\/\\\\d{4}\\\\s*" placeholder="00:00:00:000 00/00/0000" required>
-                                <a class="img-link btn btn-orange padded addCurrentDate">&laquo; Data atual</a>
+                                <a class="img-link btn btn-orange padded addCurrentDate">&laquo; {{ this.lang("add.currentDate") }}</a>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h5 class="twx-section">Unidades</h5>
+                <h5 class="twx-section">{{ this.lang("general.units") }}</h5>
                 <table class="tbl-border-light tbl-striped">
                     <colgroup>
                         <col width="50%">
@@ -120,7 +120,7 @@
                     </tbody>
                 </table>
 
-                <h5 class="twx-section">Oficiais</h5>
+                <h5 class="twx-section">{{ this.lang("general.officers") }}</h5>
                 <table class="tbl-border-light tbl-striped officers">
                     <tbody>
                         {{ this.officersInput }}
@@ -132,38 +132,38 @@
 
         <!-- LISTA DE COMANDOS -->
         <div class="box-paper footer has-footer-upper rich-text farmOverflow-content-queue">
-            <h5 class="twx-section">Comandos em espera</h5>
+            <h5 class="twx-section">{{ this.lang("queue.waiting") }}</h5>
             <div class="queue">
-                <p class="center nothing">Nenhum comando adicionado.</p>
+                <p class="center nothing">{{ this.lang("queue.noneAdded") }}</p>
             </div>
         </div>
 
         <!-- EVENTOS -->
         <div class="box-paper footer has-footer-upper rich-text farmOverflow-content-log">
-            <h5 class="twx-section">Comandos enviados</h5>
+            <h5 class="twx-section">{{ this.lang("queue.sended") }}</h5>
             <div class="sended">
-                <p class="center nothing">Nenhum comando enviado.</p>
+                <p class="center nothing">{{ this.lang("queue.noneSended") }}</p>
             </div>
 
-            <h5 class="twx-section">Comandos expirados</h5>
+            <h5 class="twx-section">{{ this.lang("queue.expired") }}</h5>
             <div class="expired">
-                <p class="center nothing">Nenhum comando expirado.</p>
+                <p class="center nothing">{{ this.lang("queue.noneExpired") }}</p>
             </div>
         </div>
     </div>
     <footer class="win-foot">
         <ul class="list-btn list-center">
             <li class="farmOverflow-button-log">
-                <a class="btn-orange btn-border clear">Limpar registros</a>
+                <a class="btn-orange btn-border clear">{{ this.lang("general.clear") }}</a>
             </li>
             <li class="farmOverflow-button-add">
-                <a class="btn-orange btn-border attack">Ataque</a>
+                <a class="btn-orange btn-border attack">{{ this.lang("general.attack") }}</a>
             </li>
             <li class="farmOverflow-button-add">
-                <a class="btn-orange btn-border support">Apoio</a>
+                <a class="btn-orange btn-border support">{{ this.lang("general.support") }}</a>
             </li>
             <li>
-                <a class="btn-green btn-border switch">Ativar</a>
+                <a class="btn-green btn-border switch">{{ this.lang("general.active") }}</a>
             </li>
         </ul>
     </footer>

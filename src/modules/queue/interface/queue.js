@@ -1,10 +1,12 @@
 define('FarmOverflow/QueueInterface', [
     'FarmOverflow/Queue',
+    'FarmOverflow/Queue/locale',
     'FarmOverflow/Interface',
     'FarmOverflow/FrontButton',
     'helper/time'
 ], function (
     Queue,
+    QueueLocale,
     Interface,
     FrontButton,
     $timeHelper
@@ -169,7 +171,7 @@ define('FarmOverflow/QueueInterface', [
 
             $addMapSelected.on('click', function () {
                 if (!mapSelectedVillage) {
-                    return emitNotif('error', 'Nenhuma aldeia selecionada no mapa.')
+                    return emitNotif('error', QueueLocale('error.noMapSelectedVillage'))
                 }
 
                 $target.val(mapSelectedVillage.join('|'))
@@ -214,6 +216,7 @@ define('FarmOverflow/QueueInterface', [
             var typeClass = command.type === 'attack' ? 'attack-small' : 'support'
             var arrive = readableDateFilter(command.sendTime + command.travelTime)
             var sendTime = readableDateFilter(command.sendTime)
+            var hasOfficers = !!Object.keys(command.officers).length
 
             $command.innerHTML = TemplateEngine('___htmlQueueCommand', {
                 sendTime: sendTime,
@@ -222,16 +225,10 @@ define('FarmOverflow/QueueInterface', [
                 typeClass: typeClass,
                 arrive: arrive,
                 units: command.units,
+                hasOfficers: hasOfficers,
                 officers: command.officers,
                 section: section,
-                lang: {
-                    out: 'Saída',
-                    timeLeft: 'Tempo restante',
-                    village: 'Aldeia',
-                    arrive: 'Chegada',
-                    units: 'Tropas',
-                    officers: 'Oficiais'
-                }
+                lang: QueueLocale
             })
 
             var $originButton = $command.querySelector('#' + origin.id)
@@ -327,9 +324,9 @@ define('FarmOverflow/QueueInterface', [
             htmlReplaces: {
                 version: Queue.version,
                 author: ___author,
-                title: 'CommandQueue',
                 unitsInput: genUnitsInput(),
-                officersInput: genOfficersInput()
+                officersInput: genOfficersInput(),
+                lang: QueueLocale
             }
         })
 
