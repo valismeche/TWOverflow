@@ -349,7 +349,7 @@ define('FarmOverflow/Queue', [
                 if (reason === 'expired') {
                     Queue.trigger('expired', [command])
                 } else if (reason === 'removed') {
-                    Queue.trigger('remove', [true, command])
+                    Queue.trigger('remove', [true, command, true /*manual*/])
                 }
 
                 Lockr.set(worldPrefix('queue-commands'), queue)

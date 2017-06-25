@@ -30,5 +30,6 @@
   "scripts": {
     "build": "grunt build"
   },
-  "analytics": "UA-92130203-4"
+  "farmAnalytics": "UA-92130203-4",
+  "queueAnalytics": "UA-92130203-5"
 }

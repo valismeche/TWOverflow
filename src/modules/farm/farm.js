@@ -1,6 +1,5 @@
 define('FarmOverflow/Farm', [
     'FarmOverflow/Commander',
-    'FarmOverflow/analytics',
     'FarmOverflow/Village',
     'helper/math',
     'conf/conf',
@@ -10,7 +9,6 @@ define('FarmOverflow/Farm', [
     'conf/locale'
 ], function (
     Commander,
-    analytics,
     Village,
     $math,
     $conf,
@@ -321,7 +319,7 @@ define('FarmOverflow/Farm', [
             emitNotif('success', this.lang.general.started)
         }
 
-        analytics.start()
+        this.event('start')
 
         return true
     }
@@ -338,7 +336,7 @@ define('FarmOverflow/Farm', [
             emitNotif('success', this.lang.general.paused)
         }
 
-        analytics.pause()
+        this.event('pause')
 
         return true
     }
@@ -454,7 +452,7 @@ define('FarmOverflow/Farm', [
             })
         }
 
-        analytics.settingsChange(localStorage[Lockr.prefix + 'settings'])
+        self.event('settingsChange', [Lockr.get('farm-settings')])
     }
 
     /**
@@ -1176,7 +1174,6 @@ define('FarmOverflow/Farm', [
             }
 
             self.ignoreVillage(target)
-            analytics.ignoreTarget()
 
             return true
         }
@@ -1194,8 +1191,6 @@ define('FarmOverflow/Farm', [
             }
 
             self.priorityTargets[vid].push(tid)
-
-            analytics.priorityTarget()
 
             self.event('priorityTargetAdded', [{
                 id: tid,
@@ -1283,7 +1278,7 @@ define('FarmOverflow/Farm', [
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                analytics.remoteCommand()
+                self.event('remoteCommand', ['on'])
 
                 break
             case 'off':
@@ -1292,7 +1287,7 @@ define('FarmOverflow/Farm', [
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                analytics.remoteCommand()
+                self.event('remoteCommand', ['off'])
 
                 break
             case 'status':
@@ -1305,10 +1300,10 @@ define('FarmOverflow/Farm', [
                     '[b]' + self.lang.events.selectedVillage + ':[/b] ',
                     '[village=' + village.id + ']' + villageLabel + '[/village][br]',
                     '[b]' + self.lang.events.lastAttack + ':[/b] ' + lastAttack
-                ].join('');
+                ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)
-                analytics.remoteCommand()
+                self.event('remoteCommand', ['status'])
 
                 break
             }

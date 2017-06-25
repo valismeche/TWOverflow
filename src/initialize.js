@@ -1,10 +1,18 @@
 require([
     'FarmOverflow/Farm',
     'FarmOverflow/FarmInterface',
+    'FarmOverflow/Farm/analytics',
     'FarmOverflow/Queue',
     'FarmOverflow/QueueInterface',
-    'FarmOverflow/analytics'
-], function (Farm, FarmInterface, Queue, QueueInterface, analytics) {
+    'FarmOverflow/Queue/analytics'
+], function (
+    Farm,
+    FarmInterface,
+    FarmAnalytics,
+    Queue,
+    QueueInterface,
+    QueueAnalytics
+) {
     if (Farm.initialized) {
         return false
     } else {
@@ -15,15 +23,15 @@ require([
         var $model = injector.get('modelDataService')
         var $player = $model.getSelectedCharacter()
 
-        analytics.init($player)
-
         Lockr.prefix = $player.getId() + '_farmOverflow_'
 
         farmOverflow = new Farm()
         FarmInterface(farmOverflow)
+        FarmAnalytics(farmOverflow, '___farmAnalytics')
 
         Queue.init()
         QueueInterface()
+        QueueAnalytics('___queueAnalytics')
     }
 
     var $map = document.querySelector('#map')

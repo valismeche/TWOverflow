@@ -1,7 +1,6 @@
 define('FarmOverflow/Commander', [
-    'FarmOverflow/analytics',
     'helper/math'
-], function (analytics, $math) {
+], function ($math) {
     /**
      * @class
      *
@@ -377,8 +376,6 @@ define('FarmOverflow/Commander', [
                 farm.target
             ])
 
-            analytics.attack()
-
             unbind()
             callback()
         })
@@ -403,7 +400,7 @@ define('FarmOverflow/Commander', [
                 return false
             }
 
-            analytics.attackError()
+            farmOverflow.event('sendCommandError', [data.code])
 
             unbind()
             callback()

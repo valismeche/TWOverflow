@@ -10,12 +10,13 @@ module.exports = function (grunt) {
                     'src/modules/farm/farm.js',
                     'src/modules/farm/commander.js',
                     'src/modules/farm/village.js',
+                    'src/modules/farm/analytics.js',
                     'src/modules/farm/interface/farm.js',
                     'src/modules/queue/queue.js',
+                    'src/modules/queue/analytics.js',
                     'src/modules/queue/interface/queue.js',
                     'src/interface/interface.js',
                     'src/interface/button.js',
-                    'src/analytics.js',
                     'src/footer.js',
                     'src/initialize.js'
                 ],
@@ -70,7 +71,8 @@ module.exports = function (grunt) {
                             authorUrl: '<%= pkg.author.url %>',
                             date: '<%= new Date() %>',
                             build: '<%= pkg.build %>',
-                            analytics: '<%= pkg.analytics %>',
+                            farmAnalytics: '<%= pkg.farmAnalytics %>',
+                            queueAnalytics: '<%= pkg.queueAnalytics %>',
 
                             // script replaces
                             htmlFarmWindow: '<%= grunt.file.read("dist/temp/modules/farm/interface/window.html") %>',
