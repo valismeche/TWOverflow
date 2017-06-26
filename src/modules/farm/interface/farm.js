@@ -245,6 +245,8 @@ define('FarmOverflow/FarmInterface', [
         function addEvent (options, _populate) {
             var limit = farmOverflow.settings.eventsLimit
 
+            $events.find('.nothing').remove()
+
             if (visibleEventCount >= limit) {
                 $events.find('tr:last-child').remove()
             }
@@ -350,7 +352,7 @@ define('FarmOverflow/FarmInterface', [
             
             // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
             if (events.length > 0) {
-                $events.html('')
+                $events.find('.nothing').remove()
             }
 
             for (var i = 0; i < events.length; i++) {
