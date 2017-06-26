@@ -4,6 +4,12 @@
 
         "attack": "ataque",
         "support": "apoio",
+        "sended": "enviado",
+        "activated": "ativado",
+        "deactivated": "desativado",
+        "expired": "expirado",
+        "removed": "removido",
+        "added": "adicionado",
 
         "general.info": "Informações",
         "general.add": "Adicionar",
@@ -12,9 +18,12 @@
         "general.clear": "Limpar registros",
         "general.attack": "Ataque",
         "general.support": "Apoio",
-        "general.active": "Ativar",
+        "general.activate": "Ativar",
+        "general.deactivate": "Desativar",
         "general.units": "Unidades",
         "general.officers": "Oficiais",
+        "general.nextCommand": "Próximo comando",
+
 
         "info.dev1": "Em desenvolvimento!",
         "info.dev2": "Esta ferramenta ainda está em desenvolvimento, portanto, pode não funcionar como esperado.",
@@ -57,9 +66,10 @@
         "error.origin": "Coordendas \"%{origin}\" da aldeia de origem incorreta!",
         "error.target": "Coordendas \"%{target}\" da aldeia alvo incorreta!",
         "error.noUnits": "Nenhuma unidade especificada!",
-        "error.alreadySent": "O %{type} deveria ter saído %{date}",
+        "error.alreadySent": "Esse %{type} deveria ter saído %{date}",
         "error.originNotExist": "Aldeia de origem especificada não existe!",
         "error.targetNotExist": "Aldeia alvo especificada não existe!",
-        "error.noMapSelectedVillage": "Nenhuma aldeia selecionada no mapa."
+        "error.noMapSelectedVillage": "Nenhuma aldeia selecionada no mapa.",
+        "error.removeError": "Erro ao remover comando."
     }
 }
