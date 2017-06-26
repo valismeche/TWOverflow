@@ -296,7 +296,6 @@ define('FarmOverflow/FarmInterface', [
 
             var $tr = document.createElement('tr')
 
-            $tr.className = 'reduced'
             $tr.innerHTML = TemplateEngine('___htmlFarmEvent', {
                 date: $filter('readableDateFilter')(options.timestamp || $timeHelper.gameTime()),
                 icon: options.icon,
