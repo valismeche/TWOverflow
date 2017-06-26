@@ -1,4 +1,11 @@
+define('FarmOverflow/Farm/locale', [
+    'FarmOverflow/locale'
+], function (Locale) {
+    return new Locale(___langFarm, 'en_us')
+})
+
 define('FarmOverflow/Farm', [
+    'FarmOverflow/Farm/locale',
     'FarmOverflow/Farm/Commander',
     'FarmOverflow/Farm/Village',
     'helper/math',
@@ -7,6 +14,7 @@ define('FarmOverflow/Farm', [
     'helper/mapconvert',
     'helper/time'
 ], function (
+    FarmLocale,
     Commander,
     Village,
     $math,
@@ -271,6 +279,8 @@ define('FarmOverflow/Farm', [
         this.updatePresets()
         this.listeners()
 
+        FarmLocale.change(this.settings.language)
+
         return this
     }
 
@@ -282,7 +292,7 @@ define('FarmOverflow/Farm', [
     FarmOverflow.prototype.start = function () {
         if (!this.presets.length) {
             if (this.notifsEnabled) {
-                emitNotif('error', this.lang('events.presetFirst'))
+                emitNotif('error', FarmLocale('events.presetFirst'))
             }
 
             return false
@@ -290,7 +300,7 @@ define('FarmOverflow/Farm', [
 
         if (!this.village) {
             if (this.notifsEnabled) {
-                emitNotif('error', this.lang('events.noSelectedVillage'))
+                emitNotif('error', FarmLocale('events.noSelectedVillage'))
             }
             
             return false
@@ -313,7 +323,7 @@ define('FarmOverflow/Farm', [
         this.commander.start()
 
         if (this.notifsEnabled) {
-            emitNotif('success', this.lang('general.started'))
+            emitNotif('success', FarmLocale('general.started'))
         }
 
         this.trigger('start')
@@ -330,7 +340,7 @@ define('FarmOverflow/Farm', [
         this.commander.stop()
         
         if (this.notifsEnabled) {
-            emitNotif('success', this.lang('general.paused'))
+            emitNotif('success', FarmLocale('general.paused'))
         }
 
         this.trigger('pause')
@@ -369,7 +379,7 @@ define('FarmOverflow/Farm', [
      * Atualiza o timestamp do último ataque enviado com o FarmOverflow.
      */
     FarmOverflow.prototype.updateLastStatus = function (status) {
-        this.status = this.lang(status)
+        this.status = FarmLocale(status)
     }
 
     /**
@@ -1287,10 +1297,10 @@ define('FarmOverflow/Farm', [
                 var lastAttack = $filter('readableDateFilter')(self.lastAttack)
 
                 var bbcodeMessage = [
-                    '[b]' + self.lang('events.status') + ':[/b] ' + self.lang('events.' + self.status) + '[br]',
-                    '[b]' + self.lang('events.selectedVillage') + ':[/b] ',
+                    '[b]' + FarmLocale('events.status') + ':[/b] ' + FarmLocale('events.' + self.status) + '[br]',
+                    '[b]' + FarmLocale('events.selectedVillage') + ':[/b] ',
                     '[village=' + village.id + ']' + villageLabel + '[/village][br]',
-                    '[b]' + self.lang('events.lastAttack') + ':[/b] ' + lastAttack
+                    '[b]' + FarmLocale('events.lastAttack') + ':[/b] ' + lastAttack
                 ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)

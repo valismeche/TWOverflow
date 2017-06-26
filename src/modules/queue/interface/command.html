@@ -8,7 +8,7 @@
     <tbody>
         <tr>
             <th colspan="2">
-                {{ this.lang("command.out") }}: {{ this.sendTime }} | {{ this.lang("command.arrive") }}: {{ this.arrive }}
+                {{ this.locale("command.out") }}: {{ this.sendTime }} | {{ this.locale("command.arrive") }}: {{ this.arrive }}
 
                 {{ if (this.section === "queue") { }}
                     <a href="#" class="remove-command size-20x20 btn-red icon-20x20-close"></a>
@@ -16,7 +16,7 @@
             </th>
         </tr>
         <tr>
-            <td>{{ this.lang("command.village") }}</td>
+            <td>{{ this.locale("command.village") }}</td>
             <td>
                 {{ this.origin }}
                 <span class="icon-bg-red icon-26x26-{{ this.typeClass }} command-type"></span>
@@ -24,7 +24,7 @@
             </td>
         </tr>
         <tr>
-            <td>{{ this.lang("general.units") }}</td>
+            <td>{{ this.locale("general.units") }}</td>
             <td class="units">
                 {{ for (var unit in this.units) { }}
                     <div class="unit">

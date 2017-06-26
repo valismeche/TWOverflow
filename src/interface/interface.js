@@ -64,8 +64,8 @@ define('FarmOverflow/Interface', [
         this.$window.className = 'farmOverflow-window twx-window screen left'
 
         this.$window.innerHTML = TemplateEngine(
-            this.settings.htmlTemplate,
-            this.settings.htmlReplaces
+            this.settings.template,
+            this.settings.replaces
         )
         this.$wrapper.append(this.$window)
 

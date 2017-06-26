@@ -8,6 +8,9 @@ module.exports = function (grunt) {
                     'src/libs/i18n.js',
                     'src/header.js',
                     'src/utils.js',
+                    'src/locale.js',
+                    'src/interface/interface.js',
+                    'src/interface/button.js',
                     'src/modules/farm/farm.js',
                     'src/modules/farm/commander.js',
                     'src/modules/farm/village.js',
@@ -18,8 +21,6 @@ module.exports = function (grunt) {
                     'src/modules/queue/analytics.js',
                     'src/modules/queue/locale.js',
                     'src/modules/queue/interface/queue.js',
-                    'src/interface/interface.js',
-                    'src/interface/button.js',
                     'src/footer.js',
                     'src/initialize.js'
                 ],
@@ -86,10 +87,8 @@ module.exports = function (grunt) {
                             htmlButton: '<%= grunt.file.read("dist/temp/interface/button.html") %>',
                             cssStyle: '<%= grunt.file.read("dist/temp/style.css") %>',
                             
-                            langFarmPt: '<%= grunt.file.read("src/modules/farm/locale/pt.json") %>',
-                            langFarmEn: '<%= grunt.file.read("src/modules/farm/locale/en.json") %>',
-
-                            langQueuePt: '<%= grunt.file.read("src/modules/queue/locale/pt.json") %>'
+                            langFarm: '<%= grunt.file.read("src/modules/farm/locales.json") %>',
+                            langQueue: '<%= grunt.file.read("src/modules/queue/locales.json") %>'
                         }
                     }]
                 },

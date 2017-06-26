@@ -2,20 +2,16 @@ require([
     'FarmOverflow/Farm',
     'FarmOverflow/FarmInterface',
     'FarmOverflow/Farm/analytics',
-    'FarmOverflow/Farm/locale',
     'FarmOverflow/Queue',
     'FarmOverflow/QueueInterface',
-    'FarmOverflow/Queue/analytics',
-    'FarmOverflow/Queue/locale'
+    'FarmOverflow/Queue/analytics'
 ], function (
     Farm,
     FarmInterface,
     FarmAnalytics,
-    FarmLocale,
     Queue,
     QueueInterface,
-    QueueAnalytics,
-    QueueLocale
+    QueueAnalytics
 ) {
     if (Farm.initialized) {
         return false
@@ -30,7 +26,6 @@ require([
         Lockr.prefix = $player.getId() + '_farmOverflow_'
 
         farmOverflow = new Farm()
-        FarmLocale(farmOverflow)
         FarmInterface(farmOverflow)
         FarmAnalytics(farmOverflow, '___farmAnalytics')
 

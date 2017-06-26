@@ -26,11 +26,10 @@ define('FarmOverflow/QueueInterface', [
 
         queueInterface = new Interface('farmOverflow-queue', {
             activeTab: 'info',
-            htmlTemplate: '___htmlQueueWindow',
-            htmlReplaces: {
+            template: '___htmlQueueWindow',
+            replaces: {
                 version: Queue.version,
-                author: ___author,
-                lang: QueueLocale,
+                locale: QueueLocale,
                 unitNameFilter: unitNameFilter,
                 units: unitNamesNoCatapult,
                 officers: officerNames

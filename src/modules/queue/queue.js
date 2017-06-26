@@ -1,3 +1,9 @@
+define('FarmOverflow/Queue/locale', [
+    'FarmOverflow/locale'
+], function (Locale) {
+    return new Locale(___langQueue, 'en_us')
+})
+
 define('FarmOverflow/Queue', [
     'FarmOverflow/Queue/locale',
     'helper/time',

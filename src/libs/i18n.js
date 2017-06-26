@@ -224,6 +224,7 @@
     return trans.translate;
   };
 
-  (typeof module !== "undefined" && module !== null ? module.exports = i18n : void 0) || (this.i18n = i18n);
-
+  define('i18n', function () {
+    return i18n
+  })
 }).call(this);
