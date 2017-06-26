@@ -47,7 +47,8 @@ module.exports = function (grunt) {
             all: {
                 options: {
                     removeComments: true,
-                    collapseWhitespace: true
+                    collapseWhitespace: true,
+                    ignoreCustomFragments: [/\{\{[\s\S]*?\}\}/]
                 },
                 files: {
                     'dist/temp/interface/button.html': 'src/interface/button.html',

@@ -16,51 +16,8 @@ define('FarmOverflow/QueueInterface', [
         var unitNames = $model.getGameData().getOrderedUnitNames()
         var officerNames = $model.getGameData().getOrderedOfficerNames()
 
-        function genUnitsInput () {
-            var wrapper = ['<tr>']
-
-            unitNames.forEach(function (unit, index) {
-                if (index % 2 === 0 && index !== 0) {
-                    wrapper.push('</tr><tr>')
-                }
-
-                var name = $filter('i18n')(unit, $root.loc.ale, 'unit_names')
-
-                wrapper.push(
-                    '<td class="cell-space-left">',
-                    '<span class="float-left icon-bg-black icon-44x44-unit-' + unit + '"></span>',
-                    '<div class="ff-cell-fix cell-space-44x44">',
-                    '<span class="ng-binding">' + name + '</span>',
-                    '<input class="unit" type="text" name="' + unit + '" placeholder="0">',
-                    '</div>',
-                    '</td>'
-                )
-            })
-
-            wrapper.push('</tr>')
-
-            return wrapper.join('')
-        }
-
-        function genOfficersInput () {
-            var wrapper = ['<tr>']
-            
-            officerNames.forEach(function (officer, index) {
-                var name = $filter('i18n')(officer, $root.loc.ale, 'officer_names')
-
-                wrapper.push(
-                    '<td>',
-                    '<span class="icon-44x44-premium_officer_' + officer + '"></span>',
-                    '<label class="size-34x34 btn-orange icon-26x26-checkbox">',
-                    '<input type="checkbox" name="' + officer + '">',
-                    '</label>',
-                    '</td>'
-                )
-            })
-
-            wrapper.push('</tr>')
-
-            return wrapper.join('')
+        function unitNameFilter (unit) {
+            return $filter('i18n')(unit, $root.loc.ale, 'unit_names')
         }
 
         function isUnit (value) {
@@ -318,15 +275,20 @@ define('FarmOverflow/QueueInterface', [
             return 'Próximo comando: ' + sendTime
         }
 
+        var unitNamesNoCatapult = unitNames.filter(function (unit) {
+            return unit !== 'catapult'
+        })
+
         var queueInterface = new Interface('farmOverflow-queue', {
             activeTab: 'info',
             htmlTemplate: '___htmlQueueWindow',
             htmlReplaces: {
                 version: Queue.version,
                 author: ___author,
-                unitsInput: genUnitsInput(),
-                officersInput: genOfficersInput(),
-                lang: QueueLocale
+                lang: QueueLocale,
+                unitNameFilter: unitNameFilter,
+                units: unitNamesNoCatapult,
+                officers: officerNames
             }
         })
 
