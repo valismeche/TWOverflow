@@ -96,7 +96,7 @@
         <!-- CONFIGURAÇÕES -->
         <div class="box-paper footer has-footer-upper farmOverflow-content-settings">
             <form class="settings">
-                <h5 class="twx-section"><#= locale("settings.presets") #></h5>
+                <h5 class="twx-section"><#= locale("settings.basicSettings") #></h5>
                 <table class="tbl-border-light tbl-striped">
                     <colgroup>
                         <col width="50%">
@@ -112,16 +112,6 @@
                                 <select name="presetName" class="preset"></select>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-
-                <h5 class="twx-section"><#= locale("settings.villages") #></h5>
-                <table class="tbl-border-light tbl-striped">
-                    <colgroup>
-                        <col width="50%">
-                        <col>
-                    </colgroup>
-                    <tbody>
                         <tr>
                             <td>
                                 <span class="icon-20x20-queue-indicator-short"></span>
@@ -150,6 +140,10 @@
                             </td>
                         </tr>
                         <tr>
+                            <td><span class="ff-cell-fix"><#= locale("settings.randomBase") #></span></td>
+                            <td><input name="randomBase" type="number" class="textfield-border" min="0" required></td>
+                        </tr>
+                        <tr>
                             <td>
                                 <span class="icon-34x34-name_changed"></span>
                                 <span class="ff-cell-fix"><#= locale("settings.priorityTargets") #></span>
@@ -157,6 +151,14 @@
                             <td>
                                 <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-priorityTargets">
                                     <input id="settings-priorityTargets" type="checkbox" name="priorityTargets">
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><#- locale("settings.ignoreOnLoss") #></td>
+                            <td>
+                                <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-ignoreOnLoss">
+                                    <input id="settings-ignoreOnLoss" type="checkbox" name="ignoreOnLoss">
                                 </label>
                             </td>
                         </tr>
@@ -204,28 +206,6 @@
                                 <span class="ff-cell-fix"><#= locale("settings.maxTravelTime") #></span>
                             </td>
                             <td><input name="maxTravelTime" type="text" class="textfield-border" pattern="\\d{1,2}:\\d{1,2}:\\d{1,2}" required></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h5 class="twx-section"><#= locale("settings.security") #></h5>
-                <table class="tbl-border-light tbl-striped">
-                    <colgroup>
-                        <col width="50%">
-                        <col>
-                    </colgroup>
-                    <tbody>
-                        <tr>
-                            <td><span class="ff-cell-fix"><#= locale("settings.randomBase") #></span></td>
-                            <td><input name="randomBase" type="number" class="textfield-border" min="0" required></td>
-                        </tr>
-                        <tr>
-                            <td><#- locale("settings.ignoreOnLoss") #></td>
-                            <td>
-                                <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-ignoreOnLoss">
-                                    <input id="settings-ignoreOnLoss" type="checkbox" name="ignoreOnLoss">
-                                </label>
-                            </td>
                         </tr>
                     </tbody>
                 </table>
