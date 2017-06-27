@@ -1,23 +1,17 @@
 define('FarmOverflow/Farm/Commander', [
     'helper/math'
 ], function ($math) {
+    var Farm
+
     /**
      * @class
      *
      * Controla os ciclos de comandos, enviando ataques, alternando
      * aldeias e alvos.
-     *
-     * @param {FarmOverflow} farmOverflow - Classe referência do farmOverflow
-     *      com as depêndencias.
      */
-    function Commander (farmOverflow) {
-        /**
-         * Copia da estrutura do farmOverflow.
-         *
-         * @type {Object}
-         */
-        this.farmOverflow = farmOverflow
-
+    function Commander (FarmScope) {
+        Farm = FarmScope
+        
         /**
          * Armazena o antecipadamente o próximo evento (noUnits/commandLimit)
          * evitando o script de fazer ações com os dados locais (tropas/comandos)
@@ -32,49 +26,48 @@ define('FarmOverflow/Farm/Commander', [
     }
 
     Commander.prototype.start = function () {
-        this.farmOverflow.trigger('start')
+        Farm.trigger('start')
         this.running = true
         this.analyse()
     }
 
     Commander.prototype.stop = function () {
-        this.farmOverflow.trigger('pause')
+        Farm.trigger('pause')
         this.running = false
         clearTimeout(this.timeoutId)
     }
 
     Commander.prototype.analyse = function () {
         var self = this
-        var farm = self.farmOverflow
-
+        
         if (!self.running) {
             return
         }
 
-        if (!farm.presets.length) {
-            farm.stop()
-            farm.trigger('noPreset')
+        if (!Farm.presets.length) {
+            Farm.stop()
+            Farm.trigger('noPreset')
 
             return
         }
 
-        if (!farm.hasVillage()) {
-            return farm.trigger('noVillageSelected')
+        if (!Farm.hasVillage()) {
+            return Farm.trigger('noVillageSelected')
         }
 
-        if (!farm.village.loaded()) {
-            farm.village.load(function () {
-                farm.analyse()
+        if (!Farm.village.loaded()) {
+            Farm.village.load(function () {
+                Farm.analyse()
             })
 
             return
         }
 
-        if (farm.isWaiting() || farm.isIgnored()) {
-            if (farm.nextVillage()) {
+        if (Farm.isWaiting() || Farm.isIgnored()) {
+            if (Farm.nextVillage()) {
                 self.analyse()
             } else {
-                farm.trigger(farm.lastError)
+                Farm.trigger(Farm.lastError)
             }
 
             return
@@ -82,28 +75,28 @@ define('FarmOverflow/Farm/Commander', [
 
         // Se aldeia ainda não tiver obtido a lista de alvos, obtem
         // os alvos e executa o comando novamente para dar continuidade.
-        if (!farm.targetsLoaded()) {
-            return farm.getTargets(function () {
+        if (!Farm.targetsLoaded()) {
+            return Farm.getTargets(function () {
                 self.analyse()
             })
         }
 
         // Analisa se a aldeia selecionada possui algum alvo disponível
         // e o selecionada. Caso não tenha uma nova aldeia será selecionada.
-        if (farm.hasTarget()) {
-            farm.selectTarget()
+        if (Farm.hasTarget()) {
+            Farm.selectTarget()
         } else {
-            if (farm.nextVillage()) {
+            if (Farm.nextVillage()) {
                 self.analyse()
             } else {
-                farm.trigger('noTargets')
+                Farm.trigger('noTargets')
             }
 
             return
         }
 
-        farm.checkPresets(function () {
-            if (farm.village.countCommands() >= 48) {
+        Farm.checkPresets(function () {
+            if (Farm.village.countCommands() >= 48) {
                 return self.handleError('commandLimit')
             }
 
@@ -125,64 +118,60 @@ define('FarmOverflow/Farm/Commander', [
      * @param {String} error - Erro a ser processado.
      */
     Commander.prototype.handleError = function (error) {
-        error = error || this.preventNextCommand
-
-        var farm = this.farmOverflow
-
+        Farm.lastError = error || this.preventNextCommand
         this.preventNextCommand = false
-        farm.lastError = error
 
-        var sid = farm.village.id
+        var sid = Farm.village.id
 
-        switch (error) {
+        switch (Farm.lastError) {
         case 'timeLimit':
-            farm.nextTarget()
+            Farm.nextTarget()
             this.analyse()
 
             break
         case 'noUnits':
-            farm.trigger('noUnits', [
-                farm.village
+            Farm.trigger('noUnits', [
+                Farm.village
             ])
             
-            farm.waiting[sid] = true
+            Farm.waiting[sid] = true
             
-            if (farm.singleVillage) {
-                if (farm.village.countCommands() === 0) {
-                    return farm.trigger('noUnitsNoCommands')
+            if (Farm.singleVillage) {
+                if (Farm.village.countCommands() === 0) {
+                    return Farm.trigger('noUnitsNoCommands')
                 } else {
-                    farm.globalWaiting = true
+                    Farm.globalWaiting = true
                 }
             } else {
-                if (farm.nextVillage()) {
+                if (Farm.nextVillage()) {
                     this.analyse()
                 } else {
-                    farm.globalWaiting = true
+                    Farm.globalWaiting = true
                 }
             }
 
             break
         case 'commandLimit':
-            farm.waiting[sid] = true
+            Farm.waiting[sid] = true
 
-            if (farm.singleVillage) {
-                farm.globalWaiting = true
+            if (Farm.singleVillage) {
+                Farm.globalWaiting = true
 
-                farm.trigger('commandLimitSingle', [
-                    farm.village
+                Farm.trigger('commandLimitSingle', [
+                    Farm.village
                 ])
             } else {
-                if (farm.isAllWaiting()) {
-                    farm.trigger('commandLimitMulti', [
-                        farm.village
+                if (Farm.isAllWaiting()) {
+                    Farm.trigger('commandLimitMulti', [
+                        Farm.village
                     ])
 
-                    farm.globalWaiting = true
+                    Farm.globalWaiting = true
 
                     return false
                 }
 
-                farm.nextVillage()
+                Farm.nextVillage()
                 this.analyse()
             }
 
@@ -200,14 +189,11 @@ define('FarmOverflow/Farm/Commander', [
      * @return {Object} preset ou erro.
      */
     Commander.prototype.getPreset = function (_units) {
-        var self = this
-        var farm = self.farmOverflow
-
         var timeLimit = false
-        var units = _units || farm.village.units
+        var units = _units || Farm.village.units
 
-        for (var i = 0; i < farm.presets.length; i++) {
-            var preset = farm.presets[i]
+        for (var i = 0; i < Farm.presets.length; i++) {
+            var preset = Farm.presets[i]
             var avail = true
 
             for (var unit in preset.units) {
@@ -239,9 +225,7 @@ define('FarmOverflow/Farm/Commander', [
      * a redução de tropas para o proximo comando.
      */
     Commander.prototype.getPresetNext = function (presetUsed) {
-        var farm = this.farmOverflow
-
-        var unitsCopy = angular.copy(farm.village.units)
+        var unitsCopy = angular.copy(Farm.village.units)
         var unitsUsed = presetUsed.units
 
         for (var unit in unitsUsed) {
@@ -262,17 +246,15 @@ define('FarmOverflow/Farm/Commander', [
      * @param {Object} preset - Preset usado no calculo.
      */
     Commander.prototype.checkPresetTime = function (preset) {
-        var farm = this.farmOverflow
-
         var travelTime = $armyService.calculateTravelTime(preset, {
-            barbarian: !farm.target.pid,
+            barbarian: !Farm.target.pid,
             officers: false
         })
 
-        var villagePosition = farm.village.position
+        var villagePosition = Farm.village.position
         var targetPosition = {
-            x: farm.target.x,
-            y: farm.target.y
+            x: Farm.target.x,
+            y: Farm.target.y
         }
 
         var distance = $math.actualDistance(villagePosition, targetPosition)
@@ -284,7 +266,7 @@ define('FarmOverflow/Farm/Commander', [
             'attack'
         )
 
-        var limitTime = time2seconds(farm.settings.maxTravelTime)
+        var limitTime = time2seconds(Farm.settings.maxTravelTime)
 
         return limitTime > totalTravelTime
     }
@@ -301,8 +283,7 @@ define('FarmOverflow/Farm/Commander', [
             return false
         }
 
-        var self = this
-        var farm = self.farmOverflow
+        var self = this        
         var unbindError
         var unbindSend
 
@@ -315,20 +296,20 @@ define('FarmOverflow/Farm/Commander', [
         unbindError = self.onCommandError(function () {
             unbindSend()
 
-            farm.village.updateCommands(function () {
+            Farm.village.updateCommands(function () {
                 self.analyse()
             })
         })
 
         unbindSend = self.onCommandSend(function () {
             unbindError()
-            farm.nextTarget()
+            Farm.nextTarget()
 
             var interval
             
             // Intervalo mínimo de 1 segundo para que o jogo registre as
             // alterações das unidades no objeto local da aldeia.
-            interval = randomSeconds(farm.settings.randomBase)
+            interval = randomSeconds(Farm.settings.randomBase)
             interval = 1000 + (interval * 1000)
 
             self.timeoutId = setTimeout(function () {
@@ -339,12 +320,12 @@ define('FarmOverflow/Farm/Commander', [
                 self.analyse()
             }, interval)
 
-            farm.updateActivity()
+            Farm.updateActivity()
         })
 
         $socket.emit($route.SEND_PRESET, {
-            start_village: farm.village.id,
-            target_village: farm.target.id,
+            start_village: Farm.village.id,
+            target_village: Farm.target.id,
             army_preset_id: preset.id,
             type: 'attack'
         })
@@ -356,24 +337,23 @@ define('FarmOverflow/Farm/Commander', [
      * Chamado após a confirmação de alteração das tropas na aldeia.
      */
     Commander.prototype.onCommandSend = function (callback) {
-        var farm =  this.farmOverflow
-        var before = angular.copy(farm.village.units)
+        var before = angular.copy(Farm.village.units)
         
         var unbind = $root.$on($eventType.VILLAGE_UNIT_INFO, function (event, data) {
-            if (farm.village.id !== data.village_id) {
+            if (Farm.village.id !== data.village_id) {
                 return false
             }
 
-            var now = farm.village.units
+            var now = Farm.village.units
             var equals = angular.equals(before, now)
 
             if (equals) {
                 return false
             }
 
-            farm.trigger('sendCommand', [
-                farm.village,
-                farm.target
+            Farm.trigger('sendCommand', [
+                Farm.village,
+                Farm.target
             ])
 
             unbind()
@@ -400,7 +380,7 @@ define('FarmOverflow/Farm/Commander', [
                 return false
             }
 
-            farmOverflow.trigger('sendCommandError', [data.code])
+            Farm.trigger('sendCommandError', [data.code])
 
             unbind()
             callback()
@@ -416,11 +396,9 @@ define('FarmOverflow/Farm/Commander', [
      * @param {Object} callback
      */
     Commander.prototype.simulate = function (callback) {
-        var farm = this.farmOverflow
-
         var attackingFactor = function () {
             $socket.emit($route.GET_ATTACKING_FACTOR, {
-                target_id: farm.target.id
+                target_id: Farm.target.id
             })
         }
 

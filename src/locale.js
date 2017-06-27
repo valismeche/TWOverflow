@@ -30,10 +30,9 @@ define('FarmOverflow/locale', [
                 selected = newLang
             } else {
                 console.error('Language ' + id + ' not created!')
+
                 selected = defaultLang
             }
-
-            
         }
 
         return ref

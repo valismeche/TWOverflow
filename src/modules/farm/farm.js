@@ -13,6 +13,7 @@ define('FarmOverflow/Farm', [
     'struct/MapData',
     'helper/mapconvert',
     'helper/time',
+    'conf/locale',
     'Lockr'
 ], function (
     FarmLocale,
@@ -23,6 +24,7 @@ define('FarmOverflow/Farm', [
     $mapData,
     $convert,
     $timeHelper,
+    gameLocale,
     Lockr
 ) {
     /**
@@ -58,240 +60,247 @@ define('FarmOverflow/Farm', [
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
 
     /**
-     * @class
+     * Configurações padrões do Farm
+     * 
+     * @type {Object}
      */
-    function FarmOverflow () {
-        var DEFAULTS = {
-            maxDistance: 10,
-            minDistance: 0,
-            maxTravelTime: '01:00:00',
-            randomBase: 3, // segundos
-            presetName: '',
-            groupIgnore: 0,
-            groupInclude: 0,
-            groupOnly: 0,
-            minPoints: 0,
-            maxPoints: 12500,
-            eventsLimit: 20,
-            ignoreOnLoss: false,
-            language: '',
-            priorityTargets: true,
-            eventAttack: true,
-            eventVillageChange: true,
-            eventPriorityAdd: true,
-            eventIgnoredVillage: true,
-            remoteId: 'remote',
-            hotkeySwitch: 'shift+z',
-            hotkeyWindow: 'z'
-        }
+    var DEFAULTS = {
+        maxDistance: 10,
+        minDistance: 0,
+        maxTravelTime: '01:00:00',
+        randomBase: 3, // segundos
+        presetName: '',
+        groupIgnore: 0,
+        groupInclude: 0,
+        groupOnly: 0,
+        minPoints: 0,
+        maxPoints: 12500,
+        eventsLimit: 20,
+        ignoreOnLoss: false,
+        language: gameLocale.LANGUAGE,
+        priorityTargets: true,
+        eventAttack: true,
+        eventVillageChange: true,
+        eventPriorityAdd: true,
+        eventIgnoredVillage: true,
+        remoteId: 'remote',
+        hotkeySwitch: 'shift+z',
+        hotkeyWindow: 'z'
+    }
 
+    // publics
+
+    var FarmOverflow = {}
+
+    /**
+     * Versão do script.
+     *
+     * @type {String}
+     */
+    FarmOverflow.version = '___farmOverlflowVersion'
+
+    /**
+     * Aldeias que prontas para serem usadas nos ataques.
+     *
+     * @type {Array}
+     */
+    FarmOverflow.villages = null
+
+    /**
+     * Aldeia atualmente selecionada.
+     *
+     * @type {Object} VillageModel
+     */
+    FarmOverflow.village = null
+
+    /**
+     * Identifica se o jogador possui apenas uma aldeia disponível para atacar.
+     *
+     * @type {Boolean}
+     */
+    FarmOverflow.singleVillage = null
+
+    /**
+     * Lista de todos aldeias alvos possíveis para cada aldeia do jogador.
+     *
+     * @type {Object}
+     */
+    FarmOverflow.targets = {}
+
+    /**
+     * Aldeias alvo atualmente selecionada.
+     *
+     * @type {Object}
+     */
+    FarmOverflow.target = null
+
+    /**
+     * Callbacks usados pelos eventos que são disparados no decorrer do script.
+     *
+     * @type {Object}
+     */
+    FarmOverflow.eventListeners = {}
+
+    /**
+     * Propriedade usada para permitir ou não o disparo de eventos.
+     *
+     * @type {Boolean}
+     */
+    FarmOverflow.eventsEnabled = true
+
+    /**
+     * Propriedade usada para permitir ou não a exibição de notificações.
+     *
+     * @type {Boolean}
+     */
+    FarmOverflow.notifsEnabled = true
+
+    /**
+     * Preset usado como referência para enviar os comandos
+     *
+     * @type {Array}
+     */
+    FarmOverflow.presets = []
+
+    /**
+     * Objeto do group de referência para ignorar aldeias/alvos.
+     *
+     * @type {Object}
+     */
+    FarmOverflow.groupIgnore = null
+
+    /**
+     * Objeto do group de referência para incluir alvos.
+     *
+     * @type {Object}
+     */
+    FarmOverflow.groupInclude = null
+
+    /**
+     * Objeto do group de referência para filtrar aldeias usadas
+     * pelo FarmOverflow.
+     *
+     * @type {Object}
+     */
+    FarmOverflow.groupOnly = null
+
+    /**
+     * Lista de aldeias ignoradas
+     *
+     * @type {Array}
+     */
+    FarmOverflow.ignoredVillages = []
+
+    /**
+     * Lista de aldeias que serão permitidas atacar, independente de outros
+     * fatores a não ser a distância.
+     *
+     * @type {Array}
+     */
+    FarmOverflow.includedVillages = []
+
+    /**
+     * Armazena os índices dos alvos de cada aldeia disponível.
+     *
+     * @type {Object}
+     */
+    FarmOverflow.indexes = Lockr.get('farm-indexes', {}, true)
+
+    /**
+     * Armazena todas aldeias que não estão em confições de enviar comandos.
+     *
+     * @type {Object}
+     */
+    FarmOverflow.waiting = {}
+
+    /**
+     * Indica se não há nenhuma aldeia disponível (todas aguardando tropas).
+     *
+     * @type {Boolean}
+     */
+    FarmOverflow.globalWaiting = false
+
+    /**
+     * Armazena o último evento que fez o farm entrar em modo de espera.
+     * Usado para atualizar a mensagem de status quando o farm é reiniciado
+     * manualmente.
+     *
+     * @type {String}
+     */
+    FarmOverflow.lastError = ''
+
+    /**
+     * Lista de alvos com prioridade no envio dos ataques.
+     * Alvos são adicionados nessa lista quando farms voltam lotados.
+     *
+     * @type {Object.<array>}
+     */
+    FarmOverflow.priorityTargets = {}
+
+    /**
+     * Lista com todas funções "unbind" dos listeners $on.
+     *
+     * @type {Array}
+     */
+    FarmOverflow.activeListeners = []
+
+    /**
+     * Timestamp da última atividade do FarmOverflow como atques e
+     * trocas de aldeias.
+     *
+     * @type {Number}
+     */
+    FarmOverflow.lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
+
+    /**
+     * Timestamp da última atividade do FarmOverflow como atques e
+     * trocas de aldeias.
+     *
+     * @type {Number}
+     */
+    FarmOverflow.lastAttack = Lockr.get('farm-lastAttack', -1, true)
+
+    /**
+     * Status do FarmOverflow.
+     *
+     * @type {String}
+     */
+    FarmOverflow.status = 'events.paused'
+
+    FarmOverflow.init = function () {
+        /**
+         * Configurações salvas localmente
+         * 
+         * @type {Object}
+         */
         var localSettings = Lockr.get('farm-settings', {}, true)
 
         /**
-         * Obtem configurações locais.
+         * Obtem configurações locais x defaults.
          *
          * @type {Object}
          */
-        this.settings = angular.merge({}, DEFAULTS, localSettings)
-
-        /**
-         * Versão do script.
-         *
-         * @type {String}
-         */
-        this.version = '___farmOverlflowVersion'
+        FarmOverflow.settings = angular.merge({}, DEFAULTS, localSettings)
 
         /**
          * Objeto com dados do jogador.
          *
          * @type {Object}
          */
-        this.player = $model.getSelectedCharacter()
-
-        /**
-         * Aldeias que prontas para serem usadas nos ataques.
-         *
-         * @type {Array}
-         */
-        this.villages = null
-
-        /**
-         * Aldeia atualmente selecionada.
-         *
-         * @type {Object} VillageModel
-         */
-        this.village = null
-
-        /**
-         * Identifica se o jogador possui apenas uma aldeia disponível para atacar.
-         *
-         * @type {Boolean}
-         */
-        this.singleVillage = null
-
-        /**
-         * Lista de todos aldeias alvos possíveis para cada aldeia do jogador.
-         *
-         * @type {Object}
-         */
-        this.targets = {}
-
-        /**
-         * Aldeias alvo atualmente selecionada.
-         *
-         * @type {Object}
-         */
-        this.target = null
-
-        /**
-         * Callbacks usados pelos eventos que são disparados no decorrer do script.
-         *
-         * @type {Object}
-         */
-        this.eventListeners = {}
-
-        /**
-         * Propriedade usada para permitir ou não o disparo de eventos.
-         *
-         * @type {Boolean}
-         */
-        this.eventsEnabled = true
-
-        /**
-         * Propriedade usada para permitir ou não a exibição de notificações.
-         *
-         * @type {Boolean}
-         */
-        this.notifsEnabled = true
-
-        /**
-         * Preset usado como referência para enviar os comandos
-         *
-         * @type {Array}
-         */
-        this.presets = []
-
-        /**
-         * Objeto do group de referência para ignorar aldeias/alvos.
-         *
-         * @type {Object}
-         */
-        this.groupIgnore = null
-
-        /**
-         * Objeto do group de referência para incluir alvos.
-         *
-         * @type {Object}
-         */
-        this.groupInclude = null
-
-        /**
-         * Objeto do group de referência para filtrar aldeias usadas
-         * pelo FarmOverflow.
-         *
-         * @type {Object}
-         */
-        this.groupOnly = null
-
-        /**
-         * Lista de aldeias ignoradas
-         *
-         * @type {Array}
-         */
-        this.ignoredVillages = []
-
-        /**
-         * Lista de aldeias que serão permitidas atacar, independente de outros
-         * fatores a não ser a distância.
-         *
-         * @type {Array}
-         */
-        this.includedVillages = []
-
-        /**
-         * Armazena os índices dos alvos de cada aldeia disponível.
-         *
-         * @type {Object}
-         */
-        this.indexes = Lockr.get('farm-indexes', {}, true)
-
-        /**
-         * Armazena todas aldeias que não estão em confições de enviar comandos.
-         *
-         * @type {Object}
-         */
-        this.waiting = {}
-
-        /**
-         * Indica se não há nenhuma aldeia disponível (todas aguardando tropas).
-         *
-         * @type {Boolean}
-         */
-        this.globalWaiting = false
-
-        /**
-         * Armazena o último evento que fez o farm entrar em modo de espera.
-         * Usado para atualizar a mensagem de status quando o farm é reiniciado
-         * manualmente.
-         *
-         * @type {String}
-         */
-        this.lastError = ''
+        FarmOverflow.player = $model.getSelectedCharacter()
 
         /**
          * Classe que controla os ciclos de ataques.
-         *
-         * @type {FarmOverflowCommander}
          */
-        this.commander = new Commander(this)
+        FarmOverflow.commander = new Commander(FarmOverflow)
 
-        /**
-         * Lista de alvos com prioridade no envio dos ataques.
-         * Alvos são adicionados nessa lista quando farms voltam lotados.
-         *
-         * @type {Object.<array>}
-         */
-        this.priorityTargets = {}
+        FarmOverflow.updateExceptionGroups()
+        FarmOverflow.updateExceptionVillages()
+        FarmOverflow.updatePlayerVillages()
+        FarmOverflow.updatePresets()
+        FarmOverflow.listeners()
 
-        /**
-         * Lista com todas funções "unbind" dos listeners $on.
-         *
-         * @type {Array}
-         */
-        this.activeListeners = []
-
-        /**
-         * Timestamp da última atividade do FarmOverflow como atques e
-         * trocas de aldeias.
-         *
-         * @type {Number}
-         */
-        this.lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
-
-        /**
-         * Timestamp da última atividade do FarmOverflow como atques e
-         * trocas de aldeias.
-         *
-         * @type {Number}
-         */
-        this.lastAttack = Lockr.get('farm-lastAttack', -1, true)
-
-        /**
-         * Status do FarmOverflow.
-         *
-         * @type {String}
-         */
-        this.status = 'events.paused'
-
-        this.updateExceptionGroups()
-        this.updateExceptionVillages()
-        this.updatePlayerVillages()
-        this.updatePresets()
-        this.listeners()
-
-        FarmLocale.change(this.settings.language)
-
-        return this
+        FarmLocale.change(FarmOverflow.settings.language)
     }
 
     /**
@@ -299,17 +308,17 @@ define('FarmOverflow/Farm', [
      *
      * @return {Boolean}
      */
-    FarmOverflow.prototype.start = function () {
-        if (!this.presets.length) {
-            if (this.notifsEnabled) {
+    FarmOverflow.start = function () {
+        if (!FarmOverflow.presets.length) {
+            if (FarmOverflow.notifsEnabled) {
                 emitNotif('error', FarmLocale('events.presetFirst'))
             }
 
             return false
         }
 
-        if (!this.village) {
-            if (this.notifsEnabled) {
+        if (!FarmOverflow.village) {
+            if (FarmOverflow.notifsEnabled) {
                 emitNotif('error', FarmLocale('events.noSelectedVillage'))
             }
             
@@ -319,24 +328,24 @@ define('FarmOverflow/Farm', [
         var now = $timeHelper.gameTime()
 
         // Reseta a lista prioridades caso tenha expirado
-        if (now > this.lastActivity + PRIORITY_EXPIRE_TIME) {
-            this.priorityTargets = {}
+        if (now > FarmOverflow.lastActivity + PRIORITY_EXPIRE_TIME) {
+            FarmOverflow.priorityTargets = {}
         }
 
         // Reseta a lista índices caso tenha expirado
-        if (now > this.lastActivity + INDEX_EXPIRE_TIME) {
-            this.indexes = {}
+        if (now > FarmOverflow.lastActivity + INDEX_EXPIRE_TIME) {
+            FarmOverflow.indexes = {}
             Lockr.set('farm-indexes', {})
         }
 
-        this.commander = new Commander(this)
-        this.commander.start()
+        FarmOverflow.commander = new Commander(FarmOverflow)
+        FarmOverflow.commander.start()
 
-        if (this.notifsEnabled) {
+        if (FarmOverflow.notifsEnabled) {
             emitNotif('success', FarmLocale('general.started'))
         }
 
-        this.trigger('start')
+        FarmOverflow.trigger('start')
 
         return true
     }
@@ -346,14 +355,14 @@ define('FarmOverflow/Farm', [
      *
      * @return {Boolean}
      */
-    FarmOverflow.prototype.stop = function () {
-        this.commander.stop()
+    FarmOverflow.stop = function () {
+        FarmOverflow.commander.stop()
         
-        if (this.notifsEnabled) {
+        if (FarmOverflow.notifsEnabled) {
             emitNotif('success', FarmLocale('general.paused'))
         }
 
-        this.trigger('pause')
+        FarmOverflow.trigger('pause')
 
         return true
     }
@@ -361,35 +370,35 @@ define('FarmOverflow/Farm', [
     /**
      * Alterna entre iniciar e pausar o script.
      */
-    FarmOverflow.prototype.switch = function () {
-        if (this.commander && this.commander.running) {
-            this.stop()
+    FarmOverflow.switch = function () {
+        if (FarmOverflow.commander && FarmOverflow.commander.running) {
+            FarmOverflow.stop()
         } else {
-            this.start()
+            FarmOverflow.start()
         }
     }
 
     /**
      * Atualiza o timestamp da última atividade do FarmOverflow.
      */
-    FarmOverflow.prototype.updateActivity = function () {
-        this.lastActivity = $timeHelper.gameTime()
-        Lockr.set('farm-lastActivity', this.lastActivity)
+    FarmOverflow.updateActivity = function () {
+        FarmOverflow.lastActivity = $timeHelper.gameTime()
+        Lockr.set('farm-lastActivity', FarmOverflow.lastActivity)
     }
 
     /**
      * Atualiza o timestamp do último ataque enviado com o FarmOverflow.
      */
-    FarmOverflow.prototype.updateLastAttack = function () {
-        this.lastAttack = $timeHelper.gameTime()
-        Lockr.set('farm-lastAttack', this.lastAttack)
+    FarmOverflow.updateLastAttack = function () {
+        FarmOverflow.lastAttack = $timeHelper.gameTime()
+        Lockr.set('farm-lastAttack', FarmOverflow.lastAttack)
     }
 
     /**
      * Atualiza o timestamp do último ataque enviado com o FarmOverflow.
      */
-    FarmOverflow.prototype.updateLastStatus = function (status) {
-        this.status = FarmLocale(status)
+    FarmOverflow.updateLastStatus = function (status) {
+        FarmOverflow.status = FarmLocale(status)
     }
 
     /**
@@ -398,8 +407,7 @@ define('FarmOverflow/Farm', [
      *
      * @param {Object} changes - Novas configurações.
      */
-    FarmOverflow.prototype.updateSettings = function (changes) {
-        var self = this
+    FarmOverflow.updateSettings = function (changes) {
         var modify = {}
 
         // Valores que precisam ser resetados/modificados quando
@@ -421,7 +429,7 @@ define('FarmOverflow/Farm', [
         }
 
         for (var key in changes) {
-            if (changes[key] !== self.settings[key]) {
+            if (changes[key] !== FarmOverflow.settings[key]) {
                 var modifyKeys = updates[key]
 
                 if (updates.hasOwnProperty(key)) {
@@ -431,10 +439,10 @@ define('FarmOverflow/Farm', [
                 }
             }
 
-            self.settings[key] = changes[key]
+            FarmOverflow.settings[key] = changes[key]
         }
 
-        Lockr.set('farm-settings', self.settings)
+        Lockr.set('farm-settings', FarmOverflow.settings)
 
         // Nenhuma alteração nas configurações
         if (angular.equals(modify, {})) {
@@ -442,52 +450,52 @@ define('FarmOverflow/Farm', [
         }
 
         if (modify.groups) {
-            self.updateExceptionGroups()
-            self.updateExceptionVillages()
+            FarmOverflow.updateExceptionGroups()
+            FarmOverflow.updateExceptionVillages()
         }
 
         if (modify.villages) {
-            self.updatePlayerVillages()
+            FarmOverflow.updatePlayerVillages()
         }
 
         if (modify.preset) {
-            self.updatePresets()
+            FarmOverflow.updatePresets()
         }
 
         if (modify.targets) {
-            self.targets = {}
+            FarmOverflow.targets = {}
         }
 
         if (modify.events) {
-            self.trigger('resetEvents')
+            FarmOverflow.trigger('resetEvents')
         }
 
-        if (self.commander.running && self.globalWaiting) {
-            self.disableEvents(function () {
-                self.stop()
-                self.start()
+        if (FarmOverflow.commander.running && FarmOverflow.globalWaiting) {
+            FarmOverflow.disableEvents(function () {
+                FarmOverflow.stop()
+                FarmOverflow.start()
             })
         }
 
-        self.trigger('settingsChange', [Lockr.get('farm-settings')])
+        FarmOverflow.trigger('settingsChange', [Lockr.get('farm-settings')])
     }
 
     /**
      * Desativa o disparo de eventos temporariamente.
      */
-    FarmOverflow.prototype.disableEvents = function (callback) {
-        this.eventsEnabled = false
+    FarmOverflow.disableEvents = function (callback) {
+        FarmOverflow.eventsEnabled = false
         callback()
-        this.eventsEnabled = true
+        FarmOverflow.eventsEnabled = true
     }
 
     /**
      * Desativa o disparo de eventos temporariamente.
      */
-    FarmOverflow.prototype.disableNotifs = function (callback) {
-        this.notifsEnabled = false
+    FarmOverflow.disableNotifs = function (callback) {
+        FarmOverflow.notifsEnabled = false
         callback()
-        this.notifsEnabled = true
+        FarmOverflow.notifsEnabled = true
     }
 
     /** 
@@ -495,65 +503,65 @@ define('FarmOverflow/Farm', [
      *
      * @param [_selectOnly] Apenas seleciona o alvo sem pular para o próximo.
      */
-    FarmOverflow.prototype.nextTarget = function (_selectOnly) {
-        var sid = this.village.id
+    FarmOverflow.nextTarget = function (_selectOnly) {
+        var sid = FarmOverflow.village.id
 
         // Caso a lista de alvos seja resetada no meio da execução.
-        if (!this.targets[sid]) {
-            this.commander.analyse()
+        if (!FarmOverflow.targets[sid]) {
+            FarmOverflow.commander.analyse()
 
             return false
         }
 
-        var villageTargets = this.targets[sid]
+        var villageTargets = FarmOverflow.targets[sid]
 
-        if (this.settings.priorityTargets && this.priorityTargets[sid]) {
+        if (FarmOverflow.settings.priorityTargets && FarmOverflow.priorityTargets[sid]) {
             var priorityId
 
-            while (priorityId = this.priorityTargets[sid].shift()) {
-                if (this.ignoredVillages.includes(priorityId)) {
+            while (priorityId = FarmOverflow.priorityTargets[sid].shift()) {
+                if (FarmOverflow.ignoredVillages.includes(priorityId)) {
                     continue
                 }
 
                 for (var i = 0; i < villageTargets.length; i++) {
                     if (villageTargets[i].id === priorityId) {
-                        this.target = villageTargets[i]
+                        FarmOverflow.target = villageTargets[i]
                         return true
                     }
                 }
             }
         }
 
-        var index = this.indexes[sid]
+        var index = FarmOverflow.indexes[sid]
         var changed = false
 
         if (!_selectOnly) {
-            index = ++this.indexes[sid]
+            index = ++FarmOverflow.indexes[sid]
         }
 
         for (; index < villageTargets.length; index++) {
             var target = villageTargets[index]
 
-            if (this.ignoredVillages.includes(target.id)) {
-                this.trigger('ignoredTarget', [target])
+            if (FarmOverflow.ignoredVillages.includes(target.id)) {
+                FarmOverflow.trigger('ignoredTarget', [target])
 
                 continue
             }
 
-            this.target = target
+            FarmOverflow.target = target
             changed = true
 
             break
         }
 
         if (changed) {
-            this.indexes[sid] = index
+            FarmOverflow.indexes[sid] = index
         } else {
-            this.target = villageTargets[0]
-            this.indexes[sid] = 0
+            FarmOverflow.target = villageTargets[0]
+            FarmOverflow.indexes[sid] = 0
         }
 
-        Lockr.set('farm-indexes', this.indexes)
+        Lockr.set('farm-indexes', FarmOverflow.indexes)
 
         return true
     }
@@ -561,18 +569,18 @@ define('FarmOverflow/Farm', [
     /** 
      * Atalho para selecionar alvo sem pular para o próximo.
      */
-    FarmOverflow.prototype.selectTarget = function () {
-        return this.nextTarget(true)
+    FarmOverflow.selectTarget = function () {
+        return FarmOverflow.nextTarget(true)
     }
 
     /**
      * Verifica se a aldeia selecionada possui alvos e se tiver, atualiza
      * o objecto do alvo e o índice.
      */
-    FarmOverflow.prototype.hasTarget = function () {
-        var sid = this.village.id
-        var index = this.indexes[sid]
-        var targets = this.targets[sid]
+    FarmOverflow.hasTarget = function () {
+        var sid = FarmOverflow.village.id
+        var index = FarmOverflow.indexes[sid]
+        var targets = FarmOverflow.targets[sid]
 
         if (!targets.length) {
             return false
@@ -582,7 +590,7 @@ define('FarmOverflow/Farm', [
         // Pode acontecer quando o numero de alvos é reduzido em um
         // momento em que o FarmOverflow não esteja ativado.
         if (index > targets.length) {
-            this.indexes[sid] = index = 0
+            FarmOverflow.indexes[sid] = index = 0
         }
 
         return !!targets[index]
@@ -594,21 +602,21 @@ define('FarmOverflow/Farm', [
     FarmOverflow.mapFilters = [
         // IDs negativos são localizações reservadas para os jogadores como
         // segunda aldeia em construção, convidar um amigo e deposito de recursos.
-        function (scope, target) {
+        function (target) {
             if (target.id < 0) {
                 return true
             }
         },
 
         // Aldeia do próprio jogador
-        function (scope, target) {
-            if (target.character_id === scope.player.getId()) {
+        function (target) {
+            if (target.character_id === FarmOverflow.player.getId()) {
                 return true
             }
         },
 
         // Impossivel atacar alvos protegidos
-        function (scope, target) {
+        function (target) {
             if (target.attack_protection) {
                 return true
             }
@@ -616,9 +624,9 @@ define('FarmOverflow/Farm', [
 
         // Aldeias de jogadores são permitidas caso estejam
         // no grupo de incluidas.
-        function (scope, target) {
+        function (target) {
             if (target.character_id) {
-                var included = scope.includedVillages.includes(target.id)
+                var included = FarmOverflow.includedVillages.includes(target.id)
 
                 if (!included) {
                     return true
@@ -627,26 +635,26 @@ define('FarmOverflow/Farm', [
         },
 
         // Filtra aldeias pela pontuação
-        function (scope, target) {
-            if (target.points < scope.settings.minPoints) {
+        function (target) {
+            if (target.points < FarmOverflow.settings.minPoints) {
                 return true
             }
 
-            if (target.points > scope.settings.maxPoints) {
+            if (target.points > FarmOverflow.settings.maxPoints) {
                 return true
             }
         },
 
         // Filtra aldeias pela distância
-        function (scope, target) {
-            var coords = scope.village.position
+        function (target) {
+            var coords = FarmOverflow.village.position
             var distance = $math.actualDistance(coords, target)
 
-            if (distance < scope.settings.minDistance) {
+            if (distance < FarmOverflow.settings.minDistance) {
                 return true
             }
 
-            if (distance > scope.settings.maxDistance) {
+            if (distance > FarmOverflow.settings.maxDistance) {
                 return true
             }
         }
@@ -655,12 +663,11 @@ define('FarmOverflow/Farm', [
     /**
      * Obtem a lista de alvos para a aldeia selecionada.
      */
-    FarmOverflow.prototype.getTargets = function (callback) {
-        var self = this
-        var coords = self.village.position
-        var sid = self.village.id
+    FarmOverflow.getTargets = function (callback) {
+        var coords = FarmOverflow.village.position
+        var sid = FarmOverflow.village.id
 
-        if (sid in self.targets) {
+        if (sid in FarmOverflow.targets) {
             return callback()
         }
 
@@ -680,7 +687,7 @@ define('FarmOverflow/Farm', [
             if (loaded) {
                 loop()
             } else {
-                self.trigger('startLoadingTargers')
+                FarmOverflow.trigger('startLoadingTargers')
 
                 var loads = $convert.scaledGridCoordinates(x, y, w, h, chunk)
                 var length = loads.length
@@ -688,7 +695,7 @@ define('FarmOverflow/Farm', [
 
                 $mapData.loadTownDataAsync(x, y, w, h, function () {
                     if (++index === length) {
-                        self.trigger('endLoadingTargers')
+                        FarmOverflow.trigger('endLoadingTargers')
 
                         loop()
                     }
@@ -725,7 +732,7 @@ define('FarmOverflow/Farm', [
 
         var filter = function (target) {
             var pass = FarmOverflow.mapFilters.every(function (fn) {
-                return !fn(self, target)
+                return !fn(target)
             })
 
             if (!pass) {
@@ -744,31 +751,31 @@ define('FarmOverflow/Farm', [
 
         var done = function () {
             if (filteredTargets.length === 0) {
-                var hasVillages = self.nextVillage()
+                var hasVillages = FarmOverflow.nextVillage()
 
                 if (hasVillages) {
-                    self.getTargets(callback)
+                    FarmOverflow.getTargets(callback)
                 } else {
-                    self.trigger('noTargets')
+                    FarmOverflow.trigger('noTargets')
                 }
 
                 return false
             }
 
-            self.targets[sid] = filteredTargets.sort(function (a, b) {
+            FarmOverflow.targets[sid] = filteredTargets.sort(function (a, b) {
                 return a.distance - b.distance
             })
 
-            if (self.indexes.hasOwnProperty(sid)) {
-                if (self.indexes[sid] > self.targets[sid].length) {
-                    self.indexes[sid] = 0
+            if (FarmOverflow.indexes.hasOwnProperty(sid)) {
+                if (FarmOverflow.indexes[sid] > FarmOverflow.targets[sid].length) {
+                    FarmOverflow.indexes[sid] = 0
 
-                    Lockr.set('farm-indexes', self.indexes)
+                    Lockr.set('farm-indexes', FarmOverflow.indexes)
                 }
             } else {
-                self.indexes[sid] = 0
+                FarmOverflow.indexes[sid] = 0
 
-                Lockr.set('farm-indexes', self.indexes)
+                Lockr.set('farm-indexes', FarmOverflow.indexes)
             }
 
             callback()
@@ -782,31 +789,29 @@ define('FarmOverflow/Farm', [
      *
      * @return {Boolean}
      */
-    FarmOverflow.prototype.nextVillage = function () {
-        var self = this
-
-        if (self.singleVillage) {
+    FarmOverflow.nextVillage = function () {
+        if (FarmOverflow.singleVillage) {
             return false
         }
 
-        var free = self.villages.filter(function (village) {
-            return !self.waiting[village.id]
+        var free = FarmOverflow.villages.filter(function (village) {
+            return !FarmOverflow.waiting[village.id]
         })
 
         if (!free.length) {
-            self.trigger('noVillages')
+            FarmOverflow.trigger('noVillages')
             return false
         } else if (free.length === 1) {
-            self.village = free[0]
-            self.trigger('nextVillage', [self.village])
+            FarmOverflow.village = free[0]
+            FarmOverflow.trigger('nextVillage', [FarmOverflow.village])
             return true
         }
 
-        var index = free.indexOf(self.village) + 1
-        self.village = free[index] ? free[index] : free[0]
+        var index = free.indexOf(FarmOverflow.village) + 1
+        FarmOverflow.village = free[index] ? free[index] : free[0]
         
-        self.trigger('nextVillage', [self.village])
-        self.updateActivity()
+        FarmOverflow.trigger('nextVillage', [FarmOverflow.village])
+        FarmOverflow.updateActivity()
 
         return true
     }
@@ -818,11 +823,11 @@ define('FarmOverflow/Farm', [
      *
      * @return {Boolean}
      */
-    FarmOverflow.prototype.selectVillage = function (vid) {
-        var i = this.villages.indexOf(vid)
+    FarmOverflow.selectVillage = function (vid) {
+        var i = FarmOverflow.villages.indexOf(vid)
 
         if (i !== -1) {
-            this.village = this.villages[i]
+            FarmOverflow.village = FarmOverflow.villages[i]
 
             return true
         }
@@ -836,16 +841,14 @@ define('FarmOverflow/Farm', [
      * @param {String} event - Nome do evento.
      * @param {Array} args - Argumentos que serão passados no callback.
      */
-    FarmOverflow.prototype.trigger = function (event, args) {
-        var self = this
-
-        if (!self.eventsEnabled) {
+    FarmOverflow.trigger = function (event, args) {
+        if (!FarmOverflow.eventsEnabled) {
             return
         }
 
-        if (self.eventListeners.hasOwnProperty(event)) {
-            self.eventListeners[event].forEach(function (handler) {
-                handler.apply(self, args)
+        if (FarmOverflow.eventListeners.hasOwnProperty(event)) {
+            FarmOverflow.eventListeners[event].forEach(function (handler) {
+                handler.apply(FarmOverflow, args)
             })
         }
     }
@@ -856,12 +859,12 @@ define('FarmOverflow/Farm', [
      * @param {String} event - Nome do evento.
      * @param {Function} handler - Função chamada quando o evento for disparado.
      */
-    FarmOverflow.prototype.bind = function (event, handler) {
-        if (!this.eventListeners.hasOwnProperty(event)) {
-            this.eventListeners[event] = []
+    FarmOverflow.bind = function (event, handler) {
+        if (!FarmOverflow.eventListeners.hasOwnProperty(event)) {
+            FarmOverflow.eventListeners[event] = []
         }
 
-        this.eventListeners[event].push(handler)
+        FarmOverflow.eventListeners[event].push(handler)
     }
 
     /**
@@ -869,13 +872,11 @@ define('FarmOverflow/Farm', [
      *
      * @param {Function} callback
      */
-    FarmOverflow.prototype.updatePresets = function (callback) {
-        var self = this
-
+    FarmOverflow.updatePresets = function (callback) {
         var updatePresets = function (presets) {
-            self.presets = []
+            FarmOverflow.presets = []
 
-            if (!self.settings.presetName) {
+            if (!FarmOverflow.settings.presetName) {
                 if (callback) {
                     callback()
                 }
@@ -891,11 +892,11 @@ define('FarmOverflow/Farm', [
                 var name = presets[id].name
                 var cleanName = name.replace(rpreset, '').trim()
 
-                if (cleanName === self.settings.presetName) {
+                if (cleanName === FarmOverflow.settings.presetName) {
                     presets[id].cleanName = cleanName
                     presets[id].units = cleanPresetUnits(presets[id].units)
 
-                    self.presets.push(presets[id])
+                    FarmOverflow.presets.push(presets[id])
                 }
             }
 
@@ -908,7 +909,7 @@ define('FarmOverflow/Farm', [
             updatePresets($presetList.presets)
         } else {
             $socket.emit($route.GET_PRESETS, {}, function (data) {
-                self.trigger('presetsLoaded')
+                FarmOverflow.trigger('presetsLoaded')
                 updatePresets(data.presets)
             })
         }
@@ -920,9 +921,9 @@ define('FarmOverflow/Farm', [
      * @param {Array} presetIds - Lista com os IDs dos presets
      * @param {Function} callback
      */
-    FarmOverflow.prototype.assignPresets = function (presetIds, callback) {
+    FarmOverflow.assignPresets = function (presetIds, callback) {
         $socket.emit($route.ASSIGN_PRESETS, {
-            village_id: this.village.id,
+            village_id: FarmOverflow.village.id,
             preset_ids: presetIds
         }, callback)
     }
@@ -934,20 +935,20 @@ define('FarmOverflow/Farm', [
      * @param {Array} presetIds - Lista com os IDs dos presets
      * @param {Function} callback
      */
-    FarmOverflow.prototype.checkPresets = function (callback) {
-        if (!this.presets.length) {
-            this.stop()
-            this.trigger('noPreset')
+    FarmOverflow.checkPresets = function (callback) {
+        if (!FarmOverflow.presets.length) {
+            FarmOverflow.stop()
+            FarmOverflow.trigger('noPreset')
 
             return false
         }
         
-        var vid = this.village.id
+        var vid = FarmOverflow.village.id
         var villagePresets = $presetList.getPresetsByVillageId(vid)
         var needAssign = false
         var which = []
 
-        this.presets.forEach(function (preset) {
+        FarmOverflow.presets.forEach(function (preset) {
             if (!villagePresets.hasOwnProperty(preset.id)) {
                 needAssign = true
                 which.push(preset.id)
@@ -959,7 +960,7 @@ define('FarmOverflow/Farm', [
                 which.push(id)
             }
 
-            this.assignPresets(which, callback)
+            FarmOverflow.assignPresets(which, callback)
         } else {
             callback()
         }
@@ -968,17 +969,16 @@ define('FarmOverflow/Farm', [
     /**
      * Atualiza o grupo de referência para ignorar aldeias e incluir alvos
      */
-    FarmOverflow.prototype.updateExceptionGroups = function () {
-        var self = this
+    FarmOverflow.updateExceptionGroups = function () {
         var types = ['groupIgnore', 'groupInclude', 'groupOnly']
         var groups = $model.getGroupList().getGroups()
 
         types.forEach(function (type) {
-            self[type] = null
+            FarmOverflow[type] = null
 
             for (var id in groups) {
-                if (id == self.settings[type]) {
-                    self[type] = {
+                if (id == FarmOverflow.settings[type]) {
+                    FarmOverflow[type] = {
                         name: groups[id].name,
                         id: id
                     }
@@ -992,20 +992,20 @@ define('FarmOverflow/Farm', [
     /**
      * Atualiza a lista de aldeias ignoradas e incluidas
      */
-    FarmOverflow.prototype.updateExceptionVillages = function () {
+    FarmOverflow.updateExceptionVillages = function () {
         var groupList = $model.getGroupList()
 
-        this.ignoredVillages = []
-        this.includedVillages = []
+        FarmOverflow.ignoredVillages = []
+        FarmOverflow.includedVillages = []
 
-        if (this.groupIgnore) {
-            this.ignoredVillages =
-                groupList.getGroupVillageIds(this.groupIgnore.id)
+        if (FarmOverflow.groupIgnore) {
+            FarmOverflow.ignoredVillages =
+                groupList.getGroupVillageIds(FarmOverflow.groupIgnore.id)
         }
 
-        if (this.groupInclude) {
-            this.includedVillages =
-                groupList.getGroupVillageIds(this.groupInclude.id)
+        if (FarmOverflow.groupInclude) {
+            FarmOverflow.includedVillages =
+                groupList.getGroupVillageIds(FarmOverflow.groupInclude.id)
         }
     }
 
@@ -1013,47 +1013,46 @@ define('FarmOverflow/Farm', [
      * Atualiza a lista de aldeias do jogador e filtra com base nos grupos (caso
      * estaja configurado...).
      */
-    FarmOverflow.prototype.updatePlayerVillages = function () {
-        var self = this
-        var villages = self.player.getVillageList()
+    FarmOverflow.updatePlayerVillages = function () {
+        var villages = FarmOverflow.player.getVillageList()
 
         villages = villages.map(function (village) {
             return new Village(village)
         })
 
         villages = villages.filter(function (village) {
-            return !self.ignoredVillages.includes(village.id)
+            return !FarmOverflow.ignoredVillages.includes(village.id)
         })
 
-        if (self.groupOnly) {
+        if (FarmOverflow.groupOnly) {
             var groupList = $model.getGroupList()
-            var groupVillages = groupList.getGroupVillageIds(self.groupOnly.id)
+            var groupVillages = groupList.getGroupVillageIds(FarmOverflow.groupOnly.id)
 
             villages = villages.filter(function (village) {
                 return groupVillages.includes(village.id)
             })
         }
 
-        self.villages = villages
-        self.singleVillage = self.villages.length === 1
-        self.village = self.villages[0]
+        FarmOverflow.villages = villages
+        FarmOverflow.singleVillage = FarmOverflow.villages.length === 1
+        FarmOverflow.village = FarmOverflow.villages[0]
 
         // Reinicia comandos imediatamente se liberar alguma aldeia
         // que nao esteja na lista de espera.
-        if (self.commander.running && self.globalWaiting) {
+        if (FarmOverflow.commander.running && FarmOverflow.globalWaiting) {
             for (var i = 0; i < villages.length; i++) {
                 var village = villages[i]
 
-                if (!self.waiting[village.id]) {
-                    self.globalWaiting = false
-                    self.commander.analyse()
+                if (!FarmOverflow.waiting[village.id]) {
+                    FarmOverflow.globalWaiting = false
+                    FarmOverflow.commander.analyse()
 
                     break
                 }
             }
         }
 
-        self.trigger('villagesUpdate')
+        FarmOverflow.trigger('villagesUpdate')
     }
 
     /**
@@ -1061,18 +1060,16 @@ define('FarmOverflow/Farm', [
      *
      * @param {Object} target - Dados da aldeia a ser ignorada.
      */
-    FarmOverflow.prototype.ignoreVillage = function (target) {
-        var self = this
-
-        if (!self.groupIgnore) {
+    FarmOverflow.ignoreVillage = function (target) {
+        if (!FarmOverflow.groupIgnore) {
             return false
         }
 
         $socket.emit($route.GROUPS_LINK_VILLAGE, {
-            group_id: self.groupIgnore.id,
+            group_id: FarmOverflow.groupIgnore.id,
             village_id: target.id
         }, function () {
-            self.trigger('ignoredVillage', [target])
+            FarmOverflow.trigger('ignoredVillage', [target])
         })
     }
 
@@ -1081,9 +1078,9 @@ define('FarmOverflow/Farm', [
      *
      * @param {Number} targetId - ID da aldeia
      */
-    FarmOverflow.prototype.targetExists = function (targetId) {
-        for (var vid in this.targets) {
-            var villageTargets = this.targets[vid]
+    FarmOverflow.targetExists = function (targetId) {
+        for (var vid in FarmOverflow.targets) {
+            var villageTargets = FarmOverflow.targets[vid]
 
             for (var i = 0; i < villageTargets.length; i++) {
                 var target = villageTargets[i]
@@ -1101,9 +1098,7 @@ define('FarmOverflow/Farm', [
      * Detecta todas atualizações de dados do jogo que são importantes
      * para o funcionamento do FarmOverflow.
      */
-    FarmOverflow.prototype.listeners = function () {
-        var self = this
-
+    FarmOverflow.listeners = function () {
         function replyMessage (message_id, message) {
             setTimeout(function () {
                 $socket.emit($route.MESSAGE_REPLY, {
@@ -1118,17 +1113,17 @@ define('FarmOverflow/Farm', [
         var commandBackHandler = function (event, data) {
             var vid = data.origin.id
             
-            if (self.waiting[vid]) {
-                delete self.waiting[vid]
+            if (FarmOverflow.waiting[vid]) {
+                delete FarmOverflow.waiting[vid]
 
-                if (self.globalWaiting) {
-                    self.globalWaiting = false
+                if (FarmOverflow.globalWaiting) {
+                    FarmOverflow.globalWaiting = false
 
-                    if (self.commander.running) {
-                        self.selectVillage(vid)
+                    if (FarmOverflow.commander.running) {
+                        FarmOverflow.selectVillage(vid)
 
                         setTimeout(function () {
-                            self.commander.analyse()
+                            FarmOverflow.commander.analyse()
                         }, 10000)
                     }
                 }
@@ -1140,13 +1135,13 @@ define('FarmOverflow/Farm', [
         // Detecta alterações e atualiza lista de predefinições configuradas
         // no script.
         var updatePresets = function () {
-            self.updatePresets()
-            self.trigger('presetsChange')
+            FarmOverflow.updatePresets()
+            FarmOverflow.trigger('presetsChange')
 
-            if (!self.presets.length) {
-                if (self.commander.running) {
-                    self.trigger('noPreset')
-                    self.stop()
+            if (!FarmOverflow.presets.length) {
+                if (FarmOverflow.commander.running) {
+                    FarmOverflow.trigger('noPreset')
+                    FarmOverflow.stop()
                 }
             }
         }
@@ -1155,36 +1150,36 @@ define('FarmOverflow/Farm', [
         // Atualiza a lista de aldeias incluidas/ignoradas com base
         // nos grupos.
         var updateGroups = function (event, data) {
-            self.updateExceptionGroups()
-            self.updateExceptionVillages()
+            FarmOverflow.updateExceptionGroups()
+            FarmOverflow.updateExceptionVillages()
 
-            self.trigger('groupsChanged')
+            FarmOverflow.trigger('groupsChanged')
         }
 
         // Detecta grupos que foram adicionados nas aldeias.
         // Atualiza a lista de alvos e aldeias do jogador.
         var updateGroupVillages = function (event, data) {
-            self.updatePlayerVillages()
+            FarmOverflow.updatePlayerVillages()
 
-            if (!self.groupInclude) {
+            if (!FarmOverflow.groupInclude) {
                 return false
             }
             
-            if (self.groupInclude.id === data.group_id) {
-                self.targets = {}
+            if (FarmOverflow.groupInclude.id === data.group_id) {
+                FarmOverflow.targets = {}
             }
         }
 
         // Adiciona o grupo de "ignorados" no alvo caso o relatório do
         // ataque tenha causado alguma baixa nas tropas.
         var ignoreOnLoss = function (report) {
-            var target = self.targetExists(report.target_village_id)
+            var target = FarmOverflow.targetExists(report.target_village_id)
 
             if (!target) {
                 return false
             }
 
-            self.ignoreVillage(target)
+            FarmOverflow.ignoreVillage(target)
 
             return true
         }
@@ -1195,15 +1190,15 @@ define('FarmOverflow/Farm', [
             var vid = report.attVillageId
             var tid = report.defVillageId
 
-            self.priorityTargets[vid] = self.priorityTargets[vid] || []
+            FarmOverflow.priorityTargets[vid] = FarmOverflow.priorityTargets[vid] || []
 
-            if (self.priorityTargets[vid].includes(tid)) {
+            if (FarmOverflow.priorityTargets[vid].includes(tid)) {
                 return false
             }
 
-            self.priorityTargets[vid].push(tid)
+            FarmOverflow.priorityTargets[vid].push(tid)
 
-            self.trigger('priorityTargetAdded', [{
+            FarmOverflow.trigger('priorityTargetAdded', [{
                 id: tid,
                 name: report.defVillageName,
                 x: report.defVillageX,
@@ -1224,7 +1219,7 @@ define('FarmOverflow/Farm', [
             //     '2'         : 'casualties',
             //     '3'         : 'defeat'
             // }
-            if (self.settings.ignoreOnLoss && data.result !== 1) {
+            if (FarmOverflow.settings.ignoreOnLoss && data.result !== 1) {
                 ignoreOnLoss(data)
             }
 
@@ -1233,7 +1228,7 @@ define('FarmOverflow/Farm', [
             //     'PARTIAL'   : 'partial',
             //     'NONE'      : 'none'
             // }
-            if (self.settings.priorityTargets && data.haul === 'full') {
+            if (FarmOverflow.settings.priorityTargets && data.haul === 'full') {
                 queue.push(priorityTargets)
             }
 
@@ -1260,11 +1255,11 @@ define('FarmOverflow/Farm', [
         // Detecta quando a conexão é reestabelecida, podendo
         // reiniciar o script.
         var reconnectHandler = function (event, data) {
-            if (self.commander.running) {
+            if (FarmOverflow.commander.running) {
                 setTimeout(function () {
-                    self.disableNotifs(function () {
-                        self.stop()
-                        self.start()
+                    FarmOverflow.disableNotifs(function () {
+                        FarmOverflow.stop()
+                        FarmOverflow.start()
                     })
                 }, 3000)
             }
@@ -1273,7 +1268,7 @@ define('FarmOverflow/Farm', [
         // Detecta mensagens do jogador enviadas para sí mesmo, afim de iniciar
         // e pausar o farm remotamente.
         var remoteHandler = function (event, data) {
-            var id = self.settings.remoteId
+            var id = FarmOverflow.settings.remoteId
 
             if (data.participants.length !== 1 || data.title !== id) {
                 return false
@@ -1283,38 +1278,38 @@ define('FarmOverflow/Farm', [
 
             switch (userMessage) {
             case 'on':
-                self.disableNotifs(function () {
-                    self.stop()
-                    self.start()
+                FarmOverflow.disableNotifs(function () {
+                    FarmOverflow.stop()
+                    FarmOverflow.start()
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                self.trigger('remoteCommand', ['on'])
+                FarmOverflow.trigger('remoteCommand', ['on'])
 
                 break
             case 'off':
-                self.disableNotifs(function () {
-                    self.stop()
+                FarmOverflow.disableNotifs(function () {
+                    FarmOverflow.stop()
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                self.trigger('remoteCommand', ['off'])
+                FarmOverflow.trigger('remoteCommand', ['off'])
 
                 break
             case 'status':
-                var village = self.village
+                var village = FarmOverflow.village
                 var villageLabel = village.name + ' (' + village.x + '|' + village.y + ')'
-                var lastAttack = $filter('readableDateFilter')(self.lastAttack)
+                var lastAttack = $filter('readableDateFilter')(FarmOverflow.lastAttack)
 
                 var bbcodeMessage = [
-                    '[b]' + FarmLocale('events.status') + ':[/b] ' + FarmLocale('events.' + self.status) + '[br]',
+                    '[b]' + FarmLocale('events.status') + ':[/b] ' + FarmLocale('events.' + FarmOverflow.status) + '[br]',
                     '[b]' + FarmLocale('events.selectedVillage') + ':[/b] ',
                     '[village=' + village.id + ']' + villageLabel + '[/village][br]',
                     '[b]' + FarmLocale('events.lastAttack') + ':[/b] ' + lastAttack
                 ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)
-                self.trigger('remoteCommand', ['status'])
+                FarmOverflow.trigger('remoteCommand', ['status'])
 
                 break
             }
@@ -1325,7 +1320,7 @@ define('FarmOverflow/Farm', [
         var bind = function (eventType, handler) {
             var unbind = $root.$on($eventType[eventType], handler)
 
-            self.activeListeners.push(unbind)
+            FarmOverflow.activeListeners.push(unbind)
         }
 
         bind('COMMAND_RETURNED', commandBackHandler)
@@ -1350,69 +1345,69 @@ define('FarmOverflow/Farm', [
         })
 
         // Lista de eventos para atualizar o último status do FarmOverflow.
-        self.bind('sendCommand', function () {
-            self.updateLastAttack()
-            self.updateLastStatus('events.attacking')
+        FarmOverflow.bind('sendCommand', function () {
+            FarmOverflow.updateLastAttack()
+            FarmOverflow.updateLastStatus('events.attacking')
         })
 
-        self.bind('noPreset', function () {
-            self.updateLastStatus('events.paused')
+        FarmOverflow.bind('noPreset', function () {
+            FarmOverflow.updateLastStatus('events.paused')
         })
 
-        self.bind('noUnits', function () {
-            self.updateLastStatus('events.noUnits')
+        FarmOverflow.bind('noUnits', function () {
+            FarmOverflow.updateLastStatus('events.noUnits')
         })
 
-        self.bind('noUnitsNoCommands', function () {
-            self.updateLastStatus('events.noUnitsNoCommands')
+        FarmOverflow.bind('noUnitsNoCommands', function () {
+            FarmOverflow.updateLastStatus('events.noUnitsNoCommands')
         })
 
-        self.bind('start', function () {
-            self.updateLastStatus('events.attacking')
+        FarmOverflow.bind('start', function () {
+            FarmOverflow.updateLastStatus('events.attacking')
         })
 
-        self.bind('pause', function () {
-            self.updateLastStatus('events.paused')
+        FarmOverflow.bind('pause', function () {
+            FarmOverflow.updateLastStatus('events.paused')
         })
 
-        self.bind('startLoadingTargers', function () {
-            self.updateLastStatus('events.loadingTargets')
+        FarmOverflow.bind('startLoadingTargers', function () {
+            FarmOverflow.updateLastStatus('events.loadingTargets')
         })
 
-        self.bind('endLoadingTargers', function () {
-            self.updateLastStatus('events.analyseTargets')
+        FarmOverflow.bind('endLoadingTargers', function () {
+            FarmOverflow.updateLastStatus('events.analyseTargets')
         })
 
-        self.bind('commandLimitSingle', function () {
-            self.updateLastStatus('events.commandLimit')
+        FarmOverflow.bind('commandLimitSingle', function () {
+            FarmOverflow.updateLastStatus('events.commandLimit')
         })
 
-        self.bind('commandLimitMulti', function () {
-            self.updateLastStatus('events.noVillages')
+        FarmOverflow.bind('commandLimitMulti', function () {
+            FarmOverflow.updateLastStatus('events.noVillages')
         })
     }
 
-    FarmOverflow.prototype.targetsLoaded = function () {
-        return this.targets.hasOwnProperty(this.village.id)
+    FarmOverflow.targetsLoaded = function () {
+        return FarmOverflow.targets.hasOwnProperty(FarmOverflow.village.id)
     }
 
-    FarmOverflow.prototype.hasVillage = function () {
-        return !!this.village
+    FarmOverflow.hasVillage = function () {
+        return !!FarmOverflow.village
     }
 
-    FarmOverflow.prototype.isWaiting = function () {
-        return this.waiting.hasOwnProperty(this.village.id)
+    FarmOverflow.isWaiting = function () {
+        return FarmOverflow.waiting.hasOwnProperty(FarmOverflow.village.id)
     }
 
-    FarmOverflow.prototype.isIgnored = function () {
-        return this.ignoredVillages.includes(this.village.id)
+    FarmOverflow.isIgnored = function () {
+        return FarmOverflow.ignoredVillages.includes(FarmOverflow.village.id)
     }
 
-    FarmOverflow.prototype.isAllWaiting = function () {
-        for (var i = 0; i < this.villages.length; i++) {
-            var vid = this.villages[i].id
+    FarmOverflow.isAllWaiting = function () {
+        for (var i = 0; i < FarmOverflow.villages.length; i++) {
+            var vid = FarmOverflow.villages[i].id
 
-            if (!this.waiting.hasOwnProperty(vid)) {
+            if (!FarmOverflow.waiting.hasOwnProperty(vid)) {
                 return false
             }
         }

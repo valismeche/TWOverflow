@@ -1,41 +1,43 @@
-define('FarmOverflow/Farm/analytics', function () {
-    return function (farmOverflow, trackId) {
+define('FarmOverflow/Farm/analytics', [
+    'FarmOverflow/Farm'
+], function (Farm) {
+    return function (trackId) {
         ga('create', trackId, 'auto', 'FarmOverflowFarm')
 
-        farmOverflow.bind('start', function () {
+        Farm.bind('start', function () {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'start')
         })
 
-        farmOverflow.bind('pause', function () {
+        Farm.bind('pause', function () {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'pause')
         })
 
-        farmOverflow.bind('sendCommandError', function (error) {
+        Farm.bind('sendCommandError', function (error) {
             ga('FarmOverflowFarm.send', 'event', 'commands', 'attackError', error)
         })
 
-        farmOverflow.bind('ignoredVillage', function () {
+        Farm.bind('ignoredVillage', function () {
             ga('FarmOverflowFarm.send', 'event', 'commands', 'ignoreTarget')
         })
         
-        farmOverflow.bind('priorityTargetAdded', function () {
+        Farm.bind('priorityTargetAdded', function () {
             ga('FarmOverflowFarm.send', 'event', 'commands', 'priorityTarget')
         })
 
-        farmOverflow.bind('settingsChange', function (settings) {
+        Farm.bind('settingsChange', function (settings) {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'settingsChange', settings)
         })
 
-        farmOverflow.bind('remoteCommand', function (code) {
+        Farm.bind('remoteCommand', function (code) {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'remoteCommand', code)
         })
 
-        farmOverflow.bind('nextVillage', function (village) {
+        Farm.bind('nextVillage', function (village) {
             ga('FarmOverflowFarm.send', 'event', 'behavior', 'villageChange', village.id)
         })
 
-        farmOverflow.bind('sendCommand', function () {
-            var player = injector.get('modelDataService').getPlayer()
+        Farm.bind('sendCommand', function () {
+            var player = $model.getPlayer()
             var character = player.getSelectedCharacter()
             var data = []
 

@@ -1,30 +1,29 @@
 define('FarmOverflow/FarmInterface', [
+    'FarmOverflow/Farm',
     'FarmOverflow/Farm/locale',
     'FarmOverflow/Interface',
     'FarmOverflow/FrontButton',
     'helper/time',
     'Lockr'
 ], function (
+    Farm,
     FarmLocale,
     Interface,
     FrontButton,
     $timeHelper,
     Lockr
 ) {
-    var farmOverflow
     var farmInterface
     var events
     var visibleEventCount
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
 
-    function FarmInterface (farmOverflowScope) {
-        farmOverflow = farmOverflowScope
-
+    function FarmInterface () {
         farmInterface = new Interface('farmOverflow-farm', {
             activeTab: 'info',
             template: '___htmlFarmWindow',
             replaces: {
-                version: farmOverflow.version,
+                version: Farm.version,
                 author: ___author,
                 locale: FarmLocale
             }
@@ -67,15 +66,15 @@ define('FarmOverflow/FarmInterface', [
             updatePresetList()
         }
 
-        farmOverflow.bind('groupsChanged', function () {
+        Farm.bind('groupsChanged', function () {
             updateGroupList()
         })
 
-        farmOverflow.bind('presetsLoaded', function () {
+        Farm.bind('presetsLoaded', function () {
             updatePresetList()
         })
 
-        farmOverflow.bind('presetsChange', function () {
+        Farm.bind('presetsChange', function () {
             updatePresetList()
         })
 
@@ -84,24 +83,24 @@ define('FarmOverflow/FarmInterface', [
         })
 
         farmInterface.$start.on('click', function () {
-            farmOverflow.switch()
+            Farm.switch()
         })
 
-        $hotkeys.add(farmOverflow.settings.hotkeySwitch, function () {
-            farmOverflow.switch()
+        $hotkeys.add(Farm.settings.hotkeySwitch, function () {
+            Farm.switch()
         })
 
-        $hotkeys.add(farmOverflow.settings.hotkeyWindow, function () {
+        $hotkeys.add(Farm.settings.hotkeyWindow, function () {
             farmInterface.openWindow()
         })
 
-        farmOverflow.bind('start', function () {
+        Farm.bind('start', function () {
             farmInterface.$start.html(FarmLocale('general.pause'))
             farmInterface.$start.removeClass('btn-green').addClass('btn-red')
             farmButton.$elem.removeClass('btn-green').addClass('btn-red')
         })
 
-        farmOverflow.bind('pause', function () {
+        Farm.bind('pause', function () {
             farmInterface.$start.html(FarmLocale('general.start'))
             farmInterface.$start.removeClass('btn-red').addClass('btn-green')
             farmButton.$elem.removeClass('btn-red').addClass('btn-green')
@@ -113,7 +112,7 @@ define('FarmOverflow/FarmInterface', [
      * @param {Function} callback
      */
     function eachSetting (callback) {
-        for (var key in farmOverflow.settings) {
+        for (var key in Farm.settings) {
             var $input = $('[name="' + key + '"]', farmInterface.$window)
 
             if (!$input.length) {
@@ -135,14 +134,14 @@ define('FarmOverflow/FarmInterface', [
 
             if (type === 'select-one') {
                 if (name === 'language') {
-                    $input[0].value = farmOverflow.settings.language
+                    $input[0].value = Farm.settings.language
                 }
 
                 return
             }
 
             if (type === 'checkbox') {
-                if (farmOverflow.settings[name]) {
+                if (Farm.settings[name]) {
                     $input[0].checked = true
                     $input.parent().addClass('icon-26x26-checkbox-checked')
                 }
@@ -154,7 +153,7 @@ define('FarmOverflow/FarmInterface', [
                 return
             }
 
-            $input.val(farmOverflow.settings[name])
+            $input.val(Farm.settings[name])
         })
 
         // Quarda os valores quando salvos
@@ -176,9 +175,9 @@ define('FarmOverflow/FarmInterface', [
                     settings[name] = value
                 })
 
-                farmOverflow.updateSettings(settings)
+                Farm.updateSettings(settings)
 
-                if (farmOverflow.notifsEnabled) {
+                if (Farm.notifsEnabled) {
                     emitNotif('success', FarmLocale('settings.saved'))
                 }
             }
@@ -195,7 +194,7 @@ define('FarmOverflow/FarmInterface', [
      * Adiciona eventos na interface com base nos eventos do FarmOverflow.
      */
     function bindEvents () {
-        var settings = farmOverflow.settings
+        var settings = Farm.settings
 
         var listenEvents = {
             sendCommand: function (from, to) {
@@ -274,7 +273,7 @@ define('FarmOverflow/FarmInterface', [
                 farmInterface.$status.html(FarmLocale('events.paused'))
             },
             noUnits: function () {
-                if (farmOverflow.singleVillage) {
+                if (Farm.singleVillage) {
                     farmInterface.$status.html(FarmLocale('events.noUnits'))
                 }
             },
@@ -315,7 +314,7 @@ define('FarmOverflow/FarmInterface', [
         }
 
         for (var e in listenEvents) {
-            farmOverflow.bind(e, listenEvents[e])
+            Farm.bind(e, listenEvents[e])
         }
     }
 
@@ -325,7 +324,7 @@ define('FarmOverflow/FarmInterface', [
      */
     function updateLastAttack (lastAttack) {
         if (!lastAttack) {
-            lastAttack = farmOverflow.lastAttack
+            lastAttack = Farm.lastAttack
 
             if (lastAttack === -1) {
                 return
@@ -347,7 +346,7 @@ define('FarmOverflow/FarmInterface', [
      *      a lista de eventos, então não é alterado o "banco de dados".
      */
     function addEvent (options, _populate) {
-        var limit = farmOverflow.settings.eventsLimit
+        var limit = Farm.settings.eventsLimit
 
         farmInterface.$events.find('.nothing').remove()
 
@@ -428,7 +427,7 @@ define('FarmOverflow/FarmInterface', [
      * Atualiza o elemento com a aldeias atualmente selecionada
      */
     function updateSelectedVillage () {
-        var selected = farmOverflow.village
+        var selected = Farm.village
 
         if (!selected) {
             farmInterface.$selected.html(FarmLocale('general.none'))
@@ -439,7 +438,7 @@ define('FarmOverflow/FarmInterface', [
         var village = createButtonLink(
             'village',
             selected.name + ' (' + selected.x + '|' + selected.y + ')',
-            farmOverflow.village.id
+            Farm.village.id
         )
 
         farmInterface.$selected.html('')
@@ -451,7 +450,7 @@ define('FarmOverflow/FarmInterface', [
      * do FarmOverflow.
      */
     function populateEvents () {
-        var settings = farmOverflow.settings
+        var settings = Farm.settings
         
         // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
         if (events.length > 0) {
@@ -501,7 +500,7 @@ define('FarmOverflow/FarmInterface', [
                 var name = groups[id].name
                 var selected = ''
 
-                if (farmOverflow.settings[type] == id) {
+                if (Farm.settings[type] == id) {
                     selected = 'selected'
                 }
 
@@ -537,7 +536,7 @@ define('FarmOverflow/FarmInterface', [
 
             var selected = ''
 
-            if (farmOverflow.settings.presetName === cleanName) {
+            if (Farm.settings.presetName === cleanName) {
                 selected = 'selected'
             }
 

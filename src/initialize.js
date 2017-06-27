@@ -15,6 +15,8 @@ require([
     QueueAnalytics,
     Lockr
 ) {
+    // Usando isso apenas temporariamente, mas o script pode conter
+    // outras ferramentas que podem ser executadas novamente.
     if (Farm.initialized) {
         return false
     } else {
@@ -27,9 +29,9 @@ require([
 
         Lockr.prefix = $player.getId() + '_farmOverflow_'
 
-        farmOverflow = new Farm()
-        FarmInterface(farmOverflow)
-        FarmAnalytics(farmOverflow, '___farmAnalytics')
+        Farm.init()
+        FarmInterface()
+        FarmAnalytics('___farmAnalytics')
 
         Queue.init()
         QueueInterface()
