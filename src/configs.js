@@ -1,7 +1,13 @@
 require([
+    'FarmOverflow/ready',
     'Lockr'
-], function (Lockr) {
-    var $player = $model.getSelectedCharacter()
+], function (
+    ready,
+    Lockr
+) {
+    ready(function () {
+        var $player = $model.getSelectedCharacter()
 
-    Lockr.prefix = $player.getId() + '_farmOverflow_'
+        Lockr.prefix = $player.getId() + '_farmOverflow_'
+    })
 })

@@ -18,12 +18,7 @@ define('FarmOverflow/FarmInterface', [
     ejs
 ) {
     var farmInterface
-    var farmButton = new FrontButton({
-        label: 'Farm',
-        classHover: 'expand-button',
-        classBlur: 'contract-button',
-        hoverText: updateQuickview
-    })
+    var farmButton
     var events
     var visibleEventCount
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
@@ -38,6 +33,13 @@ define('FarmOverflow/FarmInterface', [
                 author: ___author,
                 locale: FarmLocale
             }
+        })
+
+        farmButton = new FrontButton({
+            label: 'Farm',
+            classHover: 'expand-button',
+            classBlur: 'contract-button',
+            hoverText: updateQuickview
         })
 
         var $window = $(farmInterface.$window)
