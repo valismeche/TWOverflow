@@ -8,8 +8,8 @@
     "url": "https://github.com/mafrazz"
   },
   "private": true,
-  "farmOverlflowVersion": "2.2.3",
-  "commandQueueVersion": "0.1.0",
+  "farmVersion": "2.2.3",
+  "queueVersion": "0.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",

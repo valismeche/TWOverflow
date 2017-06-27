@@ -114,7 +114,7 @@ define('FarmOverflow/Farm', [
      *
      * @type {String}
      */
-    FarmOverflow.version = '___farmOverlflowVersion'
+    FarmOverflow.version = '___farmVersion'
 
     /**
      * Aldeias que prontas para serem usadas nos ataques.
