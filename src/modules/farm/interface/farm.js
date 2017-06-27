@@ -2,7 +2,7 @@ define('TWOverflow/Farm/interface', [
     'TWOverflow/Farm',
     'TWOverflow/Farm/locale',
     'TWOverflow/Interface',
-    'TWOverflow/Interface/ButtonLink',
+    'TWOverflow/Interface/buttonLink',
     'TWOverflow/FrontButton',
     'helper/time',
     'Lockr',
@@ -11,7 +11,7 @@ define('TWOverflow/Farm/interface', [
     Farm,
     FarmLocale,
     Interface,
-    ButtonLink,
+    buttonLink,
     FrontButton,
     $timeHelper,
     Lockr,
@@ -396,7 +396,7 @@ define('TWOverflow/Farm/interface', [
 
         if (options.links) {
             for (var i = 0; i < options.links.length; i++) {
-                links.push(ButtonLink(
+                links.push(buttonLink(
                     options.links[i].type,
                     options.links[i].name
                 ))
@@ -446,7 +446,7 @@ define('TWOverflow/Farm/interface', [
             return false
         }
 
-        var village = ButtonLink(
+        var village = buttonLink(
             'village',
             selected.name + ' (' + selected.x + '|' + selected.y + ')',
             Farm.village.id

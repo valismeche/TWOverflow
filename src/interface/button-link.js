@@ -1,4 +1,4 @@
-define('TWOverflow/Interface/ButtonLink', [
+define('TWOverflow/Interface/buttonLink', [
     'ejs'
 ], function (ejs) {
     /**

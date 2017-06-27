@@ -2,7 +2,7 @@ define('TWOverflow/Queue/interface', [
     'TWOverflow/Queue',
     'TWOverflow/Queue/locale',
     'TWOverflow/Interface',
-    'TWOverflow/Interface/ButtonLink',
+    'TWOverflow/Interface/buttonLink',
     'TWOverflow/FrontButton',
     'helper/time',
     'ejs'
@@ -10,7 +10,7 @@ define('TWOverflow/Queue/interface', [
     Queue,
     QueueLocale,
     Interface,
-    ButtonLink,
+    buttonLink,
     FrontButton,
     $timeHelper,
     ejs
@@ -283,10 +283,10 @@ define('TWOverflow/Queue/interface', [
         $command.className = 'command'
 
         var originLabel = command.origin.name + ' (' + command.origin.coords + ')'
-        var origin = ButtonLink('village', originLabel, command.origin.id)
+        var origin = buttonLink('village', originLabel, command.origin.id)
 
         var targetLabel = command.target.name + ' (' + command.target.coords + ')'
-        var target = ButtonLink('village', targetLabel, command.target.id)
+        var target = buttonLink('village', targetLabel, command.target.id)
 
         var typeClass = command.type === 'attack' ? 'attack-small' : 'support'
         var arrive = readableDateFilter(command.sendTime + command.travelTime)
