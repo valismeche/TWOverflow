@@ -1,5 +1,5 @@
 module.exports = function (grunt) {
-    var buildFlags = grunt.option.flags()
+    var modules = grunt.option('modules').split(',')
 
     var concat = [
         'src/libs/lockr.js',
@@ -40,7 +40,7 @@ module.exports = function (grunt) {
 
     var locales = {}
 
-    if (!buildFlags.includes('--no-farm')) {
+    if (modules.includes('farm')) {
         concat = concat.concat([
             'src/modules/farm/farm.js',
             'src/modules/farm/commander.js',
@@ -70,7 +70,7 @@ module.exports = function (grunt) {
         locales['dist/temp/modules/farm/locales.json'] = 'src/modules/farm/locales.json'
     }
 
-    if (!buildFlags.includes('--no-queue')) {
+    if (modules.includes('queue')) {
         concat = concat.concat([
             'src/modules/queue/queue.js',
             'src/modules/queue/analytics.js',
@@ -176,19 +176,25 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-less')
     grunt.loadNpmTasks('grunt-contrib-htmlmin')
     grunt.loadNpmTasks('grunt-replace')
-    grunt.loadNpmTasks('grunt-contrib-uglify')
     grunt.loadNpmTasks('grunt-contrib-clean')
     grunt.loadNpmTasks('grunt-contrib-copy')
     grunt.loadNpmTasks('grunt-minjson')
 
-    grunt.registerTask('build', [
+    var tasks = [
         'eslint',
         'concat',
         'less',
         'htmlmin',
         'minjson',
-        'replace',
-        'uglify',
-        'clean'
-    ])
+        'replace'
+    ]
+
+    if (grunt.option('prod')) {
+        grunt.loadNpmTasks('grunt-contrib-uglify')
+        tasks.push('uglify')
+    }
+
+    tasks.push('clean')
+
+    grunt.registerTask('build', tasks)
 }

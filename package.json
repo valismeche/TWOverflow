@@ -30,7 +30,8 @@
     "grunt-replace": "^1.0.1"
   },
   "scripts": {
-    "build": "grunt build"
+    "build-dev": "grunt build -modules=farm,queue --dev",
+    "build-prod": "grunt build -modules=farm,queue --prod"
   },
   "farmAnalytics": "UA-92130203-4",
   "queueAnalytics": "UA-92130203-5"
