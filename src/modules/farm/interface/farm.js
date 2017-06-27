@@ -22,6 +22,7 @@ define('TWOverflow/Farm/interface', [
     var events
     var visibleEventCount
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
+    var rtemplate = /%\{[^\}]+\}/g
 
     function FarmInterface () {
         farmInterface = new Interface('farmOverflow-farm', {
@@ -215,10 +216,10 @@ define('TWOverflow/Farm/interface', [
                 var labelTo = to.name + ' (' + to.x + '|' + to.y + ')'
 
                 addEvent({
-                    links: [
-                        { type: 'village', name: labelFrom, id: from.id },
-                        { type: 'village', name: labelTo, id: to.id }
-                    ],
+                    links: {
+                        origin: { type: 'village', name: labelFrom, id: from.id },
+                        target: { type: 'village', name: labelTo, id: to.id }
+                    },
                     icon: 'attack-small',
                     type: 'sendCommand'
                 })
@@ -233,9 +234,9 @@ define('TWOverflow/Farm/interface', [
                 var label = next.name + ' (' + next.x + '|' + next.y + ')'
 
                 addEvent({
-                    links: [
-                        { type: 'village', name: label, id: next.id }
-                    ],
+                    links: {
+                        village: { type: 'village', name: label, id: next.id }
+                    },
                     icon: 'village',
                     type: 'nextVillage'
                 })
@@ -248,9 +249,9 @@ define('TWOverflow/Farm/interface', [
                 var label = target.name + ' (' + target.x + '|' + target.y + ')'
 
                 addEvent({
-                    links: [
-                        { type: 'village', name: label, id: target.id }
-                    ],
+                    links: {
+                        target: { type: 'village', name: label, id: target.id }
+                    },
                     icon: 'check-negative',
                     type: 'ignoredVillage'
                 })
@@ -263,9 +264,9 @@ define('TWOverflow/Farm/interface', [
                 var label = target.name + ' (' + target.x + '|' + target.y + ')'
 
                 addEvent({
-                    links: [
-                        { type: 'village', name: label, id: target.id }
-                    ],
+                    links: {
+                        target: { type: 'village', name: label, id: target.id }
+                    },
                     icon: 'parallel-recruiting',
                     type: 'priorityTargetAdded'
                 })
@@ -388,24 +389,21 @@ define('TWOverflow/Farm/interface', [
      *      a lista de eventos, então os elementos são adicionados no final da lista.
      */
     function addRow ($where, options, _populate) {
-        var links = []
-
         // Copia o objeto porque ele será armazenado e não queremos os
         // dados guardados já renderizados.
         options = angular.copy(options)
 
+        var buttons = {}
+        var replaces = {}
+
         if (options.links) {
-            for (var i = 0; i < options.links.length; i++) {
-                links.push(buttonLink(
-                    options.links[i].type,
-                    options.links[i].name
-                ))
+            for (var key in options.links) {
+                var button = buttonLink(options.links[key].type, options.links[key].name)
+                buttons[key] = button
+                replaces[key] = button.html
             }
 
-            options.text = FarmLocale('events.' + options.type, {
-                origin: links[0].html,
-                target: links[1].html
-            })
+            options.text = FarmLocale('events.' + options.type, replaces)
         }
 
         var $tr = document.createElement('tr')
@@ -422,10 +420,10 @@ define('TWOverflow/Farm/interface', [
         }
 
         if (options.links) {
-            for (var i = 0; i < links.length; i++) {
-                options.links[i].elem = $tr.querySelector('#' + links[i].id)
-                options.links[i].elem.addEventListener('click', function () {
-                    $wds.openVillageInfo(options.links[i].id)
+            for (var key in buttons) {
+                options.links[key].elem = $tr.querySelector('#' + buttons[key].id)
+                options.links[key].elem.addEventListener('click', function () {
+                    $wds.openVillageInfo(options.links[key].id)
                 })
             }
         }
