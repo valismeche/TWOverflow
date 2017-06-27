@@ -20,16 +20,16 @@ define('FarmOverflow/Interface', [
     /**
      * Injeta o CSS geral de toda UI do FarmOverflow.
      */
-    function buildStyle () {
+    function buildStyle (id, css) {
         var $style = document.createElement('style')
         $style.type = 'text/css'
-        $style.id = 'farmOverflow-style'
-        $style.innerHTML = '___cssStyle'
+        $style.id = 'farmOverflow-style-' + id
+        $style.innerHTML = css
 
         document.querySelector('head').appendChild($style)
     }
 
-    buildStyle()
+    buildStyle('own', '___cssWindow')
 
     /**
      * @class
@@ -42,6 +42,8 @@ define('FarmOverflow/Interface', [
         self.windowId = windowId
         self.activeTab = settings.activeTab
         self.settings = settings
+
+        buildStyle(windowId, settings.css)
 
         self.buildWindow()
         self.bindTabs()
@@ -84,7 +86,14 @@ define('FarmOverflow/Interface', [
 
         this.$window.style.visibility = 'visible'
         this.$wrapper.addClass('window-open')
+        this.resizeWindowFrame()
+    }
 
+    /**
+     * Atualiza a area ocupada pela janela para que o resto do jogo
+     * se adapite a ela.
+     */
+    Interface.prototype.resizeWindowFrame = function () {
         $eventQueue.trigger($eventQueue.types.RESIZE, {
             'instant': true,
             'right': true
@@ -98,10 +107,7 @@ define('FarmOverflow/Interface', [
         this.$window.style.visibility = 'hidden'
         this.$wrapper.removeClass('window-open')
 
-        $eventQueue.trigger($eventQueue.types.RESIZE, {
-            'instant': true,
-            'right': true
-        })
+        this.resizeWindowFrame()
     }
 
     /**
@@ -113,10 +119,7 @@ define('FarmOverflow/Interface', [
         this.$window.style.visibility = state
         this.$wrapper.toggleClass('window-open')
 
-        $eventQueue.trigger($eventQueue.types.RESIZE, {
-            'instant': true,
-            'right': true
-        })
+        this.resizeWindowFrame()
     }
 
     /**
@@ -181,6 +184,14 @@ define('FarmOverflow/Interface', [
         })
 
         self.tabsState()
+    }
+
+    /**
+     * Remove todo html/eventos criados.
+     */
+    Interface.prototype.destroy = function () {
+        document.querySelector('#farmOverflow-style-' + this.windowId).remove()
+        this.$window.remove()
     }
 
     return Interface

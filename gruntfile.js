@@ -48,7 +48,9 @@ module.exports = function (grunt) {
                     ieCompat: false
                 },
                 files: {
-                    'dist/temp/style.css': 'src/interface/style.less'
+                    'dist/temp/interface/style.css': 'src/interface/style.less',
+                    'dist/temp/modules/farm/interface/style.css': 'src/modules/farm/interface/style.less',
+                    'dist/temp/modules/queue/interface/style.css': 'src/modules/queue/interface/style.less'
                 }
             }
         },
@@ -93,7 +95,12 @@ module.exports = function (grunt) {
                             htmlQueueWindow: '<%= grunt.file.read("dist/temp/modules/queue/interface/window.html") %>',
                             htmlQueueCommand: '<%= grunt.file.read("dist/temp/modules/queue/interface/command.html") %>',
                             htmlButton: '<%= grunt.file.read("dist/temp/interface/button.html") %>',
-                            cssStyle: '<%= grunt.file.read("dist/temp/style.css") %>',
+
+                            cssWindow: '<%= grunt.file.read("dist/temp/interface/style.css") %>',
+                            cssFarm: '<%= grunt.file.read("dist/temp/modules/farm/interface/style.css") %>',
+                            cssQueue: '<%= grunt.file.read("dist/temp/modules/queue/interface/style.css") %>',
+
+                            css: '<%= grunt.file.read("dist/temp/interface/style.css") %>',
                             
                             langFarm: '<%= grunt.file.read("dist/temp/modules/farm/locales.json") %>',
                             langQueue: '<%= grunt.file.read("dist/temp/modules/queue/locales.json") %>'

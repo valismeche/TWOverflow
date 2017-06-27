@@ -449,7 +449,8 @@ define('FarmOverflow/Farm', [
             eventAttack: ['events'],
             eventVillageChange: ['events'],
             eventPriorityAdd: ['events'],
-            eventIgnoredVillage: ['events']
+            eventIgnoredVillage: ['events'],
+            language: ['interface']
         }
 
         for (var key in changes) {
@@ -492,6 +493,11 @@ define('FarmOverflow/Farm', [
 
         if (modify.events) {
             FarmOverflow.trigger('resetEvents')
+        }
+
+        if (modify.interface) {
+            FarmLocale.change(FarmOverflow.settings.language)
+            FarmOverflow.trigger('reloadInterface')
         }
 
         if (FarmOverflow.commander.running && FarmOverflow.globalWaiting) {

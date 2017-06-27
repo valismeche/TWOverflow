@@ -18,6 +18,12 @@ define('FarmOverflow/FarmInterface', [
     ejs
 ) {
     var farmInterface
+    var farmButton = new FrontButton({
+        label: 'Farm',
+        classHover: 'expand-button',
+        classBlur: 'contract-button',
+        hoverText: updateQuickview
+    })
     var events
     var visibleEventCount
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
@@ -25,19 +31,13 @@ define('FarmOverflow/FarmInterface', [
     function FarmInterface () {
         farmInterface = new Interface('farmOverflow-farm', {
             activeTab: 'info',
+            css: '___cssFarm',
             template: '___htmlFarmWindow',
             replaces: {
                 version: Farm.version,
                 author: ___author,
                 locale: FarmLocale
             }
-        })
-
-        var farmButton = new FrontButton({
-            label: 'Farm',
-            classHover: 'expand-button',
-            classBlur: 'contract-button',
-            hoverText: updateQuickview
         })
 
         var $window = $(farmInterface.$window)
@@ -314,6 +314,11 @@ define('FarmOverflow/FarmInterface', [
             resetEvents: function () {
                 visibleEventCount = 0
                 populateEvents()
+            },
+            reloadInterface: function () {
+                farmInterface.destroy()
+                FarmInterface()
+                farmInterface.openWindow()
             }
         }
 

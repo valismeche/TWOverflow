@@ -82,5 +82,9 @@ define('FarmOverflow/FrontButton', [
         this.$elem.click(handler)
     }
 
+    FrontButton.prototype.destroy = function () {
+        this.$elem.remove()
+    }
+
     return FrontButton
 })

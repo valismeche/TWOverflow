@@ -30,6 +30,7 @@ define('FarmOverflow/QueueInterface', [
 
         queueInterface = new Interface('farmOverflow-queue', {
             activeTab: 'info',
+            css: '___cssQueue',
             template: '___htmlQueueWindow',
             replaces: {
                 version: Queue.version,
