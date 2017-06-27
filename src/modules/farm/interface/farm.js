@@ -317,11 +317,6 @@ define('TWOverflow/Farm/interface', [
             resetEvents: function () {
                 visibleEventCount = 0
                 populateEvents()
-            },
-            reloadInterface: function () {
-                farmInterface.destroy()
-                FarmInterface()
-                farmInterface.openWindow()
             }
         }
 

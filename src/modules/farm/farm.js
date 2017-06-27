@@ -443,7 +443,7 @@ define('TWOverflow/Farm', [
             eventVillageChange: ['events'],
             eventPriorityAdd: ['events'],
             eventIgnoredVillage: ['events'],
-            language: ['interface']
+            language: ['language']
         }
 
         for (var key in changes) {
@@ -488,9 +488,10 @@ define('TWOverflow/Farm', [
             FarmOverflow.trigger('resetEvents')
         }
 
-        if (modify.interface) {
-            FarmLocale.change(FarmOverflow.settings.language)
-            FarmOverflow.trigger('reloadInterface')
+        if (modify.language) {
+            if (FarmOverflow.eventsEnabled) {
+                emitNotif('success', FarmLocale('settings.events.restartScript'))
+            }
         }
 
         if (FarmOverflow.commander.running && FarmOverflow.globalWaiting) {

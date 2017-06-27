@@ -98,7 +98,8 @@
         "settings.eventIgnoredVillage": "Mostrar registros de aldeias ignoradas",
         "settings.remote": "Controle via mensagem (assunto)",
         "settings.hotkeySwitch": "Tecla de atalho para inicar/pausar (requer reinício)",
-        "settings.hotkeyWindow": "Tecla de atalho para abrir janela (requer reinício)"
+        "settings.hotkeyWindow": "Tecla de atalho para abrir janela (requer reinício)",
+        "settings.events.restartScript": "Reinicie o script pra ter efeito."
     },
     "en_us": {
         "title": "FarmOverflow",
@@ -199,6 +200,7 @@
         "settings.eventIgnoredVillage": "Show task logs of ignored villages",
         "settings.remote": "Control via message (subject)",
         "settings.hotkeySwitch": "Hotkey to start/pause",
-        "settings.hotkeyWindow": "Hotkey to open window"
+        "settings.hotkeyWindow": "Hotkey to open window",
+        "settings.events.restartScript": "Restart the script for effect."
     }
 }
