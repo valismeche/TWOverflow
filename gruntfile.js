@@ -87,8 +87,8 @@ module.exports = function (grunt) {
                             htmlButton: '<%= grunt.file.read("dist/temp/interface/button.html") %>',
                             cssStyle: '<%= grunt.file.read("dist/temp/style.css") %>',
                             
-                            langFarm: '<%= grunt.file.read("src/modules/farm/locales.json") %>',
-                            langQueue: '<%= grunt.file.read("src/modules/queue/locales.json") %>'
+                            langFarm: '<%= grunt.file.read("dist/temp/modules/farm/locales.json") %>',
+                            langQueue: '<%= grunt.file.read("dist/temp/modules/queue/locales.json") %>'
                         }
                     }]
                 },
@@ -108,9 +108,17 @@ module.exports = function (grunt) {
                 sourceMapName: 'dist/<%= pkg.name %>.map',
                 banner: '/*! <%= pkg.name %>.min.js@<%= pkg.version %> | Licence <%= pkg.license %> */'
             },
-            prod: {
+            build: {
                 files: {
                     'dist/<%= pkg.name %>.min.js': 'dist/<%= pkg.name %>.js'
+                }
+            }
+        },
+        minjson: {
+            build: {
+                files: {
+                    'dist/temp/modules/farm/locales.json': 'src/modules/farm/locales.json',
+                    'dist/temp/modules/queue/locales.json': 'src/modules/queue/locales.json'
                 }
             }
         },
@@ -127,14 +135,15 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify')
     grunt.loadNpmTasks('grunt-contrib-clean')
     grunt.loadNpmTasks('grunt-contrib-copy')
+    grunt.loadNpmTasks('grunt-minjson')
 
     grunt.registerTask('build', [
         'eslint',
         'concat',
         'less',
         'htmlmin',
+        'minjson',
         'replace',
-        'uglify',
-        'clean'
+        'uglify'
     ])
 }
