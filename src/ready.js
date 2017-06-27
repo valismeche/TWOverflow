@@ -1,4 +1,4 @@
-define('FarmOverflow/ready', function () {
+define('TWOverflow/ready', function () {
     return function (callback) {
         var $map = document.querySelector('#map')
         var $mapScope = angular.element($map).scope()

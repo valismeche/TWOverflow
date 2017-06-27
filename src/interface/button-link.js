@@ -1,4 +1,4 @@
-define('FarmOverflow/Interface/ButtonLink', [
+define('TWOverflow/Interface/ButtonLink', [
     'ejs'
 ], function (ejs) {
     /**

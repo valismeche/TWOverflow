@@ -1,40 +1,40 @@
-define('FarmOverflow/Farm/analytics', [
-    'FarmOverflow/Farm',
+define('TWOverflow/Farm/analytics', [
+    'TWOverflow/Farm',
     'Lockr'
 ], function (Farm, Lockr) {
     return function (trackId) {
-        ga('create', trackId, 'auto', 'FarmOverflowFarm')
+        ga('create', trackId, 'auto', 'TWOverflowFarm')
 
         Farm.bind('start', function () {
-            ga('FarmOverflowFarm.send', 'event', 'behavior', 'start')
+            ga('TWOverflowFarm.send', 'event', 'behavior', 'start')
         })
 
         Farm.bind('pause', function () {
-            ga('FarmOverflowFarm.send', 'event', 'behavior', 'pause')
+            ga('TWOverflowFarm.send', 'event', 'behavior', 'pause')
         })
 
         Farm.bind('sendCommandError', function (error) {
-            ga('FarmOverflowFarm.send', 'event', 'commands', 'attackError', error)
+            ga('TWOverflowFarm.send', 'event', 'commands', 'attackError', error)
         })
 
         Farm.bind('ignoredVillage', function () {
-            ga('FarmOverflowFarm.send', 'event', 'commands', 'ignoreTarget')
+            ga('TWOverflowFarm.send', 'event', 'commands', 'ignoreTarget')
         })
         
         Farm.bind('priorityTargetAdded', function () {
-            ga('FarmOverflowFarm.send', 'event', 'commands', 'priorityTarget')
+            ga('TWOverflowFarm.send', 'event', 'commands', 'priorityTarget')
         })
 
         Farm.bind('settingsChange', function (modify) {
-            ga('FarmOverflowFarm.send', 'event', 'behavior', 'settingsChange', Lockr.get('farm-settings'))
+            ga('TWOverflowFarm.send', 'event', 'behavior', 'settingsChange', Lockr.get('farm-settings'))
         })
 
         Farm.bind('remoteCommand', function (code) {
-            ga('FarmOverflowFarm.send', 'event', 'behavior', 'remoteCommand', code)
+            ga('TWOverflowFarm.send', 'event', 'behavior', 'remoteCommand', code)
         })
 
         Farm.bind('nextVillage', function (village) {
-            ga('FarmOverflowFarm.send', 'event', 'behavior', 'villageChange', village.id)
+            ga('TWOverflowFarm.send', 'event', 'behavior', 'villageChange', village.id)
         })
 
         Farm.bind('sendCommand', function () {
@@ -46,7 +46,7 @@ define('FarmOverflow/Farm/analytics', [
             data.push(character.getId())
             data.push(character.getWorldId())
 
-            ga('FarmOverflowFarm.send', 'event', 'commands', 'attack', data.join('~'))
+            ga('TWOverflowFarm.send', 'event', 'commands', 'attack', data.join('~'))
         })
     }
 })

@@ -1,5 +1,5 @@
-define('FarmOverflow/Queue/analytics', [
-    'FarmOverflow/Queue'
+define('TWOverflow/Queue/analytics', [
+    'TWOverflow/Queue'
 ], function (Queue) {
     return function (trackId) {
         ga('create', trackId, 'auto', 'FarmOverflowQueue')

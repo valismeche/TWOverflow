@@ -1,9 +1,9 @@
-define('FarmOverflow/Farm/interface', [
-    'FarmOverflow/Farm',
-    'FarmOverflow/Farm/locale',
-    'FarmOverflow/Interface',
-    'FarmOverflow/Interface/ButtonLink',
-    'FarmOverflow/FrontButton',
+define('TWOverflow/Farm/interface', [
+    'TWOverflow/Farm',
+    'TWOverflow/Farm/locale',
+    'TWOverflow/Interface',
+    'TWOverflow/Interface/ButtonLink',
+    'TWOverflow/FrontButton',
     'helper/time',
     'Lockr',
     'ejs'

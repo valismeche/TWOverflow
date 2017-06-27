@@ -1,5 +1,5 @@
 require([
-    'FarmOverflow/ready',
+    'TWOverflow/ready',
     'Lockr',
     'ejs'
 ], function (

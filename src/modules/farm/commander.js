@@ -1,4 +1,4 @@
-define('FarmOverflow/Farm/Commander', [
+define('TWOverflow/Farm/Commander', [
     'helper/math'
 ], function ($math) {
     var Farm

@@ -1,8 +1,8 @@
 require([
-    'FarmOverflow/ready',
-    'FarmOverflow/Queue',
-    'FarmOverflow/QueueInterface',
-    'FarmOverflow/Queue/analytics'
+    'TWOverflow/ready',
+    'TWOverflow/Queue',
+    'TWOverflow/QueueInterface',
+    'TWOverflow/Queue/analytics'
 ], function (
     ready,
     Queue,

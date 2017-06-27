@@ -1,4 +1,4 @@
-define('FarmOverflow/Interface', [
+define('TWOverflow/Interface', [
     'queues/EventQueue',
     'ejs'
 ], function (
@@ -12,9 +12,7 @@ define('FarmOverflow/Interface', [
             ui.closeWindow()
         })
     }
-    /**
-     * Injeta o CSS geral de toda UI do FarmOverflow.
-     */
+    
     function buildStyle (id, css) {
         var $style = document.createElement('style')
         $style.type = 'text/css'

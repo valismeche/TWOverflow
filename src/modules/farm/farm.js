@@ -1,13 +1,13 @@
-define('FarmOverflow/Farm/locale', [
-    'FarmOverflow/locale'
+define('TWOverflow/Farm/locale', [
+    'TWOverflow/locale'
 ], function (Locale) {
     return new Locale(___langFarm, 'en_us')
 })
 
-define('FarmOverflow/Farm', [
-    'FarmOverflow/Farm/locale',
-    'FarmOverflow/Farm/Commander',
-    'FarmOverflow/Farm/Village',
+define('TWOverflow/Farm', [
+    'TWOverflow/Farm/locale',
+    'TWOverflow/Farm/Commander',
+    'TWOverflow/Farm/Village',
     'helper/math',
     'conf/conf',
     'struct/MapData',

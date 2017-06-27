@@ -1,11 +1,11 @@
-define('FarmOverflow/Queue/locale', [
-    'FarmOverflow/locale'
+define('TWOverflow/Queue/locale', [
+    'TWOverflow/locale'
 ], function (Locale) {
     return new Locale(___langQueue, 'en_us')
 })
 
-define('FarmOverflow/Queue', [
-    'FarmOverflow/Queue/locale',
+define('TWOverflow/Queue', [
+    'TWOverflow/Queue/locale',
     'helper/time',
     'helper/math',
     'Lockr'

@@ -1,4 +1,4 @@
-define('FarmOverflow/Farm/Village', [
+define('TWOverflow/Farm/Village', [
     'models/CommandListModel',
     'models/CommandModel',
     'conf/village'

@@ -1,4 +1,4 @@
-define('FarmOverflow/locale', [
+define('TWOverflow/locale', [
     'conf/locale',
     'i18n'
 ], function (gameLocale, i18n) {

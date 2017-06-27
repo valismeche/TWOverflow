@@ -1,4 +1,4 @@
-define('FarmOverflow/FrontButton', [
+define('TWOverflow/FrontButton', [
     'ejs'
 ], function (ejs) {
     function FrontButton (options) {

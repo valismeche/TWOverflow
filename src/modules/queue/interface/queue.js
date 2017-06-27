@@ -1,9 +1,9 @@
-define('FarmOverflow/QueueInterface', [
-    'FarmOverflow/Queue',
-    'FarmOverflow/Queue/locale',
-    'FarmOverflow/Interface',
-    'FarmOverflow/Interface/ButtonLink',
-    'FarmOverflow/FrontButton',
+define('TWOverflow/QueueInterface', [
+    'TWOverflow/Queue',
+    'TWOverflow/Queue/locale',
+    'TWOverflow/Interface',
+    'TWOverflow/Interface/ButtonLink',
+    'TWOverflow/FrontButton',
     'helper/time',
     'ejs'
 ], function (
