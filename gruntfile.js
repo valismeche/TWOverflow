@@ -128,7 +128,7 @@ module.exports = function (grunt) {
                 options: {
                     removeComments: true,
                     collapseWhitespace: true,
-                    ignoreCustomFragments: [/\{\{[\s\S]*?\}\}/, /\<\#[\s\S]*?\#\>/]
+                    ignoreCustomFragments: [/\<\#[\s\S]*?\#\>/]
                 },
                 files: html
             }
