@@ -115,7 +115,7 @@ define('FarmOverflow/Queue', [
         })
     }
 
-    function pushWaitinCommand (command) {
+    function pushWaitingCommand (command) {
         waitingCommands.push(command)
     }
 
@@ -149,7 +149,7 @@ define('FarmOverflow/Queue', [
                 if ($timeHelper.gameTime() > command.sendTime) {
                     Queue.expireCommand(command)
                 } else {
-                    pushWaitinCommand(command)
+                    pushWaitingCommand(command)
                 }
             }
         }
@@ -356,7 +356,7 @@ define('FarmOverflow/Queue', [
                 }
             })
 
-            pushWaitinCommand(command)
+            pushWaitingCommand(command)
             orderWaitingQueue()
             storeWaitingQueue()
 
