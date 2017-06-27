@@ -255,13 +255,6 @@ define('FarmOverflow/Farm', [
     FarmOverflow.priorityTargets = {}
 
     /**
-     * Lista com todas funções "unbind" dos listeners $on.
-     *
-     * @type {Array}
-     */
-    FarmOverflow.activeListeners = []
-
-    /**
      * Timestamp da última atividade do FarmOverflow como atques e
      * trocas de aldeias.
      *
@@ -1347,26 +1340,17 @@ define('FarmOverflow/Farm', [
             return false
         }
 
-        var bind = function (eventType, handler) {
-            var unbind = $root.$on($eventType[eventType], handler)
-
-            FarmOverflow.activeListeners.push(unbind)
-        }
-
-        bind('COMMAND_RETURNED', commandBackHandler)
-
-        bind('ARMY_PRESET_UPDATE', updatePresets)
-        bind('ARMY_PRESET_DELETED', updatePresets)
-
-        bind('GROUPS_UPDATED', updateGroups)
-        bind('GROUPS_CREATED', updateGroups)
-        bind('GROUPS_DESTROYED', updateGroups)
-        bind('GROUPS_VILLAGE_LINKED', updateGroupVillages)
-        bind('GROUPS_VILLAGE_UNLINKED', updateGroupVillages)
-
-        bind('REPORT_NEW', reportHandler)
-        bind('RECONNECT', reconnectHandler)        
-        bind('MESSAGE_SENT', remoteHandler)
+        $root.$on($eventType.COMMAND_RETURNED, commandBackHandler)
+        $root.$on($eventType.ARMY_PRESET_UPDATE, updatePresets)
+        $root.$on($eventType.ARMY_PRESET_DELETED, updatePresets)
+        $root.$on($eventType.GROUPS_UPDATED, updateGroups)
+        $root.$on($eventType.GROUPS_CREATED, updateGroups)
+        $root.$on($eventType.GROUPS_DESTROYED, updateGroups)
+        $root.$on($eventType.GROUPS_VILLAGE_LINKED, updateGroupVillages)
+        $root.$on($eventType.GROUPS_VILLAGE_UNLINKED, updateGroupVillages)
+        $root.$on($eventType.REPORT_NEW, reportHandler)
+        $root.$on($eventType.RECONNECT, reconnectHandler)        
+        $root.$on($eventType.MESSAGE_SENT, remoteHandler)
 
         // Carrega pedaços da mapa quando chamado.
         // É disparado através do método .getTargets()
