@@ -1,7 +1,7 @@
 require([
     'TWOverflow/ready',
     'TWOverflow/Queue',
-    'TWOverflow/QueueInterface',
+    'TWOverflow/Queue/interface',
     'TWOverflow/Queue/analytics'
 ], function (
     ready,

@@ -1,4 +1,4 @@
-define('TWOverflow/QueueInterface', [
+define('TWOverflow/Queue/interface', [
     'TWOverflow/Queue',
     'TWOverflow/Queue/locale',
     'TWOverflow/Interface',
