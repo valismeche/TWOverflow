@@ -2,7 +2,7 @@
  * https://github.com/tsironis/lockr
  */
 ;(function(root, factory) {
-    root.Lockr = factory(root, {})
+    define('Lockr', factory(root, {}))
 }(this, function(root, Lockr) {
     'use strict'
 

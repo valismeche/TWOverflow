@@ -2,12 +2,14 @@ define('FarmOverflow/FarmInterface', [
     'FarmOverflow/Farm/locale',
     'FarmOverflow/Interface',
     'FarmOverflow/FrontButton',
-    'helper/time'
+    'helper/time',
+    'Lockr'
 ], function (
     FarmLocale,
     Interface,
     FrontButton,
-    $timeHelper
+    $timeHelper,
+    Lockr
 ) {
     var farmOverflow
     var farmInterface

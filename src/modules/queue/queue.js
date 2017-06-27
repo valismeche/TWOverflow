@@ -7,8 +7,14 @@ define('FarmOverflow/Queue/locale', [
 define('FarmOverflow/Queue', [
     'FarmOverflow/Queue/locale',
     'helper/time',
-    'helper/math'
-], function (QueueLocale, $timeHelper, $math) {
+    'helper/math',
+    'Lockr'
+], function (
+    QueueLocale,
+    $timeHelper,
+    $math,
+    Lockr
+) {
     var readableMillisecondsFilter = $filter('readableMillisecondsFilter')
     var readableDateFilter = $filter('readableDateFilter')
 

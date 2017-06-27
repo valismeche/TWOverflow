@@ -12,7 +12,8 @@ define('FarmOverflow/Farm', [
     'conf/conf',
     'struct/MapData',
     'helper/mapconvert',
-    'helper/time'
+    'helper/time',
+    'Lockr'
 ], function (
     FarmLocale,
     Commander,
@@ -21,7 +22,8 @@ define('FarmOverflow/Farm', [
     $conf,
     $mapData,
     $convert,
-    $timeHelper
+    $timeHelper,
+    Lockr
 ) {
     /**
      * Tempo de validade dos índices dos alvos, é resetado quando o

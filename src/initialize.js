@@ -4,14 +4,16 @@ require([
     'FarmOverflow/Farm/analytics',
     'FarmOverflow/Queue',
     'FarmOverflow/QueueInterface',
-    'FarmOverflow/Queue/analytics'
+    'FarmOverflow/Queue/analytics',
+    'Lockr'
 ], function (
     Farm,
     FarmInterface,
     FarmAnalytics,
     Queue,
     QueueInterface,
-    QueueAnalytics
+    QueueAnalytics,
+    Lockr
 ) {
     if (Farm.initialized) {
         return false
