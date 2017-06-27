@@ -203,7 +203,7 @@ define('FarmOverflow/Farm/Commander', [
             }
 
             if (avail) {
-                if (self.checkPresetTime(preset)) {
+                if (this.checkPresetTime(preset)) {
                     return preset
                 } else {
                     timeLimit = true
