@@ -1,37 +1,110 @@
 module.exports = function (grunt) {
+    var buildFlags = grunt.option.flags()
+
+    var concat = [
+        'src/libs/lockr.js',
+        'src/libs/i18n.js',
+        'src/libs/ejs.js',
+        'src/header.js',
+        'src/utils.js',
+        'src/locale.js',
+        'src/ready.js',
+        'src/configs.js',
+        'src/interface/interface.js',
+        'src/interface/button.js',
+        'src/interface/button-link.js'
+    ]
+
+    var css = {
+        'dist/temp/interface/style.css': 'src/interface/style.less'
+    }
+
+    var html = {
+        'dist/temp/interface/button.html': 'src/interface/button.html'
+    }
+
+    var replaces = [{
+        json: {
+            title: '<%= pkg.title %>',
+            license: '<%= pkg.license %>',
+            author: '<%= pkg.author %>',
+            authorName: '<%= pkg.author.name %>',
+            authorEmail: '<%= pkg.author.email %>',
+            authorUrl: '<%= pkg.author.url %>',
+            date: '<%= new Date() %>',
+            build: '<%= pkg.build %>',
+            htmlButton: '<%= grunt.file.read("dist/temp/interface/button.html") %>',
+            cssWindow: '<%= grunt.file.read("dist/temp/interface/style.css") %>'
+        }
+    }]
+
+    var locales = {}
+
+    if (!buildFlags.includes('--no-farm')) {
+        concat = concat.concat([
+            'src/modules/farm/farm.js',
+            'src/modules/farm/commander.js',
+            'src/modules/farm/village.js',
+            'src/modules/farm/analytics.js',
+            'src/modules/farm/locale.js',
+            'src/modules/farm/interface/farm.js',
+            'src/modules/farm/init.js'
+        ])
+
+        css['dist/temp/modules/farm/interface/style.css'] = 'src/modules/farm/interface/style.less'
+
+        html['dist/temp/modules/farm/interface/window.html'] = 'src/modules/farm/interface/window.html'
+        html['dist/temp/modules/farm/interface/event.html'] = 'src/modules/farm/interface/event.html'
+
+        replaces.push({
+            json: {
+                farmVersion: '<%= pkg.farmVersion %>',
+                farmAnalytics: '<%= pkg.farmAnalytics %>',
+                htmlFarmWindow: '<%= grunt.file.read("dist/temp/modules/farm/interface/window.html") %>',
+                htmlFarmEvent: '<%= grunt.file.read("dist/temp/modules/farm/interface/event.html") %>',
+                cssFarm: '<%= grunt.file.read("dist/temp/modules/farm/interface/style.css") %>',
+                langFarm: '<%= grunt.file.read("dist/temp/modules/farm/locales.json") %>'
+            }
+        })
+
+        locales['dist/temp/modules/farm/locales.json'] = 'src/modules/farm/locales.json'
+    }
+
+    if (!buildFlags.includes('--no-queue')) {
+        concat = concat.concat([
+            'src/modules/queue/queue.js',
+            'src/modules/queue/analytics.js',
+            'src/modules/queue/locale.js',
+            'src/modules/queue/interface/queue.js',
+            'src/modules/queue/init.js'
+        ])
+
+        css['dist/temp/modules/queue/interface/style.css'] = 'src/modules/queue/interface/style.less'
+
+        html['dist/temp/modules/queue/interface/window.html'] = 'src/modules/queue/interface/window.html'
+        html['dist/temp/modules/queue/interface/command.html'] = 'src/modules/queue/interface/command.html'
+
+        replaces.push({
+            json: {
+                queueVersion: '<%= pkg.queueVersion %>',
+                queueAnalytics: '<%= pkg.queueAnalytics %>',
+                htmlQueueWindow: '<%= grunt.file.read("dist/temp/modules/queue/interface/window.html") %>',
+                htmlQueueCommand: '<%= grunt.file.read("dist/temp/modules/queue/interface/command.html") %>',
+                cssQueue: '<%= grunt.file.read("dist/temp/modules/queue/interface/style.css") %>',
+                langQueue: '<%= grunt.file.read("dist/temp/modules/queue/locales.json") %>'
+            }
+        })
+
+        locales['dist/temp/modules/queue/locales.json'] = 'src/modules/queue/locales.json'
+    }
+
+    concat.push('src/footer.js')
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         concat: {
             prod: {
-                src: [
-                    'src/libs/lockr.js',
-                    'src/libs/i18n.js',
-                    'src/libs/ejs.js',
-                    'src/header.js',
-                    'src/utils.js',
-                    'src/locale.js',
-                    'src/ready.js',
-                    'src/configs.js',
-                    'src/interface/interface.js',
-                    'src/interface/button.js',
-                    'src/interface/button-link.js',
-
-                    'src/modules/farm/farm.js',
-                    'src/modules/farm/commander.js',
-                    'src/modules/farm/village.js',
-                    'src/modules/farm/analytics.js',
-                    'src/modules/farm/locale.js',
-                    'src/modules/farm/interface/farm.js',
-                    'src/modules/farm/init.js',
-
-                    'src/modules/queue/queue.js',
-                    'src/modules/queue/analytics.js',
-                    'src/modules/queue/locale.js',
-                    'src/modules/queue/interface/queue.js',
-                    'src/modules/queue/init.js',
-
-                    'src/footer.js'
-                ],
+                src: concat,
                 dest: 'dist/temp/<%= pkg.name %>.js'
             }
         },
@@ -47,11 +120,7 @@ module.exports = function (grunt) {
                     compress: true,
                     ieCompat: false
                 },
-                files: {
-                    'dist/temp/interface/style.css': 'src/interface/style.less',
-                    'dist/temp/modules/farm/interface/style.css': 'src/modules/farm/interface/style.less',
-                    'dist/temp/modules/queue/interface/style.css': 'src/modules/queue/interface/style.less'
-                }
+                files: css
             }
         },
         htmlmin: {
@@ -61,51 +130,14 @@ module.exports = function (grunt) {
                     collapseWhitespace: true,
                     ignoreCustomFragments: [/\{\{[\s\S]*?\}\}/, /\<\#[\s\S]*?\#\>/]
                 },
-                files: {
-                    'dist/temp/interface/button.html': 'src/interface/button.html',
-                    'dist/temp/modules/farm/interface/window.html': 'src/modules/farm/interface/window.html',
-                    'dist/temp/modules/farm/interface/event.html': 'src/modules/farm/interface/event.html',
-                    'dist/temp/modules/queue/interface/window.html': 'src/modules/queue/interface/window.html',
-                    'dist/temp/modules/queue/interface/command.html': 'src/modules/queue/interface/command.html'
-                }
+                files: html
             }
         },
         replace: {
             all: {
                 options: {
                     prefix: '___',
-                    patterns: [{
-                        json: {
-                            title: '<%= pkg.title %>',
-                            farmVersion: '<%= pkg.farmVersion %>',
-                            queueVersion: '<%= pkg.queueVersion %>',
-                            license: '<%= pkg.license %>',
-                            author: '<%= pkg.author %>',
-                            authorName: '<%= pkg.author.name %>',
-                            authorEmail: '<%= pkg.author.email %>',
-                            authorUrl: '<%= pkg.author.url %>',
-                            date: '<%= new Date() %>',
-                            build: '<%= pkg.build %>',
-                            farmAnalytics: '<%= pkg.farmAnalytics %>',
-                            queueAnalytics: '<%= pkg.queueAnalytics %>',
-
-                            // script replaces
-                            htmlFarmWindow: '<%= grunt.file.read("dist/temp/modules/farm/interface/window.html") %>',
-                            htmlFarmEvent: '<%= grunt.file.read("dist/temp/modules/farm/interface/event.html") %>',
-                            htmlQueueWindow: '<%= grunt.file.read("dist/temp/modules/queue/interface/window.html") %>',
-                            htmlQueueCommand: '<%= grunt.file.read("dist/temp/modules/queue/interface/command.html") %>',
-                            htmlButton: '<%= grunt.file.read("dist/temp/interface/button.html") %>',
-
-                            cssWindow: '<%= grunt.file.read("dist/temp/interface/style.css") %>',
-                            cssFarm: '<%= grunt.file.read("dist/temp/modules/farm/interface/style.css") %>',
-                            cssQueue: '<%= grunt.file.read("dist/temp/modules/queue/interface/style.css") %>',
-
-                            css: '<%= grunt.file.read("dist/temp/interface/style.css") %>',
-                            
-                            langFarm: '<%= grunt.file.read("dist/temp/modules/farm/locales.json") %>',
-                            langQueue: '<%= grunt.file.read("dist/temp/modules/queue/locales.json") %>'
-                        }
-                    }]
+                    patterns: replaces
                 },
                 files: [{
                     expand: true,
@@ -131,10 +163,7 @@ module.exports = function (grunt) {
         },
         minjson: {
             build: {
-                files: {
-                    'dist/temp/modules/farm/locales.json': 'src/modules/farm/locales.json',
-                    'dist/temp/modules/queue/locales.json': 'src/modules/queue/locales.json'
-                }
+                files: locales
             }
         },
         clean: {
