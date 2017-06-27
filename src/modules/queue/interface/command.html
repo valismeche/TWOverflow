@@ -8,37 +8,37 @@
     <tbody>
         <tr>
             <th colspan="2">
-                {{ this.locale("command.out") }}: {{ this.sendTime }} | {{ this.locale("command.arrive") }}: {{ this.arrive }}
+                <#= locale("command.out") #>: <#= sendTime #> | <#= locale("command.arrive") #>: <#= arrive #>
 
-                {{ if (this.section === "queue") { }}
+                <# if (section === "queue") { #>
                     <a href="#" class="remove-command size-20x20 btn-red icon-20x20-close"></a>
-                {{ } }}
+                <# } #>
             </th>
         </tr>
         <tr>
-            <td>{{ this.locale("command.village") }}</td>
+            <td><#= locale("command.village") #></td>
             <td>
-                {{ this.origin }}
-                <span class="icon-bg-red icon-26x26-{{ this.typeClass }} command-type"></span>
-                {{ this.target }}
+                <#- origin #>
+                <span class="icon-bg-red icon-26x26-<#= typeClass #> command-type"></span>
+                <#- target #>
             </td>
         </tr>
         <tr>
-            <td>{{ this.locale("general.units") }}</td>
+            <td><#= locale("general.units") #></td>
             <td class="units">
-                {{ for (var unit in this.units) { }}
+                <# for (var unit in units) { #>
                     <div class="unit">
-                        <span class="icon-34x34-unit-{{ unit }} icon"></span><span class="amount">{{ this.units[unit] }}</span>
+                        <span class="icon-34x34-unit-<#= unit #> icon"></span><span class="amount"><#= units[unit] #></span>
                     </div>
-                {{ } }}
+                <# } #>
 
-                {{ if (this.hasOfficers) { }}
-                    {{ for (var officer in this.officers) { }}
+                <# if (hasOfficers) { #>
+                    <# for (var officer in officers) { #>
                         <div class="officer">
-                            <span class="icon-34x34-premium_officer_{{ officer }}"></span>
+                            <span class="icon-34x34-premium_officer_<#= officer #>"></span>
                         </div>
-                    {{ } }}
-                {{ } }}
+                    <# } #>
+                <# } #>
             </td>
         </tr>
     </tbody>

@@ -1,6 +1,12 @@
 define('FarmOverflow/Interface', [
-    'queues/EventQueue'
-], function ($eventQueue) {
+    'queues/EventQueue',
+    'ejs'
+], function (
+    $eventQueue,
+    ejs
+) {
+    ejs.delimiter = '#'
+    
     var interfaceInstances = []
 
     function closeAllInstances () {
@@ -63,10 +69,7 @@ define('FarmOverflow/Interface', [
         this.$window.id = this.windowId
         this.$window.className = 'farmOverflow-window twx-window screen left'
 
-        this.$window.innerHTML = TemplateEngine(
-            this.settings.template,
-            this.settings.replaces
-        )
+        this.$window.innerHTML = ejs.render(this.settings.template, this.settings.replaces)
         this.$wrapper.append(this.$window)
 
         this.$scrollbar = jsScrollbar(this.$window.querySelector('.win-main'))

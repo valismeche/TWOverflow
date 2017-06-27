@@ -6,11 +6,13 @@ module.exports = function (grunt) {
                 src: [
                     'src/libs/lockr.js',
                     'src/libs/i18n.js',
+                    'src/libs/ejs.js',
                     'src/header.js',
                     'src/utils.js',
                     'src/locale.js',
                     'src/interface/interface.js',
                     'src/interface/button.js',
+                    'src/interface/button-link.js',
                     'src/modules/farm/farm.js',
                     'src/modules/farm/commander.js',
                     'src/modules/farm/village.js',
@@ -49,7 +51,7 @@ module.exports = function (grunt) {
                 options: {
                     removeComments: true,
                     collapseWhitespace: true,
-                    ignoreCustomFragments: [/\{\{[\s\S]*?\}\}/]
+                    ignoreCustomFragments: [/\{\{[\s\S]*?\}\}/, /\<\#[\s\S]*?\#\>/]
                 },
                 files: {
                     'dist/temp/interface/button.html': 'src/interface/button.html',

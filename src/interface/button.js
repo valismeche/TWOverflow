@@ -1,4 +1,6 @@
-define('FarmOverflow/FrontButton', function () {
+define('FarmOverflow/FrontButton', [
+    'ejs'
+], function (ejs) {
     function FrontButton (options) {
         var self = this
 
@@ -63,7 +65,7 @@ define('FarmOverflow/FrontButton', function () {
     }
 
     FrontButton.prototype.appendButton = function () {
-        var html = TemplateEngine('___htmlButton', {
+        var html = ejs.render('___htmlButton', {
             className: this.options.className,
             label: this.options.label
         })

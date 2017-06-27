@@ -2,14 +2,18 @@ define('FarmOverflow/QueueInterface', [
     'FarmOverflow/Queue',
     'FarmOverflow/Queue/locale',
     'FarmOverflow/Interface',
+    'FarmOverflow/Interface/ButtonLink',
     'FarmOverflow/FrontButton',
-    'helper/time'
+    'helper/time',
+    'ejs'
 ], function (
     Queue,
     QueueLocale,
     Interface,
+    ButtonLink,
     FrontButton,
-    $timeHelper
+    $timeHelper,
+    ejs
 ) {
     var readableDateFilter = $filter('readableDateFilter')
     var unitNames = $model.getGameData().getOrderedUnitNames()
@@ -278,17 +282,17 @@ define('FarmOverflow/QueueInterface', [
         $command.className = 'command'
 
         var originLabel = command.origin.name + ' (' + command.origin.coords + ')'
-        var origin = createButtonLink('village', originLabel, command.origin.id)
+        var origin = ButtonLink('village', originLabel, command.origin.id)
 
         var targetLabel = command.target.name + ' (' + command.target.coords + ')'
-        var target = createButtonLink('village', targetLabel, command.target.id)
+        var target = ButtonLink('village', targetLabel, command.target.id)
 
         var typeClass = command.type === 'attack' ? 'attack-small' : 'support'
         var arrive = readableDateFilter(command.sendTime + command.travelTime)
         var sendTime = readableDateFilter(command.sendTime)
         var hasOfficers = !!Object.keys(command.officers).length
 
-        $command.innerHTML = TemplateEngine('___htmlQueueCommand', {
+        $command.innerHTML = ejs.render('___htmlQueueCommand', {
             sendTime: sendTime,
             origin: origin.html,
             target: target.html,
@@ -298,7 +302,7 @@ define('FarmOverflow/QueueInterface', [
             hasOfficers: hasOfficers,
             officers: command.officers,
             section: section,
-            lang: QueueLocale
+            locale: QueueLocale
         })
 
         var $originButton = $command.querySelector('#' + origin.id)

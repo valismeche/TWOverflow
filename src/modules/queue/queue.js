@@ -149,7 +149,7 @@ define('FarmOverflow/Queue', [
                 if ($timeHelper.gameTime() > command.sendTime) {
                     Queue.expireCommand(command)
                 } else {
-                    pushCommand(command)
+                    pushWaitinCommand(command)
                 }
             }
         }

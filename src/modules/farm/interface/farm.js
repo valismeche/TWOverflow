@@ -2,16 +2,20 @@ define('FarmOverflow/FarmInterface', [
     'FarmOverflow/Farm',
     'FarmOverflow/Farm/locale',
     'FarmOverflow/Interface',
+    'FarmOverflow/Interface/ButtonLink',
     'FarmOverflow/FrontButton',
     'helper/time',
-    'Lockr'
+    'Lockr',
+    'ejs'
 ], function (
     Farm,
     FarmLocale,
     Interface,
+    ButtonLink,
     FrontButton,
     $timeHelper,
-    Lockr
+    Lockr,
+    ejs
 ) {
     var farmInterface
     var events
@@ -385,7 +389,7 @@ define('FarmOverflow/FarmInterface', [
 
         if (options.links) {
             for (var i = 0; i < options.links.length; i++) {
-                links.push(createButtonLink(
+                links.push(ButtonLink(
                     options.links[i].type,
                     options.links[i].name
                 ))
@@ -399,7 +403,7 @@ define('FarmOverflow/FarmInterface', [
 
         var $tr = document.createElement('tr')
 
-        $tr.innerHTML = TemplateEngine('___htmlFarmEvent', {
+        $tr.innerHTML = ejs.render('___htmlFarmEvent', {
             date: $filter('readableDateFilter')(options.timestamp || $timeHelper.gameTime()),
             icon: options.icon,
             text: options.text
@@ -435,7 +439,7 @@ define('FarmOverflow/FarmInterface', [
             return false
         }
 
-        var village = createButtonLink(
+        var village = ButtonLink(
             'village',
             selected.name + ' (' + selected.x + '|' + selected.y + ')',
             Farm.village.id

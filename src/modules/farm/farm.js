@@ -28,6 +28,23 @@ define('FarmOverflow/Farm', [
     Lockr
 ) {
     /**
+     * Remove todas propriedades que tiverem valor zero.
+     *
+     * @param {Object} units - Unidades do preset a serem filtradas.
+     */
+    function cleanPresetUnits (units) {
+        var pure = {}
+
+        for (var unit in units) {
+            if (units[unit] > 0) {
+                pure[unit] = units[unit]
+            }
+        }
+
+        return pure
+    }
+    
+    /**
      * Tempo de validade dos índices dos alvos, é resetado quando o
      * FarmOverflow está pausado por mais de 30 minutos.
      *
