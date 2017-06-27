@@ -27,7 +27,6 @@
 
         "info.dev1": "Em desenvolvimento!",
         "info.dev2": "Esta ferramenta ainda está em desenvolvimento, portanto, pode não funcionar como esperado.",
-        "info.dev3": "Atenção! Todos comandos adicionados e registros serão apagados assim que a página for recarregada.",
         "info.active1": "Ativar/desativar",
         "info.active2": "Para que os comandos sejam enviados, o CommandQueue precisa estar em modo ativado! Todos os comandos que você adicionou serão expirados ao invés de serem enviados caso esteja desaativado.",
         "info.active3": "Para ativar/desativar apenar o botão Ativar/Desativar no rodapé dessa janela.",
