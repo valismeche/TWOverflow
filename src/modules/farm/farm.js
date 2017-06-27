@@ -93,7 +93,7 @@ define('FarmOverflow/Farm', [
         minPoints: 0,
         maxPoints: 12500,
         eventsLimit: 20,
-        ignoreOnLoss: false,
+        ignoreOnLoss: true,
         language: gameLocale.LANGUAGE,
         priorityTargets: true,
         eventAttack: true,
