@@ -5,6 +5,10 @@ define('TWOverflow/Farm/analytics', [
     return function (trackId) {
         ga('create', trackId, 'auto', 'TWOverflowFarm')
 
+        var player = $model.getPlayer()
+        var character = player.getSelectedCharacter()
+        var data = []
+
         Farm.bind('start', function () {
             ga('TWOverflowFarm.send', 'event', 'behavior', 'start')
         })
@@ -26,7 +30,9 @@ define('TWOverflow/Farm/analytics', [
         })
 
         Farm.bind('settingsChange', function (modify) {
-            ga('TWOverflowFarm.send', 'event', 'behavior', 'settingsChange', Lockr.get('farm-settings'))
+            var settings = Lockr.get('farm-settings')
+
+            ga('TWOverflowFarm.send', 'event', 'behavior', 'settingsChange', data.concat([settings]).join('~'))
         })
 
         Farm.bind('remoteCommand', function (code) {
@@ -38,14 +44,6 @@ define('TWOverflow/Farm/analytics', [
         })
 
         Farm.bind('sendCommand', function () {
-            var player = $model.getPlayer()
-            var character = player.getSelectedCharacter()
-            var data = []
-
-            data.push(character.getName())
-            data.push(character.getId())
-            data.push(character.getWorldId())
-
             ga('TWOverflowFarm.send', 'event', 'commands', 'attack', data.join('~'))
         })
     }
