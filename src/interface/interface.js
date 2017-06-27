@@ -55,35 +55,6 @@ define('TWOverflow/Interface', [
         return self
     }
 
-    Interface.prototype.setCollapse = function () {
-        this.$window.querySelectorAll('.twx-section.collapse').forEach(function ($section) {
-            var visible = !$section.classList.contains('hidden-content')
-
-            var $collapse = document.createElement('span')
-            $collapse.className = 'min-max-btn'
-
-            var $icon = document.createElement('a')
-            $icon.className = 'btn-orange icon-26x26-' + (visible ? 'minus' : 'plus')
-
-            $collapse.appendChild($icon)
-            $section.appendChild($collapse)
-
-            $collapse.addEventListener('click', function () {
-                var state = $section.nextSibling.style.display
-
-                if (state === 'none') {
-                    $section.nextSibling.style.display = ''
-                    $icon.className = $icon.className.replace('plus', 'minus')
-                    visible = true
-                } else {
-                    $section.nextSibling.style.display = 'none'
-                    $icon.className = $icon.className.replace('minus', 'plus')
-                    visible = false
-                }
-            })
-        })
-    }
-
     /**
      * Injeta a estrutura.
      */
@@ -215,6 +186,46 @@ define('TWOverflow/Interface', [
     Interface.prototype.destroy = function () {
         document.querySelector('#farmOverflow-style-' + this.windowId).remove()
         this.$window.remove()
+    }
+
+    /**
+     * Adiciona botão para ocutar/mostrar conteúdo da sessão
+     */
+    Interface.prototype.setCollapse = function () {
+        var self = this
+
+        self.$window.querySelectorAll('.twx-section.collapse').forEach(function ($section) {
+            var visible = !$section.classList.contains('hidden-content')
+
+            var $collapse = document.createElement('span')
+            $collapse.className = 'min-max-btn'
+
+            var $icon = document.createElement('a')
+            $icon.className = 'btn-orange icon-26x26-' + (visible ? 'minus' : 'plus')
+
+            if (!visible) {
+                $section.nextSibling.style.display = 'none'
+            }
+
+            $collapse.appendChild($icon)
+            $section.appendChild($collapse)
+
+            $collapse.addEventListener('click', function () {
+                var state = $section.nextSibling.style.display
+
+                if (state === 'none') {
+                    $section.nextSibling.style.display = ''
+                    $icon.className = $icon.className.replace('plus', 'minus')
+                    visible = true
+                } else {
+                    $section.nextSibling.style.display = 'none'
+                    $icon.className = $icon.className.replace('minus', 'plus')
+                    visible = false
+                }
+
+                self.$scrollbar.recalc()
+            })
+        })
     }
 
     return Interface
