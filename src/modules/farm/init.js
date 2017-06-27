@@ -1,7 +1,7 @@
 require([
     'FarmOverflow/ready',
     'FarmOverflow/Farm',
-    'FarmOverflow/FarmInterface',
+    'FarmOverflow/Farm/interface',
     'FarmOverflow/Farm/analytics'
 ], function (
     ready,

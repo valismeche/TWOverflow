@@ -1,4 +1,4 @@
-define('FarmOverflow/FarmInterface', [
+define('FarmOverflow/Farm/interface', [
     'FarmOverflow/Farm',
     'FarmOverflow/Farm/locale',
     'FarmOverflow/Interface',

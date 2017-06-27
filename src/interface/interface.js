@@ -5,8 +5,6 @@ define('FarmOverflow/Interface', [
     $eventQueue,
     ejs
 ) {
-    ejs.delimiter = '#'
-    
     var interfaceInstances = []
 
     function closeAllInstances () {
@@ -14,9 +12,6 @@ define('FarmOverflow/Interface', [
             ui.closeWindow()
         })
     }
-
-    $hotkeys.add('esc', closeAllInstances, ['INPUT', 'SELECT', 'TEXTAREA'])
-
     /**
      * Injeta o CSS geral de toda UI do FarmOverflow.
      */
