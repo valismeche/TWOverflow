@@ -13,6 +13,7 @@ define('FarmOverflow/FarmInterface', [
     var farmInterface
     var events
     var visibleEventCount
+    var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
 
     function FarmInterface (farmOverflowScope) {
         farmOverflow = farmOverflowScope
@@ -141,11 +142,11 @@ define('FarmOverflow/FarmInterface', [
             if (type === 'checkbox') {
                 if (farmOverflow.settings[name]) {
                     $input[0].checked = true
-                    $input.parent().addClass(inputCheckedClass)
+                    $input.parent().addClass('icon-26x26-checkbox-checked')
                 }
 
                 $input.on('click', function () {
-                    $input.parent().toggleClass(inputCheckedClass)
+                    $input.parent().toggleClass('icon-26x26-checkbox-checked')
                 })
 
                 return

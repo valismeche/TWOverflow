@@ -209,7 +209,7 @@ define('FarmOverflow/QueueInterface', [
         })
 
         queueInterface.$officers.on('click', function () {
-            $(this).parent().toggleClass(inputCheckedClass)
+            $(this).parent().toggleClass('icon-26x26-checkbox-checked')
         })
 
         queueInterface.$switch.on('click', function (event) {

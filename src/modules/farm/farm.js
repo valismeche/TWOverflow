@@ -48,6 +48,14 @@ define('FarmOverflow/Farm', [
     var REMOTE_SWITCH_RESPONSE = '[color=0a8028]OK[/color]'
 
     /**
+     * Limpa qualquer text entre (, [, {, " & ' do nome dos presets
+     * para serem idetificados com o mesmo nome.
+     *
+     * @type {RegEx}
+     */
+    var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
+
+    /**
      * @class
      */
     function FarmOverflow () {

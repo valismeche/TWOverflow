@@ -24,9 +24,3 @@ var $armyService = injector.get('armyService')
 var $villageService = injector.get('villageService')
 var $autoCompleteService = injector.get('autoCompleteService')
 var $presetList = $model.getPresetList()
-
-// Limpa qualquer text entre (, [, {, " & ' do nome dos presets
-// para serem idetificados com o mesmo nome.
-var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
-
-var inputCheckedClass = 'icon-26x26-checkbox-checked'
