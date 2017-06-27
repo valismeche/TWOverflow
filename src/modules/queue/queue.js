@@ -196,6 +196,8 @@ define('FarmOverflow/Queue', [
     }
 
     Queue.init = function () {
+        Queue.initialized = true
+        
         loadStoredCommands()
 
         sendedCommands = Lockr.get(worldPrefix('queue-sended'), [], true)

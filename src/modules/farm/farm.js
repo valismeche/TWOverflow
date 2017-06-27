@@ -286,6 +286,13 @@ define('FarmOverflow/Farm', [
 
     FarmOverflow.init = function () {
         /**
+         * Previne do Farm ser executado mais de uma vez.
+         * 
+         * @type {Boolean}
+         */
+        FarmOverflow.initialized = true
+
+        /**
          * Configurações salvas localmente
          * 
          * @type {Object}

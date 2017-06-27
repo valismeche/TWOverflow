@@ -10,21 +10,27 @@ module.exports = function (grunt) {
                     'src/header.js',
                     'src/utils.js',
                     'src/locale.js',
+                    'src/configs.js',
+                    'src/ready.js',
                     'src/interface/interface.js',
                     'src/interface/button.js',
                     'src/interface/button-link.js',
+
                     'src/modules/farm/farm.js',
                     'src/modules/farm/commander.js',
                     'src/modules/farm/village.js',
                     'src/modules/farm/analytics.js',
                     'src/modules/farm/locale.js',
                     'src/modules/farm/interface/farm.js',
+                    'src/modules/farm/init.js',
+
                     'src/modules/queue/queue.js',
                     'src/modules/queue/analytics.js',
                     'src/modules/queue/locale.js',
                     'src/modules/queue/interface/queue.js',
-                    'src/footer.js',
-                    'src/initialize.js'
+                    'src/modules/queue/init.js',
+
+                    'src/footer.js'
                 ],
                 dest: 'dist/temp/<%= pkg.name %>.js'
             }
