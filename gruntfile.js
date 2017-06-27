@@ -144,6 +144,7 @@ module.exports = function (grunt) {
         'htmlmin',
         'minjson',
         'replace',
-        'uglify'
+        'uglify',
+        'clean'
     ])
 }
