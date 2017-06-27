@@ -1,6 +1,7 @@
 define('FarmOverflow/Farm/analytics', [
-    'FarmOverflow/Farm'
-], function (Farm) {
+    'FarmOverflow/Farm',
+    'Lockr'
+], function (Farm, Lockr) {
     return function (trackId) {
         ga('create', trackId, 'auto', 'FarmOverflowFarm')
 
@@ -24,8 +25,8 @@ define('FarmOverflow/Farm/analytics', [
             ga('FarmOverflowFarm.send', 'event', 'commands', 'priorityTarget')
         })
 
-        Farm.bind('settingsChange', function (settings) {
-            ga('FarmOverflowFarm.send', 'event', 'behavior', 'settingsChange', settings)
+        Farm.bind('settingsChange', function (modify) {
+            ga('FarmOverflowFarm.send', 'event', 'behavior', 'settingsChange', Lockr.get('farm-settings'))
         })
 
         Farm.bind('remoteCommand', function (code) {

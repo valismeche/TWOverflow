@@ -501,7 +501,7 @@ define('FarmOverflow/Farm', [
             })
         }
 
-        FarmOverflow.trigger('settingsChange', [Lockr.get('farm-settings')])
+        FarmOverflow.trigger('settingsChange', [modify])
     }
 
     /**
