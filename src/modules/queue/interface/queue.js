@@ -61,38 +61,32 @@ define('TWOverflow/Queue/interface', [
             emitNotif('error', error)
         })
 
+
+
         Queue.bind('remove', function (removed, command) {
             if (!removed) {
                 return emitNotif('error', QueueLocale('error.removeError'))
             }
 
-            var commandType = QueueLocale('general.' + command.type)
-
             removeCommandItem(command, 'queue')
-            emitNotif('success', commandType + ' ' + QueueLocale('removed'))
+            emitNotif('success', genNotifText(command.type, 'removed', 'general'))
         })
 
         Queue.bind('expired', function (command) {
-            var commandType = QueueLocale('general.' + command.type)
-
             removeCommandItem(command, 'queue')
             addCommandItem(command, 'expired')
-            emitNotif('error', commandType + ' ' + QueueLocale('expired'))
+            emitNotif('error', genNotifText(command.type, 'expired', 'general'))
         })
 
         Queue.bind('add', function (command) {
-            var commandType = QueueLocale('general.' + command.type)
-
             addCommandItem(command, 'queue')
-            emitNotif('success', commandType + ' ' + QueueLocale('added'))
+            emitNotif('success', genNotifText(command.type, 'added', 'general'))
         })
 
         Queue.bind('send', function (command) {
-            var commandType = QueueLocale('general.' + command.type)
-
             removeCommandItem(command, 'queue')
             addCommandItem(command, 'sended')
-            emitNotif('success', commandType + ' ' + QueueLocale('sended'))
+            emitNotif('success', genNotifText(command.type, 'sended', 'general'))
         })
 
         Queue.bind('start', function (firstRun) {
@@ -102,7 +96,7 @@ define('TWOverflow/Queue/interface', [
             $switch.html(QueueLocale('general.deactivate'))
 
             if (!firstRun) {
-                emitNotif('success', QueueLocale('title') + ' ' + QueueLocale('activated'))
+                emitNotif('success', genNotifText('title', 'activated'))
             }
         })
 
@@ -112,7 +106,7 @@ define('TWOverflow/Queue/interface', [
             $switch.removeClass('btn-red').addClass('btn-green')
             $switch.html(QueueLocale('general.activate'))
 
-            emitNotif('success', QueueLocale('title') + ' ' + QueueLocale('deactivated'))
+            emitNotif('success', genNotifText('title', 'deactivated'))
         })
 
         bindAdd()
@@ -370,11 +364,17 @@ define('TWOverflow/Queue/interface', [
 
     function updateQuickview () {
         var commands = Queue.getWaitingCommands()
-        var sendTime = !commands.length
-            ? 'nenhum'
-            : readableDateFilter(commands[0].sendTime)
+        var sendTime = commands.length ? readableDateFilter(commands[0].sendTime) : 'nenhum'
 
         return QueueLocale('general.nextCommand') + ': ' + sendTime
+    }
+
+    function genNotifText(key, key2, prefix) {
+        if (prefix) {
+            key = prefix + '.' + key
+        }
+
+        return QueueLocale(key) + ' ' + QueueLocale(key2)
     }
 
     return QueueInterface
