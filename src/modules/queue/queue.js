@@ -15,9 +15,6 @@ define('TWOverflow/Queue', [
     $math,
     Lockr
 ) {
-    var readableMillisecondsFilter = $filter('readableMillisecondsFilter')
-    var readableDateFilter = $filter('readableDateFilter')
-
     var eventListeners = {}
     var waitingCommands = []
     var sendedCommands = []

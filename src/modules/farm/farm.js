@@ -1323,7 +1323,7 @@ define('TWOverflow/Farm', [
             case 'status':
                 var village = FarmOverflow.village
                 var villageLabel = village.name + ' (' + village.x + '|' + village.y + ')'
-                var lastAttack = $filter('readableDateFilter')(FarmOverflow.lastAttack)
+                var lastAttack = readableDateFilter(FarmOverflow.lastAttack)
 
                 var bbcodeMessage = [
                     '[b]' + FarmLocale('events.status') + ':[/b] ' + FarmLocale('events.' + FarmOverflow.status) + '[br]',

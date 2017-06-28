@@ -17,8 +17,8 @@ define('TWOverflow/Farm/interface', [
     Lockr,
     ejs
 ) {
-    var farmInterface
-    var farmButton
+    var ui
+    var opener
     var events
     var visibleEventCount
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
@@ -29,7 +29,7 @@ define('TWOverflow/Farm/interface', [
     var $disabled = '<option>' + FarmLocale('general.disabled') + '</option>'
 
     function FarmInterface () {
-        farmInterface = new Interface('farmOverflow-farm', {
+        ui = new Interface('farmOverflow-farm', {
             activeTab: 'info',
             css: '___cssFarm',
             template: '___htmlFarmWindow',
@@ -40,14 +40,14 @@ define('TWOverflow/Farm/interface', [
             }
         })
 
-        farmButton = new FrontButton({
+        opener = new FrontButton({
             label: 'Farm',
             classHover: 'expand-button',
             classBlur: 'contract-button',
             hoverText: updateQuickview
         })
 
-        $window = $(farmInterface.$window)
+        $window = $(ui.$window)
         $events = $window.find('.events')
         $last = $window.find('.last')
 
@@ -77,8 +77,8 @@ define('TWOverflow/Farm/interface', [
             updatePresetList()
         })
 
-        farmButton.click(function () {
-            farmInterface.openWindow()
+        opener.click(function () {
+            ui.openWindow()
         })
 
         $hotkeys.add(Farm.settings.hotkeySwitch, function () {
@@ -86,7 +86,7 @@ define('TWOverflow/Farm/interface', [
         })
 
         $hotkeys.add(Farm.settings.hotkeyWindow, function () {
-            farmInterface.openWindow()
+            ui.openWindow()
         })
 
         var $start = $window.find('.start')
@@ -98,13 +98,13 @@ define('TWOverflow/Farm/interface', [
         Farm.bind('start', function () {
             $start.html(FarmLocale('general.pause'))
             $start.removeClass('btn-green').addClass('btn-red')
-            farmButton.$elem.removeClass('btn-green').addClass('btn-red')
+            opener.$elem.removeClass('btn-green').addClass('btn-red')
         })
 
         Farm.bind('pause', function () {
             $start.html(FarmLocale('general.start'))
             $start.removeClass('btn-red').addClass('btn-green')
-            farmButton.$elem.removeClass('btn-red').addClass('btn-green')
+            opener.$elem.removeClass('btn-red').addClass('btn-green')
         })
     }
 
@@ -209,13 +209,10 @@ define('TWOverflow/Farm/interface', [
                     return false
                 }
 
-                var labelFrom = from.name + ' (' + from.x + '|' + from.y + ')'
-                var labelTo = to.name + ' (' + to.x + '|' + to.y + ')'
-
                 addEvent({
                     links: {
-                        origin: { type: 'village', name: labelFrom, id: from.id },
-                        target: { type: 'village', name: labelTo, id: to.id }
+                        origin: { type: 'village', name: villageLabel(from), id: from.id },
+                        target: { type: 'village', name: villageLabel(to), id: to.id }
                     },
                     icon: 'attack-small',
                     type: 'sendCommand'
@@ -228,11 +225,9 @@ define('TWOverflow/Farm/interface', [
                     return false
                 }
 
-                var label = next.name + ' (' + next.x + '|' + next.y + ')'
-
                 addEvent({
                     links: {
-                        village: { type: 'village', name: label, id: next.id }
+                        village: { type: 'village', name: villageLabel(next), id: next.id }
                     },
                     icon: 'village',
                     type: 'nextVillage'
@@ -243,11 +238,9 @@ define('TWOverflow/Farm/interface', [
                     return false
                 }
 
-                var label = target.name + ' (' + target.x + '|' + target.y + ')'
-
                 addEvent({
                     links: {
-                        target: { type: 'village', name: label, id: target.id }
+                        target: { type: 'village', name: villageLabel(target), id: target.id }
                     },
                     icon: 'check-negative',
                     type: 'ignoredVillage'
@@ -258,11 +251,9 @@ define('TWOverflow/Farm/interface', [
                     return false
                 }
                 
-                var label = target.name + ' (' + target.x + '|' + target.y + ')'
-
                 addEvent({
                     links: {
-                        target: { type: 'village', name: label, id: target.id }
+                        target: { type: 'village', name: villageLabel(target), id: target.id }
                     },
                     icon: 'parallel-recruiting',
                     type: 'priorityTargetAdded'
@@ -335,7 +326,7 @@ define('TWOverflow/Farm/interface', [
             }
         }
 
-        var readable = $filter('readableDateFilter')(lastAttack)
+        var readable = readableDateFilter(lastAttack)
         var langLast = FarmLocale('events.lastAttack')
 
         $last.html(readable)
@@ -401,7 +392,7 @@ define('TWOverflow/Farm/interface', [
         var $tr = document.createElement('tr')
 
         $tr.innerHTML = ejs.render('___htmlFarmEvent', {
-            date: $filter('readableDateFilter')(options.timestamp || $timeHelper.gameTime()),
+            date: readableDateFilter(options.timestamp || $timeHelper.gameTime()),
             icon: options.icon,
             text: options.text
         })
@@ -421,7 +412,7 @@ define('TWOverflow/Farm/interface', [
         }
 
         $where[_populate ? 'append' : 'prepend']($tr)
-        farmInterface.$scrollbar.recalc()
+        ui.$scrollbar.recalc()
     }
 
     /**
@@ -545,6 +536,10 @@ define('TWOverflow/Farm/interface', [
         var last = FarmLocale('events.lastAttack')
         
         return last + ': ' + $last.html()
+    }
+
+    function villageLabel (village) {
+        return village.name + ' (' + village.x + '|' + village.y + ')'
     }
 
     return FarmInterface

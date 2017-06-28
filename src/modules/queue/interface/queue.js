@@ -15,12 +15,11 @@ define('TWOverflow/Queue/interface', [
     $timeHelper,
     ejs
 ) {
-    var queueInterface
-    var queueButton
+    var ui
+    var opener
     var $window
     var $switch
     var $commandSections
-    var readableDateFilter = $filter('readableDateFilter')
     var unitNames = $model.getGameData().getOrderedUnitNames()
     var officerNames = $model.getGameData().getOrderedOfficerNames()
     var inputsMap = ['origin', 'target', 'arrive']
@@ -32,7 +31,7 @@ define('TWOverflow/Queue/interface', [
             return unit !== 'catapult'
         })
 
-        queueInterface = new Interface('farmOverflow-queue', {
+        ui = new Interface('farmOverflow-queue', {
             activeTab: 'info',
             css: '___cssQueue',
             template: '___htmlQueueWindow',
@@ -45,14 +44,14 @@ define('TWOverflow/Queue/interface', [
             }
         })
 
-        queueButton = new FrontButton({
+        opener = new FrontButton({
             label: 'Queue',
             classHover: 'expand-button',
             classBlur: 'contract-button',
             hoverText: updateQuickview
         })
 
-        $window = $(queueInterface.$window)
+        $window = $(ui.$window)
         $switch = $window.find('a.switch')
         $commandSections = {
             queue: $window.find('div.queue'),
@@ -60,8 +59,8 @@ define('TWOverflow/Queue/interface', [
             expired: $window.find('div.expired')
         }
 
-        queueButton.click(function () {
-            queueInterface.openWindow()
+        opener.click(function () {
+            ui.openWindow()
         })
 
         Queue.bind('error', function (error) {
@@ -103,7 +102,7 @@ define('TWOverflow/Queue/interface', [
         })
 
         Queue.bind('start', function (firstRun) {
-            queueButton.$elem.removeClass('btn-green').addClass('btn-red')
+            opener.$elem.removeClass('btn-green').addClass('btn-red')
 
             $switch.removeClass('btn-green').addClass('btn-red')
             $switch.html(QueueLocale('general.deactivate'))
@@ -114,7 +113,7 @@ define('TWOverflow/Queue/interface', [
         })
 
         Queue.bind('stop', function () {
-            queueButton.$elem.removeClass('btn-red').addClass('btn-green')
+            opener.$elem.removeClass('btn-red').addClass('btn-green')
             
             $switch.removeClass('btn-red').addClass('btn-green')
             $switch.html(QueueLocale('general.activate'))
@@ -331,7 +330,7 @@ define('TWOverflow/Queue/interface', [
         }
 
         toggleEmptyMessage(section)
-        queueInterface.$scrollbar.recalc()
+        ui.$scrollbar.recalc()
     }
 
     function showStoredCommands () {
@@ -381,7 +380,7 @@ define('TWOverflow/Queue/interface', [
         var commands = Queue.getWaitingCommands()
         var sendTime = !commands.length
             ? 'nenhum'
-            : $filter('readableDateFilter')(commands[0].sendTime)
+            : readableDateFilter(commands[0].sendTime)
 
         return QueueLocale('general.nextCommand') + ': ' + sendTime
     }
