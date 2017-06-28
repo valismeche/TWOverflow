@@ -4,20 +4,15 @@ define('TWOverflow/FrontButton', [
     function FrontButton (label, options) {
         var self = this
 
-        self.options = angular.merge({}, {
+        self.options = angular.merge({
             label: label,
             className: '',
             classHover: 'expand-button',
-            classBlur: 'contract-button',
-            hoverText: ''
+            classBlur: 'contract-button'
         }, options)
 
         self.buildWrapper()
         self.appendButton()
-
-        if (options.click) {
-            self.click(options.click)
-        }
 
         var $label = self.$elem.find('.label')
         var $quick = self.$elem.find('.quickview')
@@ -27,9 +22,6 @@ define('TWOverflow/FrontButton', [
                 self.$elem.addClass(self.options.classHover)
                 self.$elem.removeClass(self.options.classBlur)
 
-                var text = self.options.hoverText
-
-                $quick.html(typeof text === 'function' ? text() : text)
                 $label.hide()
                 $quick.show()
             })
@@ -48,8 +40,16 @@ define('TWOverflow/FrontButton', [
         return self
     }
 
-    FrontButton.prototype.updateHoverText = function (text) {
+    FrontButton.prototype.updateQuickview = function (text) {
         this.$elem.find('.quickview').html(text)
+    }
+
+    FrontButton.prototype.hover = function (handler) {
+        this.$elem.on('mouseenter', handler)
+    }
+
+    FrontButton.prototype.click = function (handler) {
+        this.$elem.on('click', handler)
     }
 
     FrontButton.prototype.buildWrapper = function () {
@@ -76,10 +76,6 @@ define('TWOverflow/FrontButton', [
 
         this.$wrapper.appendChild($elem)
         this.$elem = $($elem)
-    }
-
-    FrontButton.prototype.click = function (handler) {
-        this.$elem.click(handler)
     }
 
     FrontButton.prototype.destroy = function () {

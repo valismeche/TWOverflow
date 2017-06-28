@@ -40,8 +40,12 @@ define('TWOverflow/Farm/interface', [
             }
         })
 
-        opener = new FrontButton('Farm', {
-            hoverText: updateQuickview
+        opener = new FrontButton('Farm')
+
+        opener.hover(function () {
+            var text = FarmLocale('events.lastAttack') + ': ' + $last.html()
+
+            opener.updateQuickview(text)
         })
 
         $window = $(ui.$window)
@@ -154,7 +158,6 @@ define('TWOverflow/Farm/interface', [
             $input.val(Farm.settings[name])
         })
 
-        // Quarda os valores quando salvos
         var $settings = $window.find('.settings')
 
         $settings.on('submit', function (event) {
@@ -515,10 +518,6 @@ define('TWOverflow/Farm/interface', [
 
             $preset.append(genSelect(cleanName, cleanName, selected))
         }
-    }
-
-    function updateQuickview () {
-        return FarmLocale('events.lastAttack') + ': ' + $last.html()
     }
 
     function genSelect (value, label, selected) {

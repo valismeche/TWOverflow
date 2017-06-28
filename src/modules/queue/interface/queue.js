@@ -41,8 +41,16 @@ define('TWOverflow/Queue/interface', [
             }
         })
 
-        opener = new FrontButton('Queue', {
-            hoverText: updateQuickview
+        opener = new FrontButton('Queue')
+
+        opener.hover(function () {
+            var commands = Queue.getWaitingCommands()
+            var sendTime = commands.length
+                ? readableDateFilter(commands[0].sendTime)
+                : QueueLocale('general.none')
+            var text = QueueLocale('general.nextCommand') + ': ' + sendTime
+
+            opener.updateQuickview(text)
         })
 
         $window = $(ui.$window)
@@ -360,13 +368,6 @@ define('TWOverflow/Queue/interface', [
         }
 
         Queue.clearRegisters()
-    }
-
-    function updateQuickview () {
-        var commands = Queue.getWaitingCommands()
-        var sendTime = commands.length ? readableDateFilter(commands[0].sendTime) : 'nenhum'
-
-        return QueueLocale('general.nextCommand') + ': ' + sendTime
     }
 
     function genNotifText(key, key2, prefix) {
