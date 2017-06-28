@@ -44,10 +44,7 @@ define('TWOverflow/Queue/interface', [
             }
         })
 
-        opener = new FrontButton({
-            label: 'Queue',
-            classHover: 'expand-button',
-            classBlur: 'contract-button',
+        opener = new FrontButton('Queue', {
             hoverText: updateQuickview
         })
 

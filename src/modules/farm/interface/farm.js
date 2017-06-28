@@ -40,10 +40,7 @@ define('TWOverflow/Farm/interface', [
             }
         })
 
-        opener = new FrontButton({
-            label: 'Farm',
-            classHover: 'expand-button',
-            classBlur: 'contract-button',
+        opener = new FrontButton('Farm', {
             hoverText: updateQuickview
         })
 

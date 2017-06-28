@@ -1,14 +1,14 @@
 define('TWOverflow/FrontButton', [
     'ejs'
 ], function (ejs) {
-    function FrontButton (options) {
+    function FrontButton (label, options) {
         var self = this
 
         self.options = angular.merge({}, {
-            label: '',
+            label: label,
             className: '',
-            classHover: '',
-            classBlur: '',
+            classHover: 'expand-button',
+            classBlur: 'contract-button',
             hoverText: ''
         }, options)
 
