@@ -322,10 +322,7 @@ define('TWOverflow/Farm/interface', [
             }
         }
 
-        var readable = readableDateFilter(lastAttack)
-        var langLast = FarmLocale('events.lastAttack')
-
-        $last.html(readable)
+        $last.html(readableDateFilter(lastAttack))
         updateQuickview()
     }
 
