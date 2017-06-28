@@ -99,7 +99,16 @@
         "settings.remote": "Controle via mensagem (assunto)",
         "settings.hotkeySwitch": "Tecla de atalho para inicar/pausar (requer reinício)",
         "settings.hotkeyWindow": "Tecla de atalho para abrir janela (requer reinício)",
-        "settings.events.restartScript": "Reinicie o script pra ter efeito."
+        "settings.events.restartScript": "Reinicie o script pra ter efeito.",
+
+        "tooltip.presets": "Selecione a predefinição que será usada para enviar os ataques.",
+        "tooltip.groupIgnore": "Selecione um grupo para que todas aldeias atribuidas a esse grupo sejam ignoradas. Tanto suas aldeias quanto alvos.",
+        "tooltip.groupInclude": "Selecione um grupo para incluir alvos que não sejam apenas aldeias bárbaras.",
+        "tooltip.groupOnly": "Selecione um grupo para que apenas as aldeias desse grupo sejam usadas para enviar os ataques.",
+        "tooltip.randomBase": "Esse intervalo é usado para gerar um tempo aleatório entre cada ataque evitando o FarmOverflow de ser detectado.",
+        "tooltip.priorityTargets": "Quando ativada, todos os alvos que tiverem relatórios com saque no máximo, serão adicionados na lista de prioridades para reenviar o ataque assim que possível.",
+        "tooltip.ignoreOnLoss": "Qualquer ataque que tenha causado alguma perca nas suas tropas será ignorado em ataques futuros. (Só funciona quando um grupo de ignorados está selecionado)",
+        "tooltip.remote": "Configure o título da mensagem pela qual você deseja controlar o FarmOverflow remotamente (Veja a aba Informações para saber mais)."
     },
     "en_us": {
         "title": "FarmOverflow",
@@ -201,6 +210,17 @@
         "settings.remote": "Control via message (subject)",
         "settings.hotkeySwitch": "Hotkey to start/pause",
         "settings.hotkeyWindow": "Hotkey to open window",
-        "settings.events.restartScript": "Restart the script for effect."
+        "settings.events.restartScript": "Restart the script for effect.",
+
+        "tooltip.presets": "Select the preset that will be used to send the attacks.",
+        "tooltip.groupIgnore": "Selecione um grupo para que todas aldeias atribuidas a esse grupo sejam ignoradas. Tanto suas aldeias quanto alvos.",
+        "tooltip.groupIgnore": "Select a group to ignore all villages assigned to it. The group works on targets and your own villages as well.",
+        "tooltip.groupInclude": "Select a group to include villages that aren't barbarians only.",
+        "tooltip.groupOnly": "Selecione um grupo para que apenas as aldeias desse grupo sejam usadas para enviar os ataques.",
+        "tooltip.groupOnly": "Select a group to use only assigned villages to attack.",
+        "tooltip.randomBase": "That interval is a random period of time between each attack avoid the FarmOverflow to be detected.",
+        "tooltip.priorityTargets": "When activated, all targets that has full haul reports, will be added to the list of priorities, to resend the attack as soon as possible.",
+        "tooltip.ignoreOnLoss": "The target that cause any loss to your troops will be ignored in the future. (Only works if you have selected a ignore group)",
+        "tooltip.remote": "Set the subject os message that will be used to controll the FarmOverflow remotelly (See the tab Informations to know more)."
     }
 }

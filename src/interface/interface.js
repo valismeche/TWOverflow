@@ -41,6 +41,7 @@ define('TWOverflow/Interface', [
         self.buildWindow()
         self.bindTabs()
         self.setCollapse()
+        self.setTooltips()
 
         var $close = self.$window.querySelector('.farmOverflow-close')
 
@@ -224,6 +225,28 @@ define('TWOverflow/Interface', [
                 }
 
                 self.$scrollbar.recalc()
+            })
+        })
+    }
+
+    Interface.prototype.setTooltips = function () {
+        var self = this
+
+        var $nativeTooltip = $('#tooltip')
+        var $tooltipContent = $nativeTooltip.find('.tooltip-content-wrapper')
+
+        self.$window.querySelectorAll('[tooltip]').forEach(function ($elem) {
+            var text = $elem.getAttribute('tooltip')
+            $elem.removeAttribute('tooltip')
+
+            $elem.addEventListener('mouseenter', function (event) {
+                // $tooltipContent.html(text)
+
+                $root.$broadcast($eventType.TOOLTIP_SHOW, 'twoverflow-tooltip', text, true, event)
+            })
+
+            $elem.addEventListener('mouseleave', function () {
+                $root.$broadcast($eventType.TOOLTIP_HIDE, 'twoverflow-tooltip')
             })
         })
     }

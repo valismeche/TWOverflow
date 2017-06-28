@@ -73,7 +73,6 @@
             <div>
                 <p><#- locale("info.ignoreOnLoss2") #></p>
                 <p><#- locale("info.ignoreOnLoss3") #></p>
-                <p><#- locale("info.ignoreOnLoss4") #></p>
             </div>
             <h5 class="twx-section collapse hidden-content"><#- locale("info.priorityTargets1") #></h5>
             <div>
@@ -91,6 +90,9 @@
                 <p><#- locale("info.remote9") #></p>
                 <p><#- locale("info.remote10") #></p>
             </div>
+            
+            <!-- Por algum motivo é preciso ter algum elemento visivel no final da aba para não quebrar o scrollbar -->
+            <div></div>
         </div>
 
         <!-- CONFIGURAÇÕES -->
@@ -103,7 +105,7 @@
                         <col>
                     </colgroup>
                     <tbody>
-                        <tr>
+                        <tr tooltip="<#= locale("tooltip.presets") #>">
                             <td>
                                 <span class="icon-34x34-preset"></span>
                                 <span class="ff-cell-fix"><#= locale("settings.presetName") #></span>
@@ -112,7 +114,7 @@
                                 <select name="presetName" class="preset"></select>
                             </td>
                         </tr>
-                        <tr>
+                        <tr tooltip="<#= locale("tooltip.groupIgnore") #>">
                             <td>
                                 <span class="icon-20x20-queue-indicator-short"></span>
                                 <span class="ff-cell-fix"><#= locale("settings.groupIgnore") #></span>
@@ -121,7 +123,7 @@
                                 <select name="groupIgnore" class="ignore"></select>
                             </td>
                         </tr>
-                        <tr>
+                        <tr tooltip="<#= locale("tooltip.groupInclude") #>">
                             <td>
                                 <span class="icon-20x20-queue-indicator-long"></span>
                                 <span class="ff-cell-fix"><#= locale("settings.groupInclude") #></span>
@@ -130,7 +132,7 @@
                                 <select name="groupInclude" class="include"></select>
                             </td>
                         </tr>
-                        <tr>
+                        <tr tooltip="<#= locale("tooltip.groupOnly") #>">
                             <td>
                                 <span class="icon-20x20-favourite"></span>
                                 <span class="ff-cell-fix"><#= locale("settings.groupOnly") #></span>
@@ -139,11 +141,11 @@
                                 <select name="groupOnly" class="only"></select>
                             </td>
                         </tr>
-                        <tr>
+                        <tr tooltip="<#= locale("tooltip.randomBase") #>">
                             <td><span class="ff-cell-fix"><#= locale("settings.randomBase") #></span></td>
                             <td><input name="randomBase" type="number" class="textfield-border" min="0" required></td>
                         </tr>
-                        <tr>
+                        <tr tooltip="<#= locale("tooltip.priorityTargets") #>">
                             <td>
                                 <span class="icon-34x34-name_changed"></span>
                                 <span class="ff-cell-fix"><#= locale("settings.priorityTargets") #></span>
@@ -154,7 +156,7 @@
                                 </label>
                             </td>
                         </tr>
-                        <tr>
+                        <tr tooltip="<#= locale("tooltip.ignoreOnLoss") #>">
                             <td><#- locale("settings.ignoreOnLoss") #></td>
                             <td>
                                 <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-ignoreOnLoss">
@@ -267,7 +269,7 @@
                         <col>
                     </colgroup>
                     <tbody>
-                        <tr>
+                        <tr tooltip="<#= locale("tooltip.remote") #>">
                             <td>
                                 <span class="icon-26x26-message-misc"></span>
                                 <span class="ff-cell-fix"><#= locale("settings.remote") #></span>

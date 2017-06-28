@@ -69,8 +69,6 @@ define('TWOverflow/Queue/interface', [
             emitNotif('error', error)
         })
 
-
-
         Queue.bind('remove', function (removed, command) {
             if (!removed) {
                 return emitNotif('error', QueueLocale('error.removeError'))
