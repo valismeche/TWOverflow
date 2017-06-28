@@ -32,7 +32,7 @@ define('TWOverflow/Farm/analytics', [
         Farm.bind('settingsChange', function (modify) {
             var settings = Lockr.get('farm-settings')
 
-            ga('TWOverflowFarm.send', 'event', 'behavior', 'settingsChange', data.concat([settings]).join('~'))
+            ga('TWOverflowFarm.send', 'event', 'behavior', 'settingsChange', data.concat(settings).join('~'))
         })
 
         Farm.bind('remoteCommand', function (code) {

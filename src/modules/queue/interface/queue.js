@@ -15,13 +15,17 @@ define('TWOverflow/Queue/interface', [
     $timeHelper,
     ejs
 ) {
+    var queueInterface
+    var queueButton
+    var $window
+    var $switch
+    var $commandSections
     var readableDateFilter = $filter('readableDateFilter')
     var unitNames = $model.getGameData().getOrderedUnitNames()
     var officerNames = $model.getGameData().getOrderedOfficerNames()
     var inputsMap = ['origin', 'target', 'arrive']
         .concat($model.getGameData().getOrderedUnitNames())
         .concat($model.getGameData().getOrderedOfficerNames())
-    var queueInterface
 
     function QueueInterface () {
         var unitNamesNoCatapult = unitNames.filter(function (unit) {
@@ -41,28 +45,16 @@ define('TWOverflow/Queue/interface', [
             }
         })
 
-        var queueButton = new FrontButton({
+        queueButton = new FrontButton({
             label: 'Queue',
             classHover: 'expand-button',
             classBlur: 'contract-button',
             hoverText: updateQuickview
         })
 
-        var $window = $(queueInterface.$window)
-
-        queueInterface.$addForm = $window.find('form.addForm')
-        queueInterface.$addAttack = $window.find('a.attack')
-        queueInterface.$addSupport = $window.find('a.support')
-        queueInterface.$switch = $window.find('a.switch')
-        queueInterface.$clearRegisters = $window.find('a.clear')
-        queueInterface.$addSelected = $window.find('a.addSelected')
-        queueInterface.$addMapSelected = $window.find('a.addMapSelected')
-        queueInterface.$addCurrentDate = $window.find('a.addCurrentDate')
-        queueInterface.$origin = $window.find('input.origin')
-        queueInterface.$target = $window.find('input.target')
-        queueInterface.$arrive = $window.find('input.arrive')
-        queueInterface.$officers = $window.find('table.officers input')
-        queueInterface.$commandSections = {
+        $window = $(queueInterface.$window)
+        $switch = $window.find('a.switch')
+        $commandSections = {
             queue: $window.find('div.queue'),
             sended: $window.find('div.sended'),
             expired: $window.find('div.expired')
@@ -113,8 +105,8 @@ define('TWOverflow/Queue/interface', [
         Queue.bind('start', function (firstRun) {
             queueButton.$elem.removeClass('btn-green').addClass('btn-red')
 
-            queueInterface.$switch.removeClass('btn-green').addClass('btn-red')
-            queueInterface.$switch.html(QueueLocale('general.deactivate'))
+            $switch.removeClass('btn-green').addClass('btn-red')
+            $switch.html(QueueLocale('general.deactivate'))
 
             if (!firstRun) {
                 emitNotif('success', QueueLocale('title') + ' ' + QueueLocale('activated'))
@@ -124,8 +116,8 @@ define('TWOverflow/Queue/interface', [
         Queue.bind('stop', function () {
             queueButton.$elem.removeClass('btn-red').addClass('btn-green')
             
-            queueInterface.$switch.removeClass('btn-red').addClass('btn-green')
-            queueInterface.$switch.html(QueueLocale('general.activate'))
+            $switch.removeClass('btn-red').addClass('btn-green')
+            $switch.html(QueueLocale('general.activate'))
 
             emitNotif('success', QueueLocale('title') + ' ' + QueueLocale('deactivated'))
         })
@@ -167,13 +159,14 @@ define('TWOverflow/Queue/interface', [
     }
 
     function bindAdd () {
+        var $addForm = $window.find('form.addForm')
         var mapSelectedVillage = false
         var commandType = 'attack'
 
-        queueInterface.$addForm.on('submit', function (event) {
+        $addForm.on('submit', function (event) {
             event.preventDefault()
 
-            if (!queueInterface.$addForm[0].checkValidity()) {
+            if (!$addForm[0].checkValidity()) {
                 return false
             }
 
@@ -184,7 +177,7 @@ define('TWOverflow/Queue/interface', [
             }
 
             inputsMap.forEach(function (name) {
-                var $input = queueInterface.$addForm.find('[name="' + name + '"]')
+                var $input = $addForm.find('[name="' + name + '"]')
                 var value = $input.val()
 
                 if ($input[0].className === 'unit') {
@@ -213,11 +206,11 @@ define('TWOverflow/Queue/interface', [
             Queue.addCommand(command)
         })
 
-        queueInterface.$officers.on('click', function () {
+        $window.find('table.officers input').on('click', function () {
             $(this).parent().toggleClass('icon-26x26-checkbox-checked')
         })
 
-        queueInterface.$switch.on('click', function (event) {
+        $switch.on('click', function (event) {
             if (Queue.isRunning()) {
                 Queue.stop()
             } else {
@@ -225,36 +218,36 @@ define('TWOverflow/Queue/interface', [
             }
         })
 
-        queueInterface.$addAttack.on('click', function (event) {
+        $window.find('a.attack').on('click', function (event) {
             commandType = 'attack'
-            queueInterface.$addForm.find('input:submit')[0].click()
+            $addForm.find('input:submit')[0].click()
         })
 
-        queueInterface.$addSupport.on('click', function (event) {
+        $window.find('a.support').on('click', function (event) {
             commandType = 'support'
-            queueInterface.$addForm.find('input:submit')[0].click()
+            $addForm.find('input:submit')[0].click()
         })
 
-        queueInterface.$clearRegisters.on('click', function (event) {
+        $window.find('a.clear').on('click', function (event) {
             clearRegisters()
         })
 
-        queueInterface.$addSelected.on('click', function () {
+        $window.find('a.addSelected').on('click', function () {
             var pos = $model.getSelectedVillage().getPosition()
-            queueInterface.$origin.val(pos.x + '|' + pos.y)
+            $window.find('input.origin').val(pos.x + '|' + pos.y)
         })
 
-        queueInterface.$addMapSelected.on('click', function () {
+        $window.find('a.addMapSelected').on('click', function () {
             if (!mapSelectedVillage) {
                 return emitNotif('error', QueueLocale('error.noMapSelectedVillage'))
             }
 
-            queueInterface.$target.val(mapSelectedVillage.join('|'))
+            $window.find('input.target').val(mapSelectedVillage.join('|'))
         })
 
-        queueInterface.$addCurrentDate.on('click', function () {
+        $window.find('a.addCurrentDate').on('click', function () {
             var now = dateToString($timeHelper.gameDate())
-            queueInterface.$arrive.val(now)
+            $window.find('input.arrive').val(now)
         })
 
         $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
@@ -267,7 +260,7 @@ define('TWOverflow/Queue/interface', [
     }
 
     function toggleEmptyMessage (section) {
-        var $where = queueInterface.$commandSections[section]
+        var $where = $commandSections[section]
         var $msg = $where.find('p.nothing')
 
         var condition = section === 'queue'
@@ -325,7 +318,7 @@ define('TWOverflow/Queue/interface', [
             })
         }
 
-        queueInterface.$commandSections[section].append($command)
+        $commandSections[section].append($command)
 
         toggleEmptyMessage(section)
     }

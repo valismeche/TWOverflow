@@ -23,6 +23,10 @@ define('TWOverflow/Farm/interface', [
     var visibleEventCount
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
     var rtemplate = /%\{[^\}]+\}/g
+    var $window
+    var $events
+    var $last
+    var $disabled = '<option>' + FarmLocale('general.disabled') + '</option>'
 
     function FarmInterface () {
         farmInterface = new Interface('farmOverflow-farm', {
@@ -43,21 +47,9 @@ define('TWOverflow/Farm/interface', [
             hoverText: updateQuickview
         })
 
-        var $window = $(farmInterface.$window)
-
-        farmInterface.$settings = $window.find('.settings')
-        farmInterface.$save = $window.find('.save')
-        farmInterface.$start = $window.find('.start')
-        farmInterface.$preset = $window.find('.preset')
-        farmInterface.$selected = $window.find('.selected')
-        farmInterface.$events = $window.find('.events')
-        farmInterface.$status = $window.find('.status')
-        farmInterface.$last = $window.find('.last')
-        farmInterface.$groups = {
-            groupIgnore: $window.find('.ignore'),
-            groupInclude: $window.find('.include'),
-            groupOnly: $window.find('.only')
-        }
+        $window = $(farmInterface.$window)
+        $events = $window.find('.events')
+        $last = $window.find('.last')
 
         events = Lockr.get('farm-lastEvents', [], true)
         visibleEventCount = 1
@@ -89,10 +81,6 @@ define('TWOverflow/Farm/interface', [
             farmInterface.openWindow()
         })
 
-        farmInterface.$start.on('click', function () {
-            Farm.switch()
-        })
-
         $hotkeys.add(Farm.settings.hotkeySwitch, function () {
             Farm.switch()
         })
@@ -101,15 +89,21 @@ define('TWOverflow/Farm/interface', [
             farmInterface.openWindow()
         })
 
+        var $start = $window.find('.start')
+
+        $start.on('click', function () {
+            Farm.switch()
+        })
+
         Farm.bind('start', function () {
-            farmInterface.$start.html(FarmLocale('general.pause'))
-            farmInterface.$start.removeClass('btn-green').addClass('btn-red')
+            $start.html(FarmLocale('general.pause'))
+            $start.removeClass('btn-green').addClass('btn-red')
             farmButton.$elem.removeClass('btn-green').addClass('btn-red')
         })
 
         Farm.bind('pause', function () {
-            farmInterface.$start.html(FarmLocale('general.start'))
-            farmInterface.$start.removeClass('btn-red').addClass('btn-green')
+            $start.html(FarmLocale('general.start'))
+            $start.removeClass('btn-red').addClass('btn-green')
             farmButton.$elem.removeClass('btn-red').addClass('btn-green')
         })
     }
@@ -120,7 +114,7 @@ define('TWOverflow/Farm/interface', [
      */
     function eachSetting (callback) {
         for (var key in Farm.settings) {
-            var $input = $('[name="' + key + '"]', farmInterface.$window)
+            var $input = $window.find('[name="' + key + '"]')
 
             if (!$input.length) {
                 continue
@@ -164,10 +158,12 @@ define('TWOverflow/Farm/interface', [
         })
 
         // Quarda os valores quando salvos
-        farmInterface.$settings.on('submit', function (event) {
+        var $settings = $window.find('.settings')
+
+        $settings.on('submit', function (event) {
             event.preventDefault()
 
-            if (farmInterface.$settings[0].checkValidity()) {
+            if ($settings[0].checkValidity()) {
                 var settings = {}
 
                 eachSetting(function ($input) {
@@ -192,8 +188,8 @@ define('TWOverflow/Farm/interface', [
             return false
         })
 
-        farmInterface.$save.on('click', function (event) {
-            farmInterface.$settings.find('input:submit')[0].click()
+        $window.find('.save').on('click', function (event) {
+            $settings.find('input:submit')[0].click()
         })
     }
 
@@ -202,10 +198,11 @@ define('TWOverflow/Farm/interface', [
      */
     function bindEvents () {
         var settings = Farm.settings
+        var $status = $window.find('.status')
 
         var listenEvents = {
             sendCommand: function (from, to) {
-                farmInterface.$status.html(FarmLocale('events.attacking'))
+                $status.html(FarmLocale('events.attacking'))
                 updateLastAttack($timeHelper.gameTime())
 
                 if (!settings.eventAttack) {
@@ -277,42 +274,42 @@ define('TWOverflow/Farm/interface', [
                     type: 'noPreset'
                 })
 
-                farmInterface.$status.html(FarmLocale('events.paused'))
+                $status.html(FarmLocale('events.paused'))
             },
             noUnits: function () {
                 if (Farm.singleVillage) {
-                    farmInterface.$status.html(FarmLocale('events.noUnits'))
+                    $status.html(FarmLocale('events.noUnits'))
                 }
             },
             noUnitsNoCommands: function () {
-                farmInterface.$status.html(FarmLocale('events.noUnitsNoCommands'))
+                $status.html(FarmLocale('events.noUnitsNoCommands'))
             },
             start: function () {
-                farmInterface.$status.html(FarmLocale('events.attacking'))
+                $status.html(FarmLocale('events.attacking'))
             },
             pause: function () {
-                farmInterface.$status.html(FarmLocale('events.paused'))
+                $status.html(FarmLocale('events.paused'))
             },
             noVillages: function () {
-                farmInterface.$status.html(FarmLocale('events.noVillages'))
+                $status.html(FarmLocale('events.noVillages'))
             },
             villagesUpdate: function () {
                 updateSelectedVillage()
             },
             startLoadingTargers: function () {
-                farmInterface.$status.html(FarmLocale('events.loadingTargets'))
+                $status.html(FarmLocale('events.loadingTargets'))
             },
             endLoadingTargers: function () {
-                farmInterface.$status.html(FarmLocale('events.analyseTargets'))
+                $status.html(FarmLocale('events.analyseTargets'))
             },
             attacking: function () {
-                farmInterface.$status.html(FarmLocale('events.attacking'))
+                $status.html(FarmLocale('events.attacking'))
             },
             commandLimitSingle: function () {
-                farmInterface.$status.html(FarmLocale('events.commandLimit'))
+                $status.html(FarmLocale('events.commandLimit'))
             },
             commandLimitMulti: function () {
-                farmInterface.$status.html(FarmLocale('events.noVillages'))
+                $status.html(FarmLocale('events.noVillages'))
             },
             resetEvents: function () {
                 visibleEventCount = 0
@@ -341,7 +338,7 @@ define('TWOverflow/Farm/interface', [
         var readable = $filter('readableDateFilter')(lastAttack)
         var langLast = FarmLocale('events.lastAttack')
 
-        farmInterface.$last.html(readable)
+        $last.html(readable)
         updateQuickview()
     }
 
@@ -355,17 +352,17 @@ define('TWOverflow/Farm/interface', [
     function addEvent (options, _populate) {
         var limit = Farm.settings.eventsLimit
 
-        farmInterface.$events.find('.nothing').remove()
+        $events.find('.nothing').remove()
 
         if (visibleEventCount >= limit) {
-            farmInterface.$events.find('tr:last-child').remove()
+            $events.find('tr:last-child').remove()
         }
 
         if (events.length >= limit) {
             events.pop()
         }
 
-        addRow(farmInterface.$events, options, _populate)
+        addRow($events, options, _populate)
         visibleEventCount++
 
         if (!_populate) {
@@ -431,22 +428,22 @@ define('TWOverflow/Farm/interface', [
      * Atualiza o elemento com a aldeias atualmente selecionada
      */
     function updateSelectedVillage () {
-        var selected = Farm.village
+        var $selected = $window.find('.selected')
 
-        if (!selected) {
-            farmInterface.$selected.html(FarmLocale('general.none'))
+        if (!Farm.village) {
+            $selected.html(FarmLocale('general.none'))
 
             return false
         }
 
         var village = buttonLink(
             'village',
-            selected.name + ' (' + selected.x + '|' + selected.y + ')',
+            Farm.village.name + ' (' + Farm.village.x + '|' + Farm.village.y + ')',
             Farm.village.id
         )
 
-        farmInterface.$selected.html('')
-        farmInterface.$selected.append(village.elem)
+        $selected.html('')
+        $selected.append(village.elem)
     }
 
     /**
@@ -458,7 +455,7 @@ define('TWOverflow/Farm/interface', [
         
         // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
         if (events.length > 0) {
-            farmInterface.$events.find('.nothing').remove()
+            $events.find('.nothing').remove()
         }
 
         for (var i = 0; i < events.length; i++) {
@@ -495,22 +492,21 @@ define('TWOverflow/Farm/interface', [
         var types = ['groupIgnore', 'groupInclude', 'groupOnly']
         var groups = $model.getGroupList().getGroups()
 
-        for (var type in farmInterface.$groups) {
-            farmInterface.$groups[type].html(
-                '<option value="">' + FarmLocale('general.disabled') + '</option>'
-            )
+        var $groups = {
+            groupIgnore: $window.find('.ignore'),
+            groupInclude: $window.find('.include'),
+            groupOnly: $window.find('.only')
+        }
+
+        for (var type in $groups) {
+            $groups[type].html($disabled)
 
             for (var id in groups) {
                 var name = groups[id].name
-                var selected = ''
+                var selected = Farm.settings[type] == id ? 'selected' : ''
+                var $select = '<option value="' + id + '" ' + selected + '>' + name + '</option>'
 
-                if (Farm.settings[type] == id) {
-                    selected = 'selected'
-                }
-
-                farmInterface.$groups[type].append(
-                    '<option value="' + id + '" ' + selected + '>' + name + '</option>'
-                )
+                $groups[type].append($select)
             }
         }
     }
@@ -521,10 +517,9 @@ define('TWOverflow/Farm/interface', [
     function updatePresetList () {
         var loaded = {}
         var presets = $model.getPresetList().presets
+        var $preset = $window.find('.preset')
         
-        farmInterface.$preset.html(
-            '<option value="">' + FarmLocale('general.disabled') + '</option>'
-        )
+        $preset.html($disabled)
 
         for (var id in presets) {
             var cleanName = presets[id].name.replace(rpreset, '').trim()
@@ -538,16 +533,10 @@ define('TWOverflow/Farm/interface', [
                 continue
             }
 
-            var selected = ''
+            var selected = Farm.settings.presetName === cleanName ? 'selected' : ''
+            var $select = '<option value="' + cleanName + '" ' + selected + '>' + cleanName + '</option>'
 
-            if (Farm.settings.presetName === cleanName) {
-                selected = 'selected'
-            }
-
-            farmInterface.$preset.append(
-                '<option value="' + cleanName + '" ' + selected + '>' + cleanName + '</option>'
-            )
-
+            $preset.append($select)
             loaded[cleanName] = true
         }
     }
@@ -555,7 +544,7 @@ define('TWOverflow/Farm/interface', [
     function updateQuickview () {
         var last = FarmLocale('events.lastAttack')
         
-        return last + ': ' + farmInterface.$last.html()
+        return last + ': ' + $last.html()
     }
 
     return FarmInterface
