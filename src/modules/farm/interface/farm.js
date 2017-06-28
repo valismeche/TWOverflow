@@ -194,7 +194,6 @@ define('TWOverflow/Farm/interface', [
      * Adiciona eventos na interface com base nos eventos do FarmOverflow.
      */
     function bindEvents () {
-        var settings = Farm.settings
         var $status = $window.find('.status')
 
         var listenEvents = {
@@ -202,7 +201,7 @@ define('TWOverflow/Farm/interface', [
                 $status.html(FarmLocale('events.attacking'))
                 updateLastAttack($timeHelper.gameTime())
 
-                if (!settings.eventAttack) {
+                if (!Farm.settings.eventAttack) {
                     return false
                 }
 
@@ -218,7 +217,7 @@ define('TWOverflow/Farm/interface', [
             nextVillage: function (next) {
                 updateSelectedVillage()
                 
-                if (!settings.eventVillageChange) {
+                if (!Farm.settings.eventVillageChange) {
                     return false
                 }
 
@@ -231,7 +230,7 @@ define('TWOverflow/Farm/interface', [
                 })
             },
             ignoredVillage: function (target) {
-                if (!settings.eventIgnoredVillage) {
+                if (!Farm.settings.eventIgnoredVillage) {
                     return false
                 }
 
@@ -244,7 +243,7 @@ define('TWOverflow/Farm/interface', [
                 })
             },
             priorityTargetAdded: function (target) {
-                if (!settings.eventPriorityAdd) {
+                if (!Farm.settings.eventPriorityAdd) {
                     return false
                 }
                 
