@@ -21,12 +21,12 @@ define('TWOverflow/Farm/interface', [
     var opener
     var events
     var visibleEventCount
-    var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
-    var rtemplate = /%\{[^\}]+\}/g
     var $window
     var $events
     var $last
-    var $disabled = '<option>' + FarmLocale('general.disabled') + '</option>'
+    var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
+    var rtemplate = /%\{[^\}]+\}/g
+    var disabledSelect = genSelect('', FarmLocale('general.disabled'))
 
     function FarmInterface () {
         ui = new Interface('farmOverflow-farm', {
@@ -419,16 +419,10 @@ define('TWOverflow/Farm/interface', [
         var $selected = $window.find('.selected')
 
         if (!Farm.village) {
-            $selected.html(FarmLocale('general.none'))
-
-            return false
+            return $selected.html(FarmLocale('general.none'))
         }
 
-        var village = buttonLink(
-            'village',
-            Farm.village.name + ' (' + Farm.village.x + '|' + Farm.village.y + ')',
-            Farm.village.id
-        )
+        var village = buttonLink('village', villageLabel(Farm.village), Farm.village.id)
 
         $selected.html('')
         $selected.append(village.elem)
@@ -487,14 +481,13 @@ define('TWOverflow/Farm/interface', [
         }
 
         for (var type in $groups) {
-            $groups[type].html($disabled)
+            $groups[type].html(disabledSelect)
 
             for (var id in groups) {
                 var name = groups[id].name
-                var selected = Farm.settings[type] == id ? 'selected' : ''
-                var $select = '<option value="' + id + '" ' + selected + '>' + name + '</option>'
-
-                $groups[type].append($select)
+                var selected = Farm.settings[type] == id
+                
+                $groups[type].append(genSelect(id, name, selected))
             }
         }
     }
@@ -507,7 +500,7 @@ define('TWOverflow/Farm/interface', [
         var presets = $model.getPresetList().presets
         var $preset = $window.find('.preset')
         
-        $preset.html($disabled)
+        $preset.html(disabledSelect)
 
         for (var id in presets) {
             var cleanName = presets[id].name.replace(rpreset, '').trim()
@@ -521,18 +514,19 @@ define('TWOverflow/Farm/interface', [
                 continue
             }
 
-            var selected = Farm.settings.presetName === cleanName ? 'selected' : ''
-            var $select = '<option value="' + cleanName + '" ' + selected + '>' + cleanName + '</option>'
-
-            $preset.append($select)
             loaded[cleanName] = true
+            var selected = Farm.settings.presetName === cleanName
+
+            $preset.append(genSelect(cleanName, cleanName, selected))
         }
     }
 
     function updateQuickview () {
-        var last = FarmLocale('events.lastAttack')
-        
-        return last + ': ' + $last.html()
+        return FarmLocale('events.lastAttack') + ': ' + $last.html()
+    }
+
+    function genSelect (value, label, selected) {
+        return '<option value="' + value + '"' + (selected ? ' selected' : '') + '>' + label + '</option>'
     }
 
     return FarmInterface
