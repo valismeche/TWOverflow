@@ -19,18 +19,15 @@ define('TWOverflow/Queue/interface', [
     var opener
     var $window
     var $switch
-    var $commandSections
-    var unitNames = $model.getGameData().getOrderedUnitNames()
+    var $sections
+    
     var officerNames = $model.getGameData().getOrderedOfficerNames()
-    var inputsMap = ['origin', 'target', 'arrive']
-        .concat($model.getGameData().getOrderedUnitNames())
-        .concat($model.getGameData().getOrderedOfficerNames())
+    var unitNames = $model.getGameData().getOrderedUnitNames()
+    var unitNamesNoCatapult = unitNames.filter(function (name) {
+        return name !== 'catapult'
+    })
 
     function QueueInterface () {
-        var unitNamesNoCatapult = unitNames.filter(function (unit) {
-            return unit !== 'catapult'
-        })
-
         ui = new Interface('farmOverflow-queue', {
             activeTab: 'info',
             css: '___cssQueue',
@@ -50,7 +47,7 @@ define('TWOverflow/Queue/interface', [
 
         $window = $(ui.$window)
         $switch = $window.find('a.switch')
-        $commandSections = {
+        $sections = {
             queue: $window.find('div.queue'),
             sended: $window.find('div.sended'),
             expired: $window.find('div.expired')
@@ -156,6 +153,7 @@ define('TWOverflow/Queue/interface', [
 
     function bindAdd () {
         var $addForm = $window.find('form.addForm')
+        var inputsMap = ['origin', 'target', 'arrive'].concat(unitNames, officerNames)
         var mapSelectedVillage = false
         var commandType = 'attack'
 
@@ -256,7 +254,7 @@ define('TWOverflow/Queue/interface', [
     }
 
     function toggleEmptyMessage (section) {
-        var $where = $commandSections[section]
+        var $where = $sections[section]
         var $msg = $where.find('p.nothing')
 
         var condition = section === 'queue'
@@ -314,7 +312,7 @@ define('TWOverflow/Queue/interface', [
             })
         }
 
-        $commandSections[section].append($command)
+        $sections[section].append($command)
 
         toggleEmptyMessage(section)
     }
