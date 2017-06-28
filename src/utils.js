@@ -43,3 +43,7 @@ function emitNotif (type, message) {
         message: message
     })
 }
+
+function villageLabel (village) {
+    return village.name + ' (' + village.x + '|' + village.y + ')'
+}

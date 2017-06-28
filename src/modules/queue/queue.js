@@ -347,9 +347,10 @@ define('TWOverflow/Queue', [
         loadVillagesData.then(function (villages) {
             villages.forEach(function (village) {
                 command[village.type] = {
-                    coords: command[village.type],
+                    id: village.id,
                     name: village.name,
-                    id: village.id
+                    x: village.x,
+                    y: village.y
                 }
             })
 

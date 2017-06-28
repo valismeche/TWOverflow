@@ -269,11 +269,8 @@ define('TWOverflow/Queue/interface', [
         $command.id = section + '-' + command.id
         $command.className = 'command'
 
-        var originLabel = command.origin.name + ' (' + command.origin.coords + ')'
-        var origin = buttonLink('village', originLabel, command.origin.id)
-
-        var targetLabel = command.target.name + ' (' + command.target.coords + ')'
-        var target = buttonLink('village', targetLabel, command.target.id)
+        var origin = buttonLink('village', villageLabel(command.origin), command.origin.id)
+        var target = buttonLink('village', villageLabel(command.target), command.target.id)
 
         var typeClass = command.type === 'attack' ? 'attack-small' : 'support'
         var arrive = readableDateFilter(command.sendTime + command.travelTime)

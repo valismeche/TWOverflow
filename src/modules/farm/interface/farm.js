@@ -535,9 +535,5 @@ define('TWOverflow/Farm/interface', [
         return last + ': ' + $last.html()
     }
 
-    function villageLabel (village) {
-        return village.name + ' (' + village.x + '|' + village.y + ')'
-    }
-
     return FarmInterface
 })
