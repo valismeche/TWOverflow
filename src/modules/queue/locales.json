@@ -55,6 +55,7 @@
         "queue.noneSended": "Nenhum comando enviado.",
         "queue.expired": "Comandos expirados",
         "queue.noneExpired": "Nenhum comando expirado.",
+        "queue.remove": "Remover comando da lista",
 
         "command.out": "Saída",
         "command.timeLeft": "Tempo restante",
