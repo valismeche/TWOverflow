@@ -46,12 +46,8 @@ define('TWOverflow/Queue', [
         })
     }
 
-    function isValidCoords (xy) {
-        return /\s*\d{3}\|\d{3}\s*/.test(xy)
-    }
-
-    function isValidArriveTime (sendTime) {
-        if ($timeHelper.gameTime() > sendTime) {
+    function isValidDateTime (time) {
+        if ($timeHelper.gameTime() > time) {
             return false
         }
 
@@ -70,40 +66,6 @@ define('TWOverflow/Queue', [
         }
 
         return cleanUnits
-    }
-
-    function getTravelTime (origin, target, units, type, officers) {
-        var army = {
-            units: units,
-            officers: officers
-        }
-
-        var travelTime = $armyService.calculateTravelTime(army, {
-            barbarian: false,
-            ownTribe: false,
-            officers: officers,
-            effects: false
-        })
-
-        origin = origin.split('|')
-        target = target.split('|')
-
-        var distance = $math.actualDistance({
-            x: origin[0],
-            y: origin[1]
-        }, {
-            x: target[0],
-            y: target[1]
-        })
-
-        var totalTravelTime = $armyService.getTravelTimeForDistance(
-            army,
-            travelTime,
-            distance,
-            type
-        )
-
-        return totalTravelTime * 1000
     }
 
     function orderWaitingQueue () {
@@ -184,17 +146,6 @@ define('TWOverflow/Queue', [
         }
 
         return parsedUnits
-    }
-
-    /**
-     * Inverte a posição do dia com o mês.
-     */
-    function fixDate (dateTime) {
-        var dateAndTime = dateTime.split(' ')
-        var time = dateAndTime[0]
-        var date = dateAndTime[1].split('/')
-
-        return time + ' ' + date[1] + '/' + date[0] + '/' + date[2]
     }
 
     // publics
@@ -309,10 +260,10 @@ define('TWOverflow/Queue', [
         command.arrive = fixDate(command.arrive)
 
         var arriveTime = new Date(command.arrive).getTime()
-        var travelTime = getTravelTime(command.origin, command.target, command.units, command.type)
+        var travelTime = Queue.getTravelTime(command.origin, command.target, command.units, command.type)
         var sendTime = arriveTime - travelTime
 
-        if (!isValidArriveTime(sendTime)) {
+        if (!isValidDateTime(sendTime)) {
             return Queue.trigger('error', [QueueLocale('error.alreadySent', {
                 date: readableDateFilter(sendTime),
                 type: QueueLocale(command.type)
@@ -427,6 +378,40 @@ define('TWOverflow/Queue', [
 
     Queue.getExpiredCommands = function () {
         return expiredCommands
+    }
+
+    Queue.getTravelTime = function (origin, target, units, type, officers) {
+        var army = {
+            units: units,
+            officers: officers
+        }
+
+        var travelTime = $armyService.calculateTravelTime(army, {
+            barbarian: false,
+            ownTribe: false,
+            officers: officers,
+            effects: false
+        })
+
+        origin = origin.split('|')
+        target = target.split('|')
+
+        var distance = $math.actualDistance({
+            x: origin[0],
+            y: origin[1]
+        }, {
+            x: target[0],
+            y: target[1]
+        })
+
+        var totalTravelTime = $armyService.getTravelTimeForDistance(
+            army,
+            travelTime,
+            distance,
+            type
+        )
+
+        return totalTravelTime * 1000
     }
 
     return Queue

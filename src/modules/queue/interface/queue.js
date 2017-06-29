@@ -19,13 +19,26 @@ define('TWOverflow/Queue/interface', [
     var opener
     var $window
     var $switch
+    var $addForm
+    var $origin
+    var $target
+    var $arrive
     var $sections
-    
+    var $travelTimes
+    var $travelTimeUnits = {}
+
+    var validOrigin = false
+    var validTarget = false
+    var validArrive = false
+
     var officerNames = $model.getGameData().getOrderedOfficerNames()
     var unitNames = $model.getGameData().getOrderedUnitNames()
     var unitNamesNoCatapult = unitNames.filter(function (name) {
         return name !== 'catapult'
     })
+    var unitNamesCategory = ['knight', 'heavy_cavalry', 'axe', 'sword', 'ram', 'snob', 'trebuchet']
+
+    var rdateTime = /\s*\d{1,2}:\d{1,2}:\d{1,2}(:\d{1,3})? \d{1,2}\/\d{1,2}\/\d{4}\s*/
 
     function QueueInterface () {
         ui = new Interface('farmOverflow-queue', {
@@ -55,11 +68,22 @@ define('TWOverflow/Queue/interface', [
 
         $window = $(ui.$window)
         $switch = $window.find('a.switch')
+        $addForm = $window.find('form.addForm')
+        $origin = $window.find('input.origin')
+        $target = $window.find('input.target')
+        $arrive = $window.find('input.arrive')
+        $travelTimes = $window.find('table.travelTimes')
         $sections = {
             queue: $window.find('div.queue'),
             sended: $window.find('div.sended'),
             expired: $window.find('div.expired')
         }
+
+        $travelTimes.find('.travelTime').forEach(function ($elem) {
+            var unit = $elem.getAttribute('unit')
+            
+            $travelTimeUnits[unit] = $elem
+        })
 
         opener.click(function () {
             ui.openWindow()
@@ -115,6 +139,12 @@ define('TWOverflow/Queue/interface', [
             emitNotif('success', genNotifText('title', 'deactivated'))
         })
 
+        setInterval(function () {
+            if (ui.isVisible() && ui.activeTab === 'add' && validOrigin && validTarget && validArrive) {
+                calcTravelTimes()
+            }
+        }, 1000)
+
         bindAdd()
         showStoredCommands()
     }
@@ -152,7 +182,6 @@ define('TWOverflow/Queue/interface', [
     }
 
     function bindAdd () {
-        var $addForm = $window.find('form.addForm')
         var inputsMap = ['origin', 'target', 'arrive'].concat(unitNames, officerNames)
         var mapSelectedVillage = false
         var commandType = 'attack'
@@ -228,7 +257,8 @@ define('TWOverflow/Queue/interface', [
 
         $window.find('a.addSelected').on('click', function () {
             var pos = $model.getSelectedVillage().getPosition()
-            $window.find('input.origin').val(pos.x + '|' + pos.y)
+            $origin.val(pos.x + '|' + pos.y)
+            $origin.trigger('input')
         })
 
         $window.find('a.addMapSelected').on('click', function () {
@@ -236,12 +266,30 @@ define('TWOverflow/Queue/interface', [
                 return emitNotif('error', QueueLocale('error.noMapSelectedVillage'))
             }
 
-            $window.find('input.target').val(mapSelectedVillage.join('|'))
+            $target.val(mapSelectedVillage.join('|'))
+            $target.trigger('input')
         })
 
         $window.find('a.addCurrentDate').on('click', function () {
             var now = dateToString($timeHelper.gameDate())
-            $window.find('input.arrive').val(now)
+            $arrive.val(now)
+            $arrive.trigger('input')
+        })
+
+        $origin.on('input', function () {
+            validOrigin = isValidCoords($origin.val())
+            calcTravelTimes()
+        })
+
+        $target.on('input', function () {
+            validTarget = isValidCoords($target.val())
+            calcTravelTimes()
+        })
+
+        $arrive.on('input', function () {
+            validArrive = rdateTime.test($arrive.val())
+            checkArriveValidity()
+            calcTravelTimes()
         })
 
         $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
@@ -251,6 +299,41 @@ define('TWOverflow/Queue/interface', [
         $root.$on($eventType.DESTROY_CONTEXT_MENU, function () {
             mapSelectedVillage = false
         })
+    }
+
+    function calcTravelTimes () {
+        if (!validOrigin || !validTarget) {
+            return $travelTimes.hide()
+        }
+
+        var origin = $origin.val()
+        var target = $target.val()
+
+        unitNamesCategory.forEach(function (unit) {
+            var units = {}
+            var officers = getOfficers()
+
+            units[unit] = 1
+
+            var travelTime = Queue.getTravelTime(origin, target, units, 'attack', officers)
+            var readable = readableMillisecondsFilter(travelTime)
+
+            if (validArrive) {
+                var arrive = fixDate($arrive.val())
+                var arriveTime = new Date(arrive).getTime()
+                var sendTime = arriveTime - travelTime
+
+                if (!isValidDateTime(sendTime)) {
+                    readable = '<span class="text-red">' + readable + '</span>'
+                }
+            } else {
+                readable = '<span class="text-red">' + readable + '</span>'
+            }
+
+            $travelTimeUnits[unit].innerHTML = readable
+        })
+
+        $travelTimes.css('display', '')
     }
 
     function toggleEmptyMessage (section) {
@@ -364,6 +447,34 @@ define('TWOverflow/Queue/interface', [
         }
 
         return QueueLocale(key) + ' ' + QueueLocale(key2)
+    }
+
+    function isValidDateTime (time) {
+        if ($timeHelper.gameTime() > time) {
+            return false
+        }
+
+        return true
+    }
+
+    function checkArriveValidity () {
+        var valid = rdateTime.test($arrive.val())
+        
+        $arrive.css('color', valid ? '' : '#a1251f')
+    }
+
+    function getOfficers () {
+        var officers = {}
+
+        officerNames.forEach(function (officer) {
+            var $input = $addForm.find('[name="' + officer + '"]')
+            
+            if ($input.val()) {
+                officers[officer] = true
+            }
+        })
+
+        return officers
     }
 
     return QueueInterface

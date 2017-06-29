@@ -47,6 +47,7 @@
         "add.addMapSelected": "Aldeia selecionada no mapa",
         "add.arrive": "Data de chegada",
         "add.currentDate": "Data atual",
+        "add.travelTimes": "Tempos de viagem",
 
         "queue.waiting": "Comandos em espera",
         "queue.noneAdded": "Nenhum comando adicionado.",

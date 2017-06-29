@@ -47,3 +47,18 @@ function emitNotif (type, message) {
 function villageLabel (village) {
     return village.name + ' (' + village.x + '|' + village.y + ')'
 }
+
+function isValidCoords (xy) {
+    return /\s*\d{2,3}\|\d{2,3}\s*/.test(xy)
+}
+
+/**
+ * Inverte a posição do dia com o mês.
+ */
+function fixDate (dateTime) {
+    var dateAndTime = dateTime.split(' ')
+    var time = dateAndTime[0]
+    var date = dateAndTime[1].split('/')
+
+    return time + ' ' + date[1] + '/' + date[0] + '/' + date[2]
+}
