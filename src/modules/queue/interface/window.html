@@ -1,6 +1,6 @@
 <div class="win-content message-list-wrapper searchable-list ng-scope">
     <header class="win-head">
-        <h2 class="ng-binding"><#= locale("title") #> <span class="small">v<#= version #></span></h2>
+        <h2><#= locale("title") #> <span class="small">v<#= version #></span></h2>
         <ul class="list-btn">
             <li><a href="#" class="farmOverflow-close size-34x34 btn-red icon-26x26-close"></a></li>
         </ul>
@@ -168,35 +168,21 @@
                         <col>
                     </colgroup>
                     <tbody class="preset-edit">
-                            <# for (var i = 0, l = units.length / 2; i < l; i++) { #>
-                                <tr>
-                                    <td class="cell-space-left">
-                                        <span class="float-left icon-bg-black icon-44x44-unit-<#= units[i * 2] #>"></span>
-                                        <div class="ff-cell-fix cell-space-44x44">
-                                            <span class="ng-binding"><#= unitNameFilter(units[i * 2]) #></span>
-                                            <input class="unit" type="text" name="<#= units[i * 2] #>" placeholder="0">
-                                        </div>
-                                    </td>
+                        <tr>
+                            <# units.forEach(function(unit, i) { #>
+                                <# if (i !== 0 && i % 2 === 0) { #>
+                                    </tr><tr>
+                                <# } #>
 
-                                    <td class="cell-space-left">
-                                        <span class="float-left icon-bg-black icon-44x44-unit-<#= units[i * 2 + 1] #>"></span>
-                                        <div class="ff-cell-fix cell-space-44x44">
-                                            <span class="ng-binding"><#= unitNameFilter(units[i * 2 + 1]) #></span>
-                                            <input class="unit" type="text" name="<#= units[i * 2 + 1] #>" placeholder="0">
-                                        </div>
-                                    </td>
-                                </tr>
-                            <# } #>
-
-                            <tr>
                                 <td class="cell-space-left">
-                                    <span class="float-left icon-bg-black icon-44x44-unit-catapult"></span>
+                                    <span class="float-left icon-bg-black icon-44x44-unit-<#= unit #>"></span>
                                     <div class="ff-cell-fix cell-space-44x44">
-                                        <span class="ng-binding"><#= unitNameFilter("catapult") #></span>
-                                        <input class="unit" type="text" name="catapult" placeholder="0">
+                                        <span><#= unitNameFilter(unit) #></span>
+                                        <input class="unit" type="text" name="<#= unit #>" placeholder="0">
                                     </div>
                                 </td>
-                            </tr>
+                            <# }) #>
+                        </tr>
                     </tbody>
                 </table>
 

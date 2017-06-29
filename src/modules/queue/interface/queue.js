@@ -31,12 +31,10 @@ define('TWOverflow/Queue/interface', [
     var validTarget = false
     var validArrive = false
 
-    var officerNames = $model.getGameData().getOrderedOfficerNames()
-    var unitNames = $model.getGameData().getOrderedUnitNames()
-    var unitNamesNoCatapult = unitNames.filter(function (name) {
-        return name !== 'catapult'
-    })
-    var unitNamesCategory = ['knight', 'heavy_cavalry', 'axe', 'sword', 'ram', 'snob', 'trebuchet']
+    var gameData = $model.getGameData()
+    var officerNames = gameData.getOrderedOfficerNames()
+    var unitNames = gameData.getOrderedUnitNames()
+    var unitsBySpeed = ['knight', 'heavy_cavalry', 'axe', 'sword', 'ram', 'snob', 'trebuchet']
     var rdateTime = /^\s*([01][0-9]|2[0-3]):[0-5]\d:[0-5]\d(:\d{1,3})? (0[1-9]|[12][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/\d{4}\s*$/
 
     function QueueInterface () {
@@ -48,7 +46,7 @@ define('TWOverflow/Queue/interface', [
                 version: Queue.version,
                 locale: QueueLocale,
                 unitNameFilter: unitNameFilter,
-                units: unitNamesNoCatapult,
+                units: unitNames,
                 officers: officerNames
             }
         })
@@ -300,7 +298,7 @@ define('TWOverflow/Queue/interface', [
         var origin = $origin.val()
         var target = $target.val()
 
-        unitNamesCategory.forEach(function (unit) {
+        unitsBySpeed.forEach(function (unit) {
             var units = {}
             var officers = getOfficers()
 
