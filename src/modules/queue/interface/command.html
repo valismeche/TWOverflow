@@ -8,7 +8,10 @@
     <tbody>
         <tr>
             <th colspan="2">
-                <#= locale("command.out") #>: <#= sendTime #> | <#= locale("command.arrive") #>: <#= arrive #>
+                <span class="size-26x26 icon-bg-black icon-26x26-time-duration" tooltip="<#= locale("command.out") #>"></span>
+                <#= sendTime #>
+                <span class="size-26x26 icon-bg-black icon-20x20-units-outgoing" tooltip="<#= locale("command.arrive") #>"></span>
+                <#= arrive #>
 
                 <# if (section === "queue") { #>
                     <a href="#" class="remove-command size-20x20 btn-red icon-20x20-close"></a>

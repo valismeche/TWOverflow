@@ -374,6 +374,7 @@ define('TWOverflow/Queue/interface', [
         }
 
         $sections[section].append($command)
+        ui.setTooltips()
 
         toggleEmptyMessage(section)
     }
