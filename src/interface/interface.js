@@ -249,5 +249,9 @@ define('TWOverflow/Interface', [
         })
     }
 
+    Interface.prototype.isVisible = function () {
+        return this.$window.style.visibility === 'visible'
+    }
+
     return Interface
 })
