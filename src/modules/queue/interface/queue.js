@@ -232,13 +232,9 @@ define('TWOverflow/Queue/interface', [
             }
         })
 
-        $window.find('a.attack').on('click', function (event) {
-            commandType = 'attack'
-            $addForm.find('input:submit')[0].click()
-        })
-
-        $window.find('a.support').on('click', function (event) {
-            commandType = 'support'
+        // botões para adicionar ataque/suporte/transferencia
+        $window.find('.farmOverflow-button-add a').on('click', function (event) {
+            commandType = this.name
             $addForm.find('input:submit')[0].click()
         })
 
@@ -346,7 +342,7 @@ define('TWOverflow/Queue/interface', [
         var origin = buttonLink('village', villageLabel(command.origin), command.origin.id)
         var target = buttonLink('village', villageLabel(command.target), command.target.id)
 
-        var typeClass = command.type === 'attack' ? 'attack-small' : 'support'
+        var typeClass = fixCommandTypeClass(command.type)
         var arrive = readableDateFilter(command.sendTime + command.travelTime, null, null, null, dateFormat)
         var sendTime = readableDateFilter(command.sendTime, null, null, null, dateFormat)
         var hasOfficers = !!Object.keys(command.officers).length
@@ -467,6 +463,14 @@ define('TWOverflow/Queue/interface', [
         })
 
         return officers
+    }
+
+    function fixCommandTypeClass (type) {
+        if (type === 'attack') {
+            type += '-small'
+        }
+
+        return type
     }
 
     return QueueInterface
