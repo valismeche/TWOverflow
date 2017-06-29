@@ -160,21 +160,13 @@ define('TWOverflow/Queue/interface', [
         return officerNames.includes(value)
     }
 
-    function zeroPad (number, width) {
-        number = number + ''
-
-        return number.length >= width
-            ? number
-            : new Array(width - number.length + 1).join('0') + number
-    }
-
     function dateToString (date) {
-        var ms = zeroPad(date.getMilliseconds(), 3)
-        var sec = zeroPad(date.getSeconds(), 2)
-        var min = zeroPad(date.getMinutes(), 2)
-        var hour = zeroPad(date.getHours(), 2)
-        var day = zeroPad(date.getDate(), 2)
-        var month = zeroPad(date.getMonth() + 1, 2)
+        var ms = $timeHelper.zerofill(date.getMilliseconds(), 3)
+        var sec = $timeHelper.zerofill(date.getSeconds(), 2)
+        var min = $timeHelper.zerofill(date.getMinutes(), 2)
+        var hour = $timeHelper.zerofill(date.getHours(), 2)
+        var day = $timeHelper.zerofill(date.getDate(), 2)
+        var month = $timeHelper.zerofill(date.getMonth() + 1, 2)
         var year = date.getFullYear()
 
         return hour + ':' + min + ':' + sec + ':' + ms + ' ' + day + '/' + month + '/' + year
