@@ -35,6 +35,10 @@ define('TWOverflow/locale', [
             }
         }
 
+        ref.current = function () {
+            return selected
+        }
+
         return ref
     }
 
