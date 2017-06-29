@@ -27,6 +27,8 @@ define('TWOverflow/Queue/interface', [
     var $travelTimes
     var $travelTimeUnits = {}
 
+    var dateFormat = 'dd/MM/yyyy hh:mm:ss'
+
     var validOrigin = false
     var validTarget = false
     var validArrive = false
@@ -56,7 +58,7 @@ define('TWOverflow/Queue/interface', [
         opener.hover(function () {
             var commands = Queue.getWaitingCommands()
             var sendTime = commands.length
-                ? readableDateFilter(commands[0].sendTime)
+                ? readableDateFilter(commands[0].sendTime, null, null, null, dateFormat)
                 : QueueLocale('general.none')
             var text = QueueLocale('general.nextCommand') + ': ' + sendTime
 
@@ -345,8 +347,8 @@ define('TWOverflow/Queue/interface', [
         var target = buttonLink('village', villageLabel(command.target), command.target.id)
 
         var typeClass = command.type === 'attack' ? 'attack-small' : 'support'
-        var arrive = readableDateFilter(command.sendTime + command.travelTime)
-        var sendTime = readableDateFilter(command.sendTime)
+        var arrive = readableDateFilter(command.sendTime + command.travelTime, null, null, null, dateFormat)
+        var sendTime = readableDateFilter(command.sendTime, null, null, null, dateFormat)
         var hasOfficers = !!Object.keys(command.officers).length
 
         $command.innerHTML = ejs.render('___htmlQueueCommand', {
