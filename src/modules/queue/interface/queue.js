@@ -148,7 +148,7 @@ define('TWOverflow/Queue/interface', [
         var month = zeroPad(date.getMonth() + 1, 2)
         var year = date.getFullYear()
 
-        return hour + ':' + min + ':' + sec + ':' + ms + ' ' + month + '/' + day + '/' + year
+        return hour + ':' + min + ':' + sec + ':' + ms + ' ' + day + '/' + month + '/' + year
     }
 
     function bindAdd () {

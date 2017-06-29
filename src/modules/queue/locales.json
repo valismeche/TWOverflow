@@ -38,8 +38,7 @@
         "info.delay3": "Dependendo do tempo de resposta da conexão com o servidor do jogo, os comandos podem não chegar no momento exato que você especificou.",
         "info.delay4": "Faça testes antes e veja quanto tempo demora do momento em que você preciona para enviar o comando e quando ele realmente é enviado, então use essa diferença na hora de especificar o horário de chegada dos comandos.",
         "info.date1": "Data de chegada",
-        "info.date2": "O formato da data é MM/DD/AAAA, e não DD/MM/AAAA. Esse é o padrão dos navegadores.",
-        "info.date3": "É possível especificar os milésimos no horário de chegada para uma maior precisão.",
+        "info.date2": "É possível especificar os milésimos no horário de chegada para uma maior precisão.",
 
         "add.villages": "Aldeias",
         "add.origin": "Origem",

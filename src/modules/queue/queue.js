@@ -186,6 +186,17 @@ define('TWOverflow/Queue', [
         return parsedUnits
     }
 
+    /**
+     * Inverte a posição do dia com o mês.
+     */
+    function fixDate (dateTime) {
+        var dateAndTime = dateTime.split(' ')
+        var time = dateAndTime[0]
+        var date = dateAndTime[1].split('/')
+
+        return time + ' ' + date[1] + '/' + date[0] + '/' + date[2]
+    }
+
     // publics
 
     var Queue = {
@@ -295,6 +306,7 @@ define('TWOverflow/Queue', [
         command.target = command.target.trim()
         command.arrive = command.arrive.trim()
         command.units = cleanZeroUnits(command.units)
+        command.arrive = fixDate(command.arrive)
 
         var arriveTime = new Date(command.arrive).getTime()
         var travelTime = getTravelTime(command.origin, command.target, command.units, command.type)
