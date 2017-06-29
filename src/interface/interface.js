@@ -240,8 +240,6 @@ define('TWOverflow/Interface', [
             $elem.removeAttribute('tooltip')
 
             $elem.addEventListener('mouseenter', function (event) {
-                // $tooltipContent.html(text)
-
                 $root.$broadcast($eventType.TOOLTIP_SHOW, 'twoverflow-tooltip', text, true, event)
             })
 

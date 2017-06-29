@@ -279,8 +279,6 @@ define('TWOverflow/Queue/interface', [
 
         $command.innerHTML = ejs.render('___htmlQueueCommand', {
             sendTime: sendTime,
-            origin: origin.html,
-            target: target.html,
             typeClass: typeClass,
             arrive: arrive,
             units: command.units,
@@ -290,16 +288,8 @@ define('TWOverflow/Queue/interface', [
             locale: QueueLocale
         })
 
-        var $originButton = $command.querySelector('#' + origin.id)
-        var $targetButton = $command.querySelector('#' + target.id)
-
-        $originButton.addEventListener('click', function () {
-            $wds.openVillageInfo(command.origin.id)
-        })
-
-        $targetButton.addEventListener('click', function () {
-            $wds.openVillageInfo(command.target.id)
-        })
+        $command.querySelector('.origin').replaceWith(origin.elem)
+        $command.querySelector('.target').replaceWith(target.elem)
 
         if (section === 'queue') {
             var $remove = $command.querySelector('.remove-command')
