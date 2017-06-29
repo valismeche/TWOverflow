@@ -8,11 +8,15 @@ define('TWOverflow/Queue', [
     'TWOverflow/Queue/locale',
     'helper/time',
     'helper/math',
+    'struct/MapData',
+    'conf/conf',
     'Lockr'
 ], function (
     QueueLocale,
     $timeHelper,
     $math,
+    $mapData,
+    $conf,
     Lockr
 ) {
     var eventListeners = {}
@@ -34,16 +38,25 @@ define('TWOverflow/Queue', [
     }
 
     function getVillageByCoords (coords, callback) {
-        coords = coords.split('|').map(function (coord) {
+        var splitCoords = coords.split('|').map(function (coord) {
             return parseInt(coord, 10)
         })
 
-        $autoCompleteService.villageByCoordinates({
-            x: coords[0],
-            y: coords[1]
-        }, function (data) {
-            callback(data.hasOwnProperty('id') ? data : false)
-        })
+        var x = splitCoords[0]
+        var y = splitCoords[1]
+        var loaded = $mapData.hasTownDataInChunk(x, y)
+
+        if (!loaded) {
+            return $mapData.loadTownDataAsync(x, y, 1, 1, function () {
+                getVillageByCoords(coords, callback)
+            })
+        }
+
+        var sectors = $mapData.loadTownData(x, y, 1, 1, $conf.MAP_CHUNK_SIZE)
+        var sector = sectors[0].data
+        var villageData = sector[x][y]
+
+        callback(villageData ? villageData : false)
     }
 
     function isValidDateTime (time) {
