@@ -37,8 +37,7 @@ define('TWOverflow/Queue/interface', [
         return name !== 'catapult'
     })
     var unitNamesCategory = ['knight', 'heavy_cavalry', 'axe', 'sword', 'ram', 'snob', 'trebuchet']
-
-    var rdateTime = /\s*\d{1,2}:\d{1,2}:\d{1,2}(:\d{1,3})? \d{1,2}\/\d{1,2}\/\d{4}\s*/
+    var rdateTime = /^\s*([01][0-9]|2[0-3]):[0-5]\d:[0-5]\d(:\d{1,3})? (0[1-9]|[12][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/\d{4}\s*$/
 
     function QueueInterface () {
         ui = new Interface('farmOverflow-queue', {
