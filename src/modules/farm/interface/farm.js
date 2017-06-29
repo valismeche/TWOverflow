@@ -27,6 +27,7 @@ define('TWOverflow/Farm/interface', [
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
     var rtemplate = /%\{[^\}]+\}/g
     var disabledSelect = genSelect('', FarmLocale('general.disabled'))
+    var dateFormat = 'dd/MM/yyyy hh:mm:ss'
 
     function FarmInterface () {
         ui = new Interface('farmOverflow-farm', {
@@ -325,7 +326,7 @@ define('TWOverflow/Farm/interface', [
             }
         }
 
-        $last.html(readableDateFilter(lastAttack))
+        $last.html(readableDateFilter(lastAttack, null, null, null, dateFormat))
         updateQuickview()
     }
 
@@ -388,7 +389,7 @@ define('TWOverflow/Farm/interface', [
         var $tr = document.createElement('tr')
 
         $tr.innerHTML = ejs.render('___htmlFarmEvent', {
-            date: readableDateFilter(options.timestamp || $timeHelper.gameTime()),
+            date: readableDateFilter(options.timestamp || $timeHelper.gameTime(), null, null, null, dateFormat),
             icon: options.icon,
             text: options.text
         })
