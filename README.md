@@ -10,7 +10,7 @@ You'll need install [Node.js](https://nodejs.org/en/download/) to build the scri
 git clone https://github.com/FarmOverflow/FarmOverflow.git
 cd FarmOverflow
 npm install
-npm run build
+npm run build-prod
 ```
 
 The script will be compiled inside `dist/`
