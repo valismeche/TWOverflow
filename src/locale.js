@@ -75,7 +75,7 @@ define('TWOverflow/locale', [
         }
 
         var dataHasGameLang = langData.hasOwnProperty(gameLang)
-
+        
         defaults[moduleId] = defaultLang
         selecteds[moduleId] = dataHasGameLang ? gameLang : defaultLang
 
@@ -96,7 +96,8 @@ define('TWOverflow/locale', [
         if (langs[moduleId].hasOwnProperty(langId)) {
             selecteds[moduleId] = langId
         } else {
-            console.error('Language ' + langId + ' not created')
+            console.error('Language ' + langId + ' of module ' + moduleId
+                + ' not created. Selection default (' + defaults[moduleId] + ')')
 
             selecteds[moduleId] = defaults[moduleId]
         }
