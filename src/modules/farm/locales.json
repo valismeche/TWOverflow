@@ -1,5 +1,6 @@
 {
-    "pt_br": {
+    "pt": {
+        "langName": "Português",
         "title": "FarmOverflow",
 
         "events.attacking": "Atacando.",
@@ -110,7 +111,8 @@
         "tooltip.ignoreOnLoss": "Qualquer ataque que tenha causado alguma perca nas suas tropas será ignorado em ataques futuros. (Só funciona quando um grupo de ignorados está selecionado)",
         "tooltip.remote": "Configure o título da mensagem pela qual você deseja controlar o FarmOverflow remotamente (Veja a aba Informações para saber mais)."
     },
-    "en_us": {
+    "en": {
+        "langName": "English",
         "title": "FarmOverflow",
 
         "events.attacking": "Attacking.",

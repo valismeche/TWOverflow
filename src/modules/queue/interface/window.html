@@ -1,6 +1,6 @@
 <div class="win-content message-list-wrapper searchable-list ng-scope">
     <header class="win-head">
-        <h2><#= locale("title") #> <span class="small">v<#= version #></span></h2>
+        <h2><#= locale("queue", "title") #> <span class="small">v<#= version #></span></h2>
         <ul class="list-btn">
             <li><a href="#" class="farmOverflow-close size-34x34 btn-red icon-26x26-close"></a></li>
         </ul>
@@ -12,22 +12,22 @@
             <div class="tabs-four-col">
                 <div class="tab" tab="info">
                     <div class="tab-inner">
-                        <div><a href="#" class="btn-icon btn-orange"><#= locale("general.info") #></a></div>
+                        <div><a href="#" class="btn-icon btn-orange"><#= locale("queue", "general.info") #></a></div>
                     </div>
                 </div>
                 <div class="tab" tab="add">
                     <div class="tab-inner">
-                        <div><a href="#" class="btn-icon btn-orange"><#= locale("general.add") #></a></div>
+                        <div><a href="#" class="btn-icon btn-orange"><#= locale("queue", "general.add") #></a></div>
                     </div>
                 </div>
                 <div class="tab" tab="queue">
                     <div class="tab-inner">
-                        <div><a href="#" class="btn-icon btn-orange"><#= locale("general.waiting") #></a></div>
+                        <div><a href="#" class="btn-icon btn-orange"><#= locale("queue", "general.waiting") #></a></div>
                     </div>
                 </div>
                 <div class="tab" tab="log">
                     <div class="tab-inner">
-                        <div><a href="#" class="btn-icon btn-orange"><#= locale("general.registers") #></a></div>
+                        <div><a href="#" class="btn-icon btn-orange"><#= locale("queue", "general.registers") #></a></div>
                     </div>
                 </div>
             </div>
@@ -35,33 +35,33 @@
 
         <!-- INFO -->
         <div class="box-paper footer has-footer-upper farmOverflow-content-info">
-            <h5 class="twx-section collapse"><#= locale("info.dev1") #></h5>
+            <h5 class="twx-section collapse"><#= locale("queue", "info.dev1") #></h5>
             <div>
-                <p><#= locale("info.dev2") #></p>
+                <p><#= locale("queue", "info.dev2") #></p>
             </div>
 
-            <h5 class="twx-section collapse"><#= locale("info.active1") #></h5>
+            <h5 class="twx-section collapse"><#= locale("queue", "info.active1") #></h5>
             <div>
-                <p><#= locale("info.active2") #></p>
-                <p><#= locale("info.active3") #></p>
+                <p><#= locale("queue", "info.active2") #></p>
+                <p><#= locale("queue", "info.active3") #></p>
             </div>
 
-            <h5 class="twx-section collapse"><#= locale("info.dynamic1") #></h5>
+            <h5 class="twx-section collapse"><#= locale("queue", "info.dynamic1") #></h5>
             <div>
-                <p><#= locale("info.dynamic2") #></p>
-                <p><#= locale("info.dynamic3") #></p>
+                <p><#= locale("queue", "info.dynamic2") #></p>
+                <p><#= locale("queue", "info.dynamic3") #></p>
             </div>
 
-            <h5 class="twx-section collapse"><#= locale("info.date1") #></h5>
+            <h5 class="twx-section collapse"><#= locale("queue", "info.date1") #></h5>
             <div>
-                <p><#= locale("info.date2") #></p>
+                <p><#= locale("queue", "info.date2") #></p>
             </div>
         </div>
 
         <!-- ADD COMANDO -->
         <div class="box-paper footer has-footer-upper rich-text farmOverflow-content-add">
             <form class="addForm">
-                <h5 class="twx-section collapse"><#= locale("add.villages") #></h5>
+                <h5 class="twx-section collapse"><#= locale("queue", "add.villages") #></h5>
                 <div>
                     <table class="tbl-border-light tbl-striped">
                         <colgroup>
@@ -71,31 +71,31 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <span class="ff-cell-fix"><#= locale("add.origin") #></span>
+                                    <span class="ff-cell-fix"><#= locale("queue", "add.origin") #></span>
                                 </td>
                                 <td>
                                     <input name="origin" type="text" class="textfield-border origin" pattern="\\d{2,3}\\|\\d{2,3}" placeholder="000|000" required>
-                                    <a class="img-link btn btn-orange padded addSelected">&laquo; <#= locale("add.addSelected") #></a>
+                                    <a class="img-link btn btn-orange padded addSelected">&laquo; <#= locale("queue", "add.addSelected") #></a>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td>
-                                    <span class="ff-cell-fix"><#= locale("add.target") #></span>
+                                    <span class="ff-cell-fix"><#= locale("queue", "add.target") #></span>
                                 </td>
                                 <td>
                                     <input name="target" type="text" class="textfield-border target" pattern="\\d{2,3}\\|\\d{2,3}" placeholder="000|000" required>
-                                    <a class="img-link btn btn-orange padded addMapSelected">&laquo; <#= locale("add.addMapSelected") #></a>
+                                    <a class="img-link btn btn-orange padded addMapSelected">&laquo; <#= locale("queue", "add.addMapSelected") #></a>
                                 </td>
                             </tr>
 
                             <tr>
                                 <td>
-                                    <span class="ff-cell-fix"><#= locale("add.arrive") #></span>
+                                    <span class="ff-cell-fix"><#= locale("queue", "add.arrive") #></span>
                                 </td>
                                 <td>
                                     <input name="arrive" type="text" class="textfield-border arrive" pattern="\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}(:\\d{1,3})? \\d{1,2}\\/\\d{1,2}\\/\\d{4}\\s*" placeholder="00:00:00:000 00/00/0000" required>
-                                    <a class="img-link btn btn-orange padded addCurrentDate">&laquo; <#= locale("add.currentDate") #></a>
+                                    <a class="img-link btn btn-orange padded addCurrentDate">&laquo; <#= locale("queue", "add.currentDate") #></a>
                                 </td>
                             </tr>
                         </tbody>
@@ -103,7 +103,7 @@
                     <table class="tbl-border-light tbl-units tbl-speed travelTimes" style="display:none">
                         <thead>
                             <tr>
-                                <th colspan="7"><#= locale("add.travelTimes") #></th>
+                                <th colspan="7"><#= locale("queue", "add.travelTimes") #></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -174,7 +174,7 @@
                     </table>
                 </div>
 
-                <h5 class="twx-section collapse"><#= locale("general.units") #></h5>
+                <h5 class="twx-section collapse"><#= locale("queue", "general.units") #></h5>
                 <table class="tbl-border-light tbl-striped">
                     <colgroup>
                         <col width="50%">
@@ -199,7 +199,7 @@
                     </tbody>
                 </table>
 
-                <h5 class="twx-section collapse"><#= locale("general.officers") #></h5>
+                <h5 class="twx-section collapse"><#= locale("queue", "general.officers") #></h5>
                 <table class="tbl-border-light tbl-striped officers">
                     <tbody>
                         <tr>
@@ -220,41 +220,41 @@
 
         <!-- LISTA DE COMANDOS -->
         <div class="box-paper footer has-footer-upper rich-text farmOverflow-content-queue">
-            <h5 class="twx-section collapse"><#= locale("queue.waiting") #></h5>
+            <h5 class="twx-section collapse"><#= locale("queue", "queue.waiting") #></h5>
             <div class="queue">
-                <p class="center nothing"><#= locale("queue.noneAdded") #></p>
+                <p class="center nothing"><#= locale("queue", "queue.noneAdded") #></p>
             </div>
         </div>
 
         <!-- EVENTOS -->
         <div class="box-paper footer has-footer-upper rich-text farmOverflow-content-log">
-            <h5 class="twx-section collapse"><#= locale("queue.sended") #></h5>
+            <h5 class="twx-section collapse"><#= locale("queue", "queue.sended") #></h5>
             <div class="sended">
-                <p class="center nothing"><#= locale("queue.noneSended") #></p>
+                <p class="center nothing"><#= locale("queue", "queue.noneSended") #></p>
             </div>
 
-            <h5 class="twx-section collapse"><#= locale("queue.expired") #></h5>
+            <h5 class="twx-section collapse"><#= locale("queue", "queue.expired") #></h5>
             <div class="expired">
-                <p class="center nothing"><#= locale("queue.noneExpired") #></p>
+                <p class="center nothing"><#= locale("queue", "queue.noneExpired") #></p>
             </div>
         </div>
     </div>
     <footer class="win-foot">
         <ul class="list-btn list-center buttons">
             <li class="farmOverflow-button-log">
-                <a class="btn-orange btn-border clear"><#= locale("general.clear") #></a>
+                <a class="btn-orange btn-border clear"><#= locale("queue", "general.clear") #></a>
             </li>
             <li class="farmOverflow-button-add">
-                <a class="btn-orange btn-border add" name="attack"><span class="icon-26x26-attack-small"></span> <#= locale("general.attack") #></a>
+                <a class="btn-orange btn-border add" name="attack"><span class="icon-26x26-attack-small"></span> <#= locale("queue", "general.attack") #></a>
             </li>
             <li class="farmOverflow-button-add">
-                <a class="btn-orange btn-border add" name="support"><span class="icon-26x26-support"></span> <#= locale("general.support") #></a>
+                <a class="btn-orange btn-border add" name="support"><span class="icon-26x26-support"></span> <#= locale("queue", "general.support") #></a>
             </li>
             <li class="farmOverflow-button-add">
-                <a class="btn-orange btn-border add" name="relocate"><span class="icon-26x26-relocate"></span> <#= locale("general.relocate") #></a>
+                <a class="btn-orange btn-border add" name="relocate"><span class="icon-26x26-relocate"></span> <#= locale("queue", "general.relocate") #></a>
             </li>
             <li>
-                <a class="btn-green btn-border switch"><#= locale("general.activate") #></a>
+                <a class="btn-green btn-border switch"><#= locale("queue", "general.activate") #></a>
             </li>
         </ul>
     </footer>

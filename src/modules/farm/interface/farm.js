@@ -1,6 +1,6 @@
 define('TWOverflow/Farm/interface', [
     'TWOverflow/Farm',
-    'TWOverflow/Farm/locale',
+    'TWOverflow/locale',
     'TWOverflow/Interface',
     'TWOverflow/Interface/buttonLink',
     'TWOverflow/FrontButton',
@@ -9,7 +9,7 @@ define('TWOverflow/Farm/interface', [
     'ejs'
 ], function (
     Farm,
-    FarmLocale,
+    Locale,
     Interface,
     buttonLink,
     FrontButton,
@@ -56,13 +56,6 @@ define('TWOverflow/Farm/interface', [
     }
 
     /**
-     * <select> desativado
-     * 
-     * @type {String}
-     */
-    var disabledSelect = genSelect('', FarmLocale('general.disabled'))
-
-    /**
      * Formato das datas usadas nos eventos.
      * 
      * @type {String}
@@ -88,7 +81,7 @@ define('TWOverflow/Farm/interface', [
      * @return {[type]} [description]
      */
     var updateQuickview = function () {
-        var last = FarmLocale('events.lastAttack')
+        var last = Locale('farm', 'events.lastAttack')
         var text = last + ': ' + $last.html()
 
         opener.updateQuickview(text)
@@ -177,7 +170,7 @@ define('TWOverflow/Farm/interface', [
                 Farm.updateSettings(settings)
 
                 if (Farm.notifsEnabled) {
-                    emitNotif('success', FarmLocale('settings.saved'))
+                    emitNotif('success', Locale('farm', 'settings.saved'))
                 }
             }
 
@@ -260,7 +253,7 @@ define('TWOverflow/Farm/interface', [
                 replaces[key] = button.html
             }
 
-            options.text = FarmLocale('events.' + options.type, replaces)
+            options.text = Locale('farm', 'events.' + options.type, replaces)
         }
 
         var $tr = document.createElement('tr')
@@ -296,7 +289,7 @@ define('TWOverflow/Farm/interface', [
         var $selected = $window.find('.selected')
 
         if (!Farm.village) {
-            return $selected.html(FarmLocale('general.none'))
+            return $selected.html(Locale('farm', 'general.none'))
         }
 
         var village = buttonLink('village', villageLabel(Farm.village), Farm.village.id)
@@ -345,7 +338,7 @@ define('TWOverflow/Farm/interface', [
      */
     var updateGroupList = function () {
         for (var type in $groups) {
-            $groups[type].html(disabledSelect)
+            $groups[type].html(genSelect('', Locale('farm', 'general.disabled')))
 
             for (var id in groups) {
                 var name = groups[id].name
@@ -364,7 +357,7 @@ define('TWOverflow/Farm/interface', [
         var presets = $model.getPresetList().presets
         var $preset = $window.find('.preset')
         
-        $preset.html(disabledSelect)
+        $preset.html(genSelect('', Locale('farm', 'general.disabled')))
 
         for (var id in presets) {
             var cleanName = presets[id].name.replace(rpreset, '').trim()
@@ -392,7 +385,7 @@ define('TWOverflow/Farm/interface', [
         var replaces = {
             version: Farm.version,
             author: ___author,
-            locale: FarmLocale
+            locale: Locale
         }
 
         ui = new Interface('farmOverflow-farm', {
@@ -420,8 +413,10 @@ define('TWOverflow/Farm/interface', [
             groupOnly: $window.find('.only')
         }
 
+
+
         Farm.bind('sendCommand', function (from, to) {
-            $status.html(FarmLocale('events.attacking'))
+            $status.html(Locale('farm', 'events.attacking'))
             updateLastAttack($timeHelper.gameTime())
 
             if (!Farm.settings.eventAttack) {
@@ -488,29 +483,29 @@ define('TWOverflow/Farm/interface', [
                 type: 'noPreset'
             })
 
-            $status.html(FarmLocale('events.paused'))
+            $status.html(Locale('farm', 'events.paused'))
         })
 
         Farm.bind('noUnits', function () {
             if (Farm.singleVillage) {
-                $status.html(FarmLocale('events.noUnits'))
+                $status.html(Locale('farm', 'events.noUnits'))
             }
         })
 
         Farm.bind('noUnitsNoCommands', function () {
-            $status.html(FarmLocale('events.noUnitsNoCommands'))
+            $status.html(Locale('farm', 'events.noUnitsNoCommands'))
         })
 
         Farm.bind('start', function () {
-            $status.html(FarmLocale('events.attacking'))
+            $status.html(Locale('farm', 'events.attacking'))
         })
 
         Farm.bind('pause', function () {
-            $status.html(FarmLocale('events.paused'))
+            $status.html(Locale('farm', 'events.paused'))
         })
 
         Farm.bind('noVillages', function () {
-            $status.html(FarmLocale('events.noVillages'))
+            $status.html(Locale('farm', 'events.noVillages'))
         })
 
         Farm.bind('villagesUpdate', function () {
@@ -518,23 +513,23 @@ define('TWOverflow/Farm/interface', [
         })
 
         Farm.bind('startLoadingTargers', function () {
-            $status.html(FarmLocale('events.loadingTargets'))
+            $status.html(Locale('farm', 'events.loadingTargets'))
         })
 
         Farm.bind('endLoadingTargers', function () {
-            $status.html(FarmLocale('events.analyseTargets'))
+            $status.html(Locale('farm', 'events.analyseTargets'))
         })
 
         Farm.bind('attacking', function () {
-            $status.html(FarmLocale('events.attacking'))
+            $status.html(Locale('farm', 'events.attacking'))
         })
 
         Farm.bind('commandLimitSingle', function () {
-            $status.html(FarmLocale('events.commandLimit'))
+            $status.html(Locale('farm', 'events.commandLimit'))
         })
 
         Farm.bind('commandLimitMulti', function () {
-            $status.html(FarmLocale('events.noVillages'))
+            $status.html(Locale('farm', 'events.noVillages'))
         })
 
         Farm.bind('resetEvents', function () {
@@ -555,13 +550,13 @@ define('TWOverflow/Farm/interface', [
         })
 
         Farm.bind('start', function () {
-            $start.html(FarmLocale('general.pause'))
+            $start.html(Locale('farm', 'general.pause'))
             $start.removeClass('btn-green').addClass('btn-red')
             opener.$elem.removeClass('btn-green').addClass('btn-red')
         })
 
         Farm.bind('pause', function () {
-            $start.html(FarmLocale('general.start'))
+            $start.html(Locale('farm', 'general.start'))
             $start.removeClass('btn-red').addClass('btn-green')
             opener.$elem.removeClass('btn-red').addClass('btn-green')
         })

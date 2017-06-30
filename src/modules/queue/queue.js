@@ -1,18 +1,12 @@
-define('TWOverflow/Queue/locale', [
-    'TWOverflow/locale'
-], function (Locale) {
-    return new Locale(___langQueue, 'en_us')
-})
-
 define('TWOverflow/Queue', [
-    'TWOverflow/Queue/locale',
+    'TWOverflow/locale',
     'helper/time',
     'helper/math',
     'struct/MapData',
     'conf/conf',
     'Lockr'
 ], function (
-    QueueLocale,
+    Locale,
     $timeHelper,
     $math,
     $mapData,
@@ -260,6 +254,8 @@ define('TWOverflow/Queue', [
      * Adiciona/expira comandos salvos em execuções anteriores.
      */
     Queue.init = function () {
+        Locale.create('queue', ___langQueue, 'en')
+        
         $player = $model.getSelectedCharacter()
 
         // Inicializado!
@@ -328,7 +324,7 @@ define('TWOverflow/Queue', [
         command.units = parseDynamicUnits(command)
 
         if (!command.units) {
-            return Queue.trigger('error', [QueueLocale('error.noUnitsEnough')])
+            return Queue.trigger('error', [QueueLocale('queue', 'error.noUnitsEnough')])
         }
 
         $socket.emit($route.SEND_CUSTOM_ARMY, {
@@ -373,19 +369,19 @@ define('TWOverflow/Queue', [
      */
     Queue.addCommand = function (command) {
         if (!isValidCoords(command.origin)) {
-            return Queue.trigger('error', [QueueLocale('error.origin')])
+            return Queue.trigger('error', [QueueLocale('queue', 'error.origin')])
         }
 
         if (!isValidCoords(command.target)) {
-            return Queue.trigger('error', [QueueLocale('error.target')])
+            return Queue.trigger('error', [QueueLocale('queue', 'error.target')])
         }
 
         if (!isValidDateTime(command.arrive)) {
-            return Queue.trigger('error', [QueueLocale('error.invalidDate')])
+            return Queue.trigger('error', [QueueLocale('queue', 'error.invalidDate')])
         }
 
         if (angular.equals(command.units, {})) {
-            return Queue.trigger('error', [QueueLocale('error.noUnits')])
+            return Queue.trigger('error', [QueueLocale('queue', 'error.noUnits')])
         }
 
         command.originCoords = command.origin
@@ -427,9 +423,9 @@ define('TWOverflow/Queue', [
             var sendTime = arriveTime - travelTime
 
             if (!isValidSendTime(sendTime)) {
-                return Queue.trigger('error', [QueueLocale('error.alreadySent', {
+                return Queue.trigger('error', [QueueLocale('queue', 'error.alreadySent', {
                     date: readableDateFilter(sendTime),
-                    type: QueueLocale(command.type)
+                    type: QueueLocale('queue', command.type)
                 })])
             }
 
@@ -455,7 +451,7 @@ define('TWOverflow/Queue', [
         })
         
         loadVillagesData.catch(function (error) {
-            Queue.trigger('error', [QueueLocale(error)])
+            Queue.trigger('error', [QueueLocale('queue', error)])
         })
     }
 

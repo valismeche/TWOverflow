@@ -2,54 +2,127 @@ define('TWOverflow/locale', [
     'conf/locale',
     'i18n'
 ], function (gameLocale, i18n) {
-    var gameSelectedLang = gameLocale.LANGUAGE
-    var aliases = {
-        pt_br: ['pt_pt'],
-        en_us: ['en_dk']
+    /**
+     * Linguagens geradas para cada modulo
+     * 
+     * @type {Object}
+     */
+    var langs = {}
+
+    /**
+     * Linguagem padrão para cada modulo
+     * 
+     * @type {Object}
+     */
+    var defaults = {}
+
+    /**
+     * Linguagem atualmente selecionada em cada modulo.
+     * 
+     * @type {Object}
+     */
+    var selecteds = {}
+
+    /**
+     * Linguagem atualmente usada pela interface do jogo.
+     * 
+     * @type {String}
+     */
+    var gameLang = gameLocale.LANGUAGE.split('_')[0]
+
+    /**
+     * Obtem a tradução de uma linguagem
+     * 
+     * @param {String} moduleId - Identificação do modulo.
+     * @param {String} key - Key da tradução.
+     * @param {Object} replaces - Valores a serem substituidos na tradução.
+     *
+     * @return {String} Tradução da key.
+     */
+    function Locale (moduleId, key, replaces) {
+        if (!langs.hasOwnProperty(moduleId)) {
+            return console.error('Language for module ' + moduleId + ' not created')
+        }
+
+        var args = Array.from(arguments).slice(1)
+        var selected = selecteds[moduleId]
+
+        return langs[moduleId][selected].apply(this, args)
     }
 
-    function Locale (langData, defaultLang) {
-        var hasGameLang = langData.hasOwnProperty(gameSelectedLang)
-        var selected = getAlias(hasGameLang ? gameSelectedLang : defaultLang)
-        var langs = {}
+    /**
+     * Gera linguagens para um modulo.
+     *
+     * Locale.create("module", {
+     *     "en": {
+     *         "langName": "English",
+     *         "key": "value",
+     *         ...
+     *     },
+     *     "pt": {
+     *         "langName": "Português",
+     *         "key": "value"
+     *     }
+     * }, "en")
+     * 
+     * @param  {String} moduleId - Identificação do modulo.
+     * @param  {Object} langData - Dados de cada linguagem.
+     * @param  {String} defaultLang - Linguagem padrão
+     */
+    Locale.create = function (moduleId, langData, defaultLang) {
+        if (!langs.hasOwnProperty(moduleId)) {
+            langs[moduleId] = {}
+        }
 
-        for (var id in langData) {
-            langs[id] = i18n.create({
-                values: langData[id]
+        var dataHasGameLang = langData.hasOwnProperty(gameLang)
+
+        defaults[moduleId] = defaultLang
+        selecteds[moduleId] = dataHasGameLang ? gameLang : defaultLang
+
+        for (var langId in langData) {
+            langs[moduleId][langId] = i18n.create({
+                values: langData[langId]
             })
         }
-
-        function ref () {
-            return langs[selected].apply(this, arguments)
-        }
-
-        ref.change = function (id) {
-            var newLang = getAlias(id)
-
-            if (langs.hasOwnProperty(newLang)) {
-                selected = newLang
-            } else {
-                console.error('Language ' + id + ' not created!')
-
-                selected = defaultLang
-            }
-        }
-
-        ref.current = function () {
-            return selected
-        }
-
-        return ref
     }
 
-    function getAlias (id) {
-        for (var _id in aliases) {
-            if (aliases[_id].includes(id)) {
-                return aliases[_id]
-            }
-        }
+    /**
+     * Altera a linguagem selecionada do modulo.
+     * 
+     * @param  {String} moduleId - Identificação do modulo.
+     * @param  {String} langId - Linguagem a ser selecionada.
+     */
+    Locale.change = function (moduleId, langId) {
+        if (langs[moduleId].hasOwnProperty(langId)) {
+            selecteds[moduleId] = langId
+        } else {
+            console.error('Language ' + langId + ' not created')
 
-        return id
+            selecteds[moduleId] = defaults[moduleId]
+        }
+    }
+
+    /**
+     * Obtem a linguagem atualmente selecionada do modulo.
+     * 
+     * @param  {String} moduleId - Identificação do modulo.
+     */
+    Locale.current = function (moduleId) {
+        return selecteds[moduleId]
+    }
+
+    /**
+     * Loop em cada linguagem adicionado ao modulo.
+     * 
+     * @param  {String} moduleId - Identificação do modulo.
+     * @param  {Function} callback
+     */
+    Locale.eachLang = function (moduleId, callback) {
+        var moduleLangs = langs[moduleId]
+
+        for (var langId in moduleLangs) {
+            callback(langId, moduleLangs[langId]('langName'))
+        }
     }
 
     return Locale

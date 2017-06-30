@@ -1,6 +1,6 @@
 define('TWOverflow/Queue/interface', [
     'TWOverflow/Queue',
-    'TWOverflow/Queue/locale',
+    'TWOverflow/locale',
     'TWOverflow/Interface',
     'TWOverflow/Interface/buttonLink',
     'TWOverflow/FrontButton',
@@ -432,7 +432,7 @@ define('TWOverflow/Queue/interface', [
 
         $window.find('a.addMapSelected').on('click', function () {
             if (!mapSelectedVillage) {
-                return emitNotif('error', QueueLocale('error.noMapSelectedVillage'))
+                return emitNotif('error', QueueLocale('queue', 'error.noMapSelectedVillage'))
             }
 
             $target.val(mapSelectedVillage.join('|'))
@@ -616,8 +616,8 @@ define('TWOverflow/Queue/interface', [
         // no botão para um rápida visualização.
         opener.hover(function () {
             var commands = Queue.getWaitingCommands()
-            var sendTime = commands.length ? formatDate(sendTime) : QueueLocale('general.none')
-            var text = QueueLocale('general.nextCommand') + ': ' + sendTime
+            var sendTime = commands.length ? formatDate(sendTime) : QueueLocale('queue', 'general.none')
+            var text = QueueLocale('queue', 'general.nextCommand') + ': ' + sendTime
 
             opener.updateQuickview(text)
         })
@@ -657,7 +657,7 @@ define('TWOverflow/Queue/interface', [
         // Remove o comando da lista de espera
         Queue.bind('remove', function (removed, command) {
             if (!removed) {
-                return emitNotif('error', QueueLocale('error.removeError'))
+                return emitNotif('error', QueueLocale('queue', 'error.removeError'))
             }
 
             removeCommand(command, 'queue')
@@ -689,7 +689,7 @@ define('TWOverflow/Queue/interface', [
         Queue.bind('start', function () {
             opener.$elem.removeClass('btn-green').addClass('btn-red')
             $switch.removeClass('btn-green').addClass('btn-red')
-            $switch.html(QueueLocale('general.deactivate'))
+            $switch.html(QueueLocale('queue', 'general.deactivate'))
 
             emitNotif('success', genNotifText('title', 'activated'))
         })
@@ -697,7 +697,7 @@ define('TWOverflow/Queue/interface', [
         Queue.bind('stop', function () {
             opener.$elem.removeClass('btn-red').addClass('btn-green')
             $switch.removeClass('btn-red').addClass('btn-green')
-            $switch.html(QueueLocale('general.activate'))
+            $switch.html(QueueLocale('queue', 'general.activate'))
 
             emitNotif('success', genNotifText('title', 'deactivated'))
         })

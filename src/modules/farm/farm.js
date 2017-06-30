@@ -1,11 +1,5 @@
-define('TWOverflow/Farm/locale', [
-    'TWOverflow/locale'
-], function (Locale) {
-    return new Locale(___langFarm, 'en_us')
-})
-
 define('TWOverflow/Farm', [
-    'TWOverflow/Farm/locale',
+    'TWOverflow/locale',
     'TWOverflow/Farm/Commander',
     'TWOverflow/Farm/Village',
     'helper/math',
@@ -16,7 +10,7 @@ define('TWOverflow/Farm', [
     'conf/locale',
     'Lockr'
 ], function (
-    FarmLocale,
+    Locale,
     Commander,
     Village,
     $math,
@@ -255,22 +249,6 @@ define('TWOverflow/Farm', [
     FarmOverflow.priorityTargets = {}
 
     /**
-     * Timestamp da última atividade do FarmOverflow como atques e
-     * trocas de aldeias.
-     *
-     * @type {Number}
-     */
-    FarmOverflow.lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
-
-    /**
-     * Timestamp da última atividade do FarmOverflow como atques e
-     * trocas de aldeias.
-     *
-     * @type {Number}
-     */
-    FarmOverflow.lastAttack = Lockr.get('farm-lastAttack', -1, true)
-
-    /**
      * Status do FarmOverflow.
      *
      * @type {String}
@@ -278,6 +256,8 @@ define('TWOverflow/Farm', [
     FarmOverflow.status = 'events.paused'
 
     FarmOverflow.init = function () {
+        Locale.create('farm', ___langFarm, 'en')
+
         /**
          * Previne do Farm ser executado mais de uma vez.
          * 
@@ -307,6 +287,22 @@ define('TWOverflow/Farm', [
         FarmOverflow.lastEvents = Lockr.get('farm-lastEvents', [], true)
 
         /**
+         * Timestamp da última atividade do FarmOverflow como atques e
+         * trocas de aldeias.
+         *
+         * @type {Number}
+         */
+        FarmOverflow.lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
+
+        /**
+         * Timestamp da última atividade do FarmOverflow como atques e
+         * trocas de aldeias.
+         *
+         * @type {Number}
+         */
+        FarmOverflow.lastAttack = Lockr.get('farm-lastAttack', -1, true)
+
+        /**
          * Objeto com dados do jogador.
          *
          * @type {Object}
@@ -324,7 +320,10 @@ define('TWOverflow/Farm', [
         FarmOverflow.updatePresets()
         FarmOverflow.listeners()
 
-        FarmLocale.change(FarmOverflow.settings.language)
+        // Compatibilidade com a v2        
+        FarmOverflow.settings.language = FarmOverflow.settings.language.split('_')[0]
+
+        Locale.change('farm', FarmOverflow.settings.language)
     }
 
     /**
@@ -335,7 +334,7 @@ define('TWOverflow/Farm', [
     FarmOverflow.start = function () {
         if (!FarmOverflow.presets.length) {
             if (FarmOverflow.notifsEnabled) {
-                emitNotif('error', FarmLocale('events.presetFirst'))
+                emitNotif('error', Locale('farm', 'events.presetFirst'))
             }
 
             return false
@@ -343,7 +342,7 @@ define('TWOverflow/Farm', [
 
         if (!FarmOverflow.village) {
             if (FarmOverflow.notifsEnabled) {
-                emitNotif('error', FarmLocale('events.noSelectedVillage'))
+                emitNotif('error', Locale('farm', 'events.noSelectedVillage'))
             }
             
             return false
@@ -366,7 +365,7 @@ define('TWOverflow/Farm', [
         FarmOverflow.commander.start()
 
         if (FarmOverflow.notifsEnabled) {
-            emitNotif('success', FarmLocale('general.started'))
+            emitNotif('success', Locale('farm', 'general.started'))
         }
 
         FarmOverflow.trigger('start')
@@ -383,7 +382,7 @@ define('TWOverflow/Farm', [
         FarmOverflow.commander.stop()
         
         if (FarmOverflow.notifsEnabled) {
-            emitNotif('success', FarmLocale('general.paused'))
+            emitNotif('success', Locale('farm', 'general.paused'))
         }
 
         FarmOverflow.trigger('pause')
@@ -429,7 +428,7 @@ define('TWOverflow/Farm', [
      * Atualiza o timestamp do último ataque enviado com o FarmOverflow.
      */
     FarmOverflow.updateLastStatus = function (status) {
-        FarmOverflow.status = FarmLocale(status)
+        FarmOverflow.status = Locale('farm', status)
     }
 
     /**
@@ -504,7 +503,7 @@ define('TWOverflow/Farm', [
 
         if (modify.language) {
             if (FarmOverflow.eventsEnabled) {
-                emitNotif('success', FarmLocale('settings.events.restartScript'))
+                emitNotif('success', Locale('farm', 'settings.events.restartScript'))
             }
         }
 
@@ -1340,10 +1339,11 @@ define('TWOverflow/Farm', [
                 var lastAttack = readableDateFilter(FarmOverflow.lastAttack)
 
                 var bbcodeMessage = [
-                    '[b]' + FarmLocale('events.status') + ':[/b] ' + FarmLocale('events.' + FarmOverflow.status) + '[br]',
-                    '[b]' + FarmLocale('events.selectedVillage') + ':[/b] ',
+                    '[b]' + Locale('farm', 'events.status') + ':[/b] ',
+                    Locale('farm', 'events.' + FarmOverflow.status) + '[br]',
+                    '[b]' + Locale('farm', 'events.selectedVillage') + ':[/b] ',
                     '[village=' + village.id + ']' + villageLabel + '[/village][br]',
-                    '[b]' + FarmLocale('events.lastAttack') + ':[/b] ' + lastAttack
+                    '[b]' + Locale('farm', 'events.lastAttack') + ':[/b] ' + lastAttack
                 ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)

@@ -8,18 +8,18 @@
     <tbody>
         <tr>
             <th colspan="2">
-                <span class="size-26x26 icon-bg-black icon-26x26-time-duration" tooltip="<#= locale("command.out") #>"></span>
+                <span class="size-26x26 icon-bg-black icon-26x26-time-duration" tooltip="<#= locale("queue", "command.out") #>"></span>
                 <#= sendTime #>
-                <span class="size-26x26 icon-bg-black icon-20x20-units-outgoing" tooltip="<#= locale("command.arrive") #>"></span>
+                <span class="size-26x26 icon-bg-black icon-20x20-units-outgoing" tooltip="<#= locale("queue", "command.arrive") #>"></span>
                 <#= arrive #>
 
                 <# if (section === "queue") { #>
-                    <a href="#" class="remove-command size-20x20 btn-red icon-20x20-close" tooltip="<#= locale("queue.remove") #>"></a>
+                    <a href="#" class="remove-command size-20x20 btn-red icon-20x20-close" tooltip="<#= locale("queue", "queue.remove") #>"></a>
                 <# } #>
             </th>
         </tr>
         <tr>
-            <td><#= locale("command.village") #></td>
+            <td><#= locale("queue", "command.village") #></td>
             <td>
                 <a class="origin"></a>
                 <span class="icon-bg-red icon-26x26-<#= typeClass #> command-type"></span>
@@ -27,7 +27,7 @@
             </td>
         </tr>
         <tr>
-            <td><#= locale("general.units") #></td>
+            <td><#= locale("queue", "general.units") #></td>
             <td class="units">
                 <# for (var unit in units) { #>
                     <div class="unit">
