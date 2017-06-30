@@ -88,7 +88,7 @@ define('TWOverflow/Farm', [
         maxPoints: 12500,
         eventsLimit: 20,
         ignoreOnLoss: true,
-        language: gameLocale.LANGUAGE,
+        language: gameLocale.LANGUAGE.split('_')[0],
         priorityTargets: true,
         eventAttack: true,
         eventVillageChange: true,
@@ -319,9 +319,6 @@ define('TWOverflow/Farm', [
         FarmOverflow.updatePlayerVillages()
         FarmOverflow.updatePresets()
         FarmOverflow.listeners()
-
-        // Compatibilidade com a v2        
-        FarmOverflow.settings.language = FarmOverflow.settings.language.split('_')[0]
 
         Locale.change('farm', FarmOverflow.settings.language)
     }
