@@ -17,104 +17,89 @@ define('TWOverflow/Farm/interface', [
     Lockr,
     ejs
 ) {
+    // Controlador de interface
     var ui
+    // Controlador do botão para abrir a janela da interface
     var opener
-    var events
-    var visibleEventCount
+    // Atalhos rapidos para os elementos da janela.
     var $window
     var $events
     var $last
+    var $status
+    var $start
+    var $settings
+
+    /**
+     * Contagem de eventos inseridos na visualização.
+     *
+     * @type {Number}
+     */
+    var eventsCount = 1
+
+    /**
+     * Usado para obter a identificação dos presets e a descrição.
+     *
+     * @type {RegExp}
+     */
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
-    var rtemplate = /%\{[^\}]+\}/g
+
+    /**
+     * Gera um <select>
+     * 
+     * @param  {String} value - Valor do select
+     * @param  {String} label - Texto exibido no select
+     * @param  {Boolean} selected - Inclui o atributo "selected"
+     * @return {String} Select montado
+     */
+    var genSelect = function (value, label, selected) {
+        return '<option value="' + value + '"' + (selected ? ' selected' : '') + '>' + label + '</option>'
+    }
+
+    /**
+     * <select> desativado
+     * 
+     * @type {String}
+     */
     var disabledSelect = genSelect('', FarmLocale('general.disabled'))
+
+    /**
+     * Formato das datas usadas nos eventos.
+     * 
+     * @type {String}
+     */
     var dateFormat = 'dd/MM/yyyy hh:mm:ss'
 
-    function FarmInterface () {
-        ui = new Interface('farmOverflow-farm', {
-            activeTab: 'info',
-            css: '___cssFarm',
-            template: '___htmlFarmWindow',
-            replaces: {
-                version: Farm.version,
-                author: ___author,
-                locale: FarmLocale
-            }
-        })
+    /**
+     * Lista de grupos disponíveis na conta do jogador
+     *
+     * @type {Object}
+     */
+    var groups
 
-        opener = new FrontButton('Farm')
+    /**
+     * Elementos dos grupos usados pelo FarmOverflow.
+     * 
+     * @type {Object}
+     */
+    var $groups
 
-        opener.hover(function () {
-            var text = FarmLocale('events.lastAttack') + ': ' + $last.html()
+    /**
+     * Atualiza as informações rápidas do botão inicial do FarmOverflow
+     * @return {[type]} [description]
+     */
+    var updateQuickview = function () {
+        var last = FarmLocale('events.lastAttack')
+        var text = last + ': ' + $last.html()
 
-            opener.updateQuickview(text)
-        })
-
-        $window = $(ui.$window)
-        $events = $window.find('.events')
-        $last = $window.find('.last')
-
-        events = Lockr.get('farm-lastEvents', [], true)
-        visibleEventCount = 1
-
-        bindSettings()
-        bindEvents()
-        updateGroupList()
-        updateSelectedVillage()
-        updateLastAttack()
-        populateEvents()
-
-        if ($presetList.isLoaded()) {
-            updatePresetList()
-        }
-
-        Farm.bind('groupsChanged', function () {
-            updateGroupList()
-        })
-
-        Farm.bind('presetsLoaded', function () {
-            updatePresetList()
-        })
-
-        Farm.bind('presetsChange', function () {
-            updatePresetList()
-        })
-
-        opener.click(function () {
-            ui.openWindow()
-        })
-
-        $hotkeys.add(Farm.settings.hotkeySwitch, function () {
-            Farm.switch()
-        })
-
-        $hotkeys.add(Farm.settings.hotkeyWindow, function () {
-            ui.openWindow()
-        })
-
-        var $start = $window.find('.start')
-
-        $start.on('click', function () {
-            Farm.switch()
-        })
-
-        Farm.bind('start', function () {
-            $start.html(FarmLocale('general.pause'))
-            $start.removeClass('btn-green').addClass('btn-red')
-            opener.$elem.removeClass('btn-green').addClass('btn-red')
-        })
-
-        Farm.bind('pause', function () {
-            $start.html(FarmLocale('general.start'))
-            $start.removeClass('btn-red').addClass('btn-green')
-            opener.$elem.removeClass('btn-red').addClass('btn-green')
-        })
+        opener.updateQuickview(text)
     }
 
     /**
      * Loop em todas configurações do FarmOverflow
+     * 
      * @param {Function} callback
      */
-    function eachSetting (callback) {
+    var eachSetting = function (callback) {
         for (var key in Farm.settings) {
             var $input = $window.find('[name="' + key + '"]')
 
@@ -127,10 +112,9 @@ define('TWOverflow/Farm/interface', [
     }
 
     /**
-     * Listeners das para alteração das configurações do FarmOverflow.
+     * Insere as configurações na interface.
      */
-    function bindSettings () {
-        // Insere os valores nas entradas
+    var populateSettings = function () {
         eachSetting(function ($input) {
             var type = $input[0].type
             var name = $input[0].name
@@ -154,8 +138,23 @@ define('TWOverflow/Farm/interface', [
 
             $input.val(Farm.settings[name])
         })
+    }
 
-        var $settings = $window.find('.settings')
+    /**
+     * Configura todos eventos dos elementos da interface.
+     */
+    var bindEvents = function () {
+        $hotkeys.add(Farm.settings.hotkeySwitch, function () {
+            Farm.switch()
+        })
+
+        $hotkeys.add(Farm.settings.hotkeyWindow, function () {
+            ui.openWindow()
+        })
+
+        $start.on('click', function () {
+            Farm.switch()
+        })
 
         $settings.on('submit', function (event) {
             event.preventDefault()
@@ -191,138 +190,22 @@ define('TWOverflow/Farm/interface', [
     }
 
     /**
-     * Adiciona eventos na interface com base nos eventos do FarmOverflow.
-     */
-    function bindEvents () {
-        var $status = $window.find('.status')
-
-        var listenEvents = {
-            sendCommand: function (from, to) {
-                $status.html(FarmLocale('events.attacking'))
-                updateLastAttack($timeHelper.gameTime())
-
-                if (!Farm.settings.eventAttack) {
-                    return false
-                }
-
-                addEvent({
-                    links: {
-                        origin: { type: 'village', name: villageLabel(from), id: from.id },
-                        target: { type: 'village', name: villageLabel(to), id: to.id }
-                    },
-                    icon: 'attack-small',
-                    type: 'sendCommand'
-                })
-            },
-            nextVillage: function (next) {
-                updateSelectedVillage()
-                
-                if (!Farm.settings.eventVillageChange) {
-                    return false
-                }
-
-                addEvent({
-                    links: {
-                        village: { type: 'village', name: villageLabel(next), id: next.id }
-                    },
-                    icon: 'village',
-                    type: 'nextVillage'
-                })
-            },
-            ignoredVillage: function (target) {
-                if (!Farm.settings.eventIgnoredVillage) {
-                    return false
-                }
-
-                addEvent({
-                    links: {
-                        target: { type: 'village', name: villageLabel(target), id: target.id }
-                    },
-                    icon: 'check-negative',
-                    type: 'ignoredVillage'
-                })
-            },
-            priorityTargetAdded: function (target) {
-                if (!Farm.settings.eventPriorityAdd) {
-                    return false
-                }
-                
-                addEvent({
-                    links: {
-                        target: { type: 'village', name: villageLabel(target), id: target.id }
-                    },
-                    icon: 'parallel-recruiting',
-                    type: 'priorityTargetAdded'
-                })
-            },
-            noPreset: function () {
-                addEvent({
-                    icon: 'info',
-                    type: 'noPreset'
-                })
-
-                $status.html(FarmLocale('events.paused'))
-            },
-            noUnits: function () {
-                if (Farm.singleVillage) {
-                    $status.html(FarmLocale('events.noUnits'))
-                }
-            },
-            noUnitsNoCommands: function () {
-                $status.html(FarmLocale('events.noUnitsNoCommands'))
-            },
-            start: function () {
-                $status.html(FarmLocale('events.attacking'))
-            },
-            pause: function () {
-                $status.html(FarmLocale('events.paused'))
-            },
-            noVillages: function () {
-                $status.html(FarmLocale('events.noVillages'))
-            },
-            villagesUpdate: function () {
-                updateSelectedVillage()
-            },
-            startLoadingTargers: function () {
-                $status.html(FarmLocale('events.loadingTargets'))
-            },
-            endLoadingTargers: function () {
-                $status.html(FarmLocale('events.analyseTargets'))
-            },
-            attacking: function () {
-                $status.html(FarmLocale('events.attacking'))
-            },
-            commandLimitSingle: function () {
-                $status.html(FarmLocale('events.commandLimit'))
-            },
-            commandLimitMulti: function () {
-                $status.html(FarmLocale('events.noVillages'))
-            },
-            resetEvents: function () {
-                visibleEventCount = 0
-                populateEvents()
-            }
-        }
-
-        for (var e in listenEvents) {
-            Farm.bind(e, listenEvents[e])
-        }
-    }
-
-    /**
      * Atualiza o elemento com a data do último ataque enviado
      * Tambem armazena para ser utilizado nas proximas execuções.
+     *
+     * @param {[type]} [varname] [description]
      */
-    function updateLastAttack (lastAttack) {
+    var updateLastAttack = function (lastAttack) {
         if (!lastAttack) {
             lastAttack = Farm.lastAttack
 
             if (lastAttack === -1) {
-                return
+                return false
             }
         }
 
         $last.html(readableDateFilter(lastAttack, null, null, null, dateFormat))
+
         updateQuickview()
     }
 
@@ -330,30 +213,28 @@ define('TWOverflow/Farm/interface', [
      * Adiciona um evento na aba "Eventos".
      *
      * @param {Object} options - Opções do evento.
-     * @param {Boolean} [_populate] - Indica quando o script está apenas populando
+     * @param {Boolean=} _populate - Indica quando o script está apenas populando
      *      a lista de eventos, então não é alterado o "banco de dados".
      */
-    function addEvent (options, _populate) {
-        var limit = Farm.settings.eventsLimit
-
+    var addEvent = function (options, _populate) {
         $events.find('.nothing').remove()
 
-        if (visibleEventCount >= limit) {
+        if (eventsCount >= Farm.settings.eventsLimit) {
             $events.find('tr:last-child').remove()
         }
 
-        if (events.length >= limit) {
-            events.pop()
+        if (Farm.lastEvents.length >= Farm.settings.eventsLimit) {
+            Farm.lastEvents.pop()
         }
 
         addRow($events, options, _populate)
-        visibleEventCount++
+        eventsCount++
 
         if (!_populate) {
             options.timestamp = $timeHelper.gameTime()
-            events.unshift(options)
-            
-            Lockr.set('farm-lastEvents', events)
+
+            Farm.lastEvents.unshift(options)
+            Farm.updateLastEvents()
         }
     }
 
@@ -364,7 +245,7 @@ define('TWOverflow/Farm/interface', [
      * @param {Boolean} [_populate] - Indica quando o script está apenas populando
      *      a lista de eventos, então os elementos são adicionados no final da lista.
      */
-    function addRow ($where, options, _populate) {
+    var addRow = function ($where, options, _populate) {
         // Copia o objeto porque ele será armazenado e não queremos os
         // dados guardados já renderizados.
         options = angular.copy(options)
@@ -411,7 +292,7 @@ define('TWOverflow/Farm/interface', [
     /**
      * Atualiza o elemento com a aldeias atualmente selecionada
      */
-    function updateSelectedVillage () {
+    var updateSelectedVillage = function () {
         var $selected = $window.find('.selected')
 
         if (!Farm.village) {
@@ -428,54 +309,41 @@ define('TWOverflow/Farm/interface', [
      * Popula a lista de eventos que foram gerados em outras execuções
      * do FarmOverflow.
      */
-    function populateEvents () {
-        var settings = Farm.settings
-        
+    var populateEvents = function () {
         // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
-        if (events.length > 0) {
+        if (Farm.lastEvents.length > 0) {
             $events.find('.nothing').remove()
         }
 
-        for (var i = 0; i < events.length; i++) {
-            if (visibleEventCount >= settings.eventsLimit) {
-                break
+        Farm.lastEvents.some(function (event) {
+            if (eventsCount >= Farm.settings.eventsLimit) {
+                return true
             }
 
-            var event = events[i]
-
-            if (!settings.eventAttack && event.type === 'sendCommand') {
-                continue
+            if (!Farm.settings.eventAttack && event.type === 'sendCommand') {
+                return
             }
 
-            if (!settings.eventVillageChange && event.type === 'nextVillage') {
-                continue
+            if (!Farm.settings.eventVillageChange && event.type === 'nextVillage') {
+                return
             }
 
-            if (!settings.eventPriorityAdd && event.type === 'priorityTargetAdded') {
-                continue
+            if (!Farm.settings.eventPriorityAdd && event.type === 'priorityTargetAdded') {
+                return
             }
 
-            if (!settings.eventIgnoredVillage && event.type === 'ignoredVillage') {
-                continue
+            if (!Farm.settings.eventIgnoredVillage && event.type === 'ignoredVillage') {
+                return
             }
 
             addEvent(event, true)
-        }
+        })
     }
 
     /**
      * Atualiza a lista de grupos na aba de configurações.
      */
-    function updateGroupList () {
-        var types = ['groupIgnore', 'groupInclude', 'groupOnly']
-        var groups = $model.getGroupList().getGroups()
-
-        var $groups = {
-            groupIgnore: $window.find('.ignore'),
-            groupInclude: $window.find('.include'),
-            groupOnly: $window.find('.only')
-        }
-
+    var updateGroupList = function () {
         for (var type in $groups) {
             $groups[type].html(disabledSelect)
 
@@ -491,7 +359,7 @@ define('TWOverflow/Farm/interface', [
     /**
      * Atualiza a lista de presets na aba de configurações.
      */
-    function updatePresetList () {
+    var updatePresetList = function () {
         var loaded = {}
         var presets = $model.getPresetList().presets
         var $preset = $window.find('.preset')
@@ -517,8 +385,197 @@ define('TWOverflow/Farm/interface', [
         }
     }
 
-    function genSelect (value, label, selected) {
-        return '<option value="' + value + '"' + (selected ? ' selected' : '') + '>' + label + '</option>'
+    function FarmInterface () {
+        groups = $model.getGroupList().getGroups()
+
+        // Valores a serem substituidos no template da janela
+        var replaces = {
+            version: Farm.version,
+            author: ___author,
+            locale: FarmLocale
+        }
+
+        ui = new Interface('farmOverflow-farm', {
+            activeTab: 'info',
+            template: '___htmlFarmWindow',
+            replaces: replaces,
+            css: '___cssFarm'
+        })
+
+        opener = new FrontButton('Farm')
+        opener.hover(updateQuickview)
+        opener.click(function () {
+            ui.openWindow()
+        })
+
+        $window = $(ui.$window)
+        $events = $window.find('.events')
+        $last = $window.find('.last')
+        $status = $window.find('.status')
+        $start = $window.find('.start')
+        $settings = $window.find('.settings')
+        $groups = {
+            groupIgnore: $window.find('.ignore'),
+            groupInclude: $window.find('.include'),
+            groupOnly: $window.find('.only')
+        }
+
+        Farm.bind('sendCommand', function (from, to) {
+            $status.html(FarmLocale('events.attacking'))
+            updateLastAttack($timeHelper.gameTime())
+
+            if (!Farm.settings.eventAttack) {
+                return false
+            }
+
+            addEvent({
+                links: {
+                    origin: { type: 'village', name: villageLabel(from), id: from.id },
+                    target: { type: 'village', name: villageLabel(to), id: to.id }
+                },
+                icon: 'attack-small',
+                type: 'sendCommand'
+            })
+        })
+
+        Farm.bind('nextVillage', function (next) {
+            updateSelectedVillage()
+            
+            if (!Farm.settings.eventVillageChange) {
+                return false
+            }
+
+            addEvent({
+                links: {
+                    village: { type: 'village', name: villageLabel(next), id: next.id }
+                },
+                icon: 'village',
+                type: 'nextVillage'
+            })
+        })
+
+        Farm.bind('ignoredVillage', function (target) {
+            if (!Farm.settings.eventIgnoredVillage) {
+                return false
+            }
+
+            addEvent({
+                links: {
+                    target: { type: 'village', name: villageLabel(target), id: target.id }
+                },
+                icon: 'check-negative',
+                type: 'ignoredVillage'
+            })
+        })
+
+        Farm.bind('priorityTargetAdded', function (target) {
+            if (!Farm.settings.eventPriorityAdd) {
+                return false
+            }
+            
+            addEvent({
+                links: {
+                    target: { type: 'village', name: villageLabel(target), id: target.id }
+                },
+                icon: 'parallel-recruiting',
+                type: 'priorityTargetAdded'
+            })
+        })
+
+        Farm.bind('noPreset', function () {
+            addEvent({
+                icon: 'info',
+                type: 'noPreset'
+            })
+
+            $status.html(FarmLocale('events.paused'))
+        })
+
+        Farm.bind('noUnits', function () {
+            if (Farm.singleVillage) {
+                $status.html(FarmLocale('events.noUnits'))
+            }
+        })
+
+        Farm.bind('noUnitsNoCommands', function () {
+            $status.html(FarmLocale('events.noUnitsNoCommands'))
+        })
+
+        Farm.bind('start', function () {
+            $status.html(FarmLocale('events.attacking'))
+        })
+
+        Farm.bind('pause', function () {
+            $status.html(FarmLocale('events.paused'))
+        })
+
+        Farm.bind('noVillages', function () {
+            $status.html(FarmLocale('events.noVillages'))
+        })
+
+        Farm.bind('villagesUpdate', function () {
+            updateSelectedVillage()
+        })
+
+        Farm.bind('startLoadingTargers', function () {
+            $status.html(FarmLocale('events.loadingTargets'))
+        })
+
+        Farm.bind('endLoadingTargers', function () {
+            $status.html(FarmLocale('events.analyseTargets'))
+        })
+
+        Farm.bind('attacking', function () {
+            $status.html(FarmLocale('events.attacking'))
+        })
+
+        Farm.bind('commandLimitSingle', function () {
+            $status.html(FarmLocale('events.commandLimit'))
+        })
+
+        Farm.bind('commandLimitMulti', function () {
+            $status.html(FarmLocale('events.noVillages'))
+        })
+
+        Farm.bind('resetEvents', function () {
+            eventsCount = 0
+            populateEvents()
+        })
+
+        Farm.bind('groupsChanged', function () {
+            updateGroupList()
+        })
+
+        Farm.bind('presetsLoaded', function () {
+            updatePresetList()
+        })
+
+        Farm.bind('presetsChange', function () {
+            updatePresetList()
+        })
+
+        Farm.bind('start', function () {
+            $start.html(FarmLocale('general.pause'))
+            $start.removeClass('btn-green').addClass('btn-red')
+            opener.$elem.removeClass('btn-green').addClass('btn-red')
+        })
+
+        Farm.bind('pause', function () {
+            $start.html(FarmLocale('general.start'))
+            $start.removeClass('btn-red').addClass('btn-green')
+            opener.$elem.removeClass('btn-red').addClass('btn-green')
+        })
+
+        if ($presetList.isLoaded()) {
+            updatePresetList()
+        }
+
+        populateSettings()
+        bindEvents()
+        updateGroupList()
+        updateSelectedVillage()
+        updateLastAttack()
+        populateEvents()
     }
 
     return FarmInterface

@@ -300,6 +300,13 @@ define('TWOverflow/Farm', [
         FarmOverflow.settings = angular.merge({}, DEFAULTS, localSettings)
 
         /**
+         * Armazena todos os últimos eventos ocorridos no FarmOverflow.
+         *
+         * @type {Array}
+         */
+        FarmOverflow.lastEvents = Lockr.get('farm-lastEvents', [], true)
+
+        /**
          * Objeto com dados do jogador.
          *
          * @type {Object}
@@ -409,6 +416,13 @@ define('TWOverflow/Farm', [
     FarmOverflow.updateLastAttack = function () {
         FarmOverflow.lastAttack = $timeHelper.gameTime()
         Lockr.set('farm-lastAttack', FarmOverflow.lastAttack)
+    }
+
+    /**
+     * Salva no localStorage a lista dos últimos eventos ocorridos no FarmOverflow.
+     */
+    FarmOverflow.updateLastEvents = function () {
+        Lockr.set('farm-lastEvents', FarmOverflow.lastEvents)
     }
 
     /**
@@ -1428,6 +1442,10 @@ define('TWOverflow/Farm', [
         }
 
         return true
+    }
+
+    FarmOverflow.getLastEvents = function () {
+        return lastEvents
     }
 
     return FarmOverflow
