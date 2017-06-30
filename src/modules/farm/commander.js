@@ -1,17 +1,14 @@
 define('TWOverflow/Farm/Commander', [
+    'TWOverflow/Farm',
     'helper/math'
-], function ($math) {
-    var Farm
-
+], function (Farm, $math) {
     /**
      * @class
      *
      * Controla os ciclos de comandos, enviando ataques, alternando
      * aldeias e alvos.
      */
-    function Commander (FarmScope) {
-        Farm = FarmScope
-        
+    function Commander () {
         /**
          * Armazena o antecipadamente o próximo evento (noUnits/commandLimit)
          * evitando o script de fazer ações com os dados locais (tropas/comandos)
@@ -23,6 +20,8 @@ define('TWOverflow/Farm/Commander', [
 
         this.timeoutId = null
         this.running = false
+
+        return this
     }
 
     Commander.prototype.start = function () {

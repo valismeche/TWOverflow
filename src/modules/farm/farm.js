@@ -1,6 +1,5 @@
 define('TWOverflow/Farm', [
     'TWOverflow/locale',
-    'TWOverflow/Farm/Commander',
     'TWOverflow/Farm/Village',
     'helper/math',
     'conf/conf',
@@ -11,7 +10,6 @@ define('TWOverflow/Farm', [
     'Lockr'
 ], function (
     Locale,
-    Commander,
     Village,
     $math,
     $conf,
@@ -21,6 +19,11 @@ define('TWOverflow/Farm', [
     gameLocale,
     Lockr
 ) {
+    var createCommander = function () {
+        var Commander = require('TWOverflow/Farm/Commander')
+        
+        return new Commander()
+    }
     /**
      * Remove todas propriedades que tiverem valor zero.
      *
@@ -211,13 +214,6 @@ define('TWOverflow/Farm', [
     FarmOverflow.includedVillages = []
 
     /**
-     * Armazena os índices dos alvos de cada aldeia disponível.
-     *
-     * @type {Object}
-     */
-    FarmOverflow.indexes = Lockr.get('farm-indexes', {}, true)
-
-    /**
      * Armazena todas aldeias que não estão em confições de enviar comandos.
      *
      * @type {Object}
@@ -303,6 +299,13 @@ define('TWOverflow/Farm', [
         FarmOverflow.lastAttack = Lockr.get('farm-lastAttack', -1, true)
 
         /**
+         * Armazena os índices dos alvos de cada aldeia disponível.
+         *
+         * @type {Object}
+         */
+        FarmOverflow.indexes = Lockr.get('farm-indexes', {}, true)
+
+        /**
          * Objeto com dados do jogador.
          *
          * @type {Object}
@@ -312,7 +315,7 @@ define('TWOverflow/Farm', [
         /**
          * Classe que controla os ciclos de ataques.
          */
-        FarmOverflow.commander = new Commander(FarmOverflow)
+        FarmOverflow.commander = createCommander()
 
         FarmOverflow.updateExceptionGroups()
         FarmOverflow.updateExceptionVillages()
@@ -358,7 +361,7 @@ define('TWOverflow/Farm', [
             Lockr.set('farm-indexes', {})
         }
 
-        FarmOverflow.commander = new Commander(FarmOverflow)
+        FarmOverflow.commander = createCommander()
         FarmOverflow.commander.start()
 
         if (FarmOverflow.notifsEnabled) {
