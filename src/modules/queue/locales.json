@@ -64,9 +64,10 @@
         "command.arrive": "Chegada",
 
         "error.noUnitsEnough": "Sem unidades o sulficientes para enviar o comando!",
-        "error.origin": "Coordendas \"%{origin}\" da aldeia de origem incorreta!",
-        "error.target": "Coordendas \"%{target}\" da aldeia alvo incorreta!",
+        "error.origin": "Coordendas da aldeia de origem inválida!",
+        "error.target": "Coordendas da aldeia alvo inválida!",
         "error.noUnits": "Nenhuma unidade especificada!",
+        "error.invalidDate": "Data inválida",
         "error.alreadySent": "Esse %{type} deveria ter saído %{date}",
         "error.originNotExist": "Aldeia de origem especificada não existe!",
         "error.targetNotExist": "Aldeia alvo especificada não existe!",

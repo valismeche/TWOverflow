@@ -53,6 +53,16 @@ function isValidCoords (xy) {
 }
 
 /**
+ * Validação de horario e data de envio. Exmplo: 23:59:00:999 30/12/2016
+ * 
+ * @param  {String}  dateTime
+ * @return {Boolean}
+ */
+function isValidDateTime (dateTime) {
+    return /^\s*([01][0-9]|2[0-3]):[0-5]\d:[0-5]\d(:\d{1,3})? (0[1-9]|[12][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/\d{4}\s*$/.test(dateTime)
+}
+
+/**
  * Inverte a posição do dia com o mês.
  */
 function fixDate (dateTime) {
@@ -61,4 +71,13 @@ function fixDate (dateTime) {
     var date = dateAndTime[1].split('/')
 
     return time + ' ' + date[1] + '/' + date[0] + '/' + date[2]
+}
+
+/**
+ * Gera um id unico
+ * 
+ * @return {[type]}
+ */
+function guid () {
+    return Math.floor((Math.random()) * 0x1000000).toString(16)
 }

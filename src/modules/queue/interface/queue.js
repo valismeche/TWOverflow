@@ -15,326 +15,320 @@ define('TWOverflow/Queue/interface', [
     $timeHelper,
     ejs
 ) {
+    // Controlador de interface
     var ui
+    // Controlador do botão para abrir a janela da interface
     var opener
+    // Atalhos rapidos para os elementos da janela.
     var $window
     var $switch
     var $addForm
     var $origin
     var $target
     var $arrive
+    var $officers
     var $sections
-    var $travelTimes
-    var $travelTimeUnits = {}
 
+    /**
+     * Elementos da previsão dos tempos de viagem de todas unidades.
+     * 
+     * @type {Object}
+     */
+    var $unitTravelTimes = {
+        attack: {},
+        support: {}
+    }
+    
+    /**
+     * Dados do jogador
+     *
+     * @type {Object}
+     */
+    var $player
+    
+    /**
+     * Dados do jogo.
+     * 
+     * @type {Object}
+     */
+    var $gameData = $model.getGameData()
+    
+    /**
+     * Formato das datas usadas nos registros.
+     * 
+     * @type {String}
+     */
     var dateFormat = 'dd/MM/yyyy hh:mm:ss'
+    
+    /**
+     * Armazena se as entradas das coordenadas e data de chegada são validas.
+     * 
+     * @type {Object}
+     */
+    var validInput = {
+        origin: false,
+        target: false,
+        arrive: false
+    }
+    
+    /**
+     * Nome de todos oficiais.
+     * 
+     * @type {Array}
+     */
+    var officerNames = $gameData.getOrderedOfficerNames()
+    
+    /**
+     * Nome de todas unidades.
+     * 
+     * @type {Array}
+     */
+    var unitNames = $gameData.getOrderedUnitNames()
 
-    var validOrigin = false
-    var validTarget = false
-    var validArrive = false
+    /**
+     * Nome de uma unidade de cada velocidade disponivel no jogo.
+     * Usados para gerar os tempos de viagem.
+     * 
+     * @type {Array}
+     */
+    var unitsBySpeed = [
+        'knight',
+        'heavy_cavalry',
+        'axe',
+        'sword',
+        'ram',
+        'snob',
+        'trebuchet'
+    ]
 
-    var gameData = $model.getGameData()
-    var officerNames = gameData.getOrderedOfficerNames()
-    var unitNames = gameData.getOrderedUnitNames()
-    var unitsBySpeed = ['knight', 'heavy_cavalry', 'axe', 'sword', 'ram', 'snob', 'trebuchet']
-    var rdateTime = /^\s*([01][0-9]|2[0-3]):[0-5]\d:[0-5]\d(:\d{1,3})? (0[1-9]|[12][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/\d{4}\s*$/
+    /**
+     * Nome de todos inputs usados para adicionar os coamndos na lista de espera.
+     * 
+     * @type {Array}
+     */
+    var inputsMap = ['origin', 'target', 'arrive'].concat(unitNames, officerNames)
 
-    function QueueInterface () {
-        ui = new Interface('farmOverflow-queue', {
-            activeTab: 'info',
-            css: '___cssQueue',
-            template: '___htmlQueueWindow',
-            replaces: {
-                version: Queue.version,
-                locale: QueueLocale,
-                unitNameFilter: unitNameFilter,
-                units: unitNames,
-                officers: officerNames
-            }
-        })
+    /**
+     * Tipo de comando que será adicionado a lista de espera,
+     * setado quando um dos botões de adição é pressionado.
+     * 
+     * @type {String}
+     */
+    var commandType
 
-        opener = new FrontButton('Queue')
+    /**
+     * Aldeia atualmente selecionada no mapa.
+     * 
+     * @type {Array|Boolean} Coordenadas da aldeia [x, y]
+     */
+    var mapSelectedVillage = false
 
-        opener.hover(function () {
-            var commands = Queue.getWaitingCommands()
-            var sendTime = commands.length
-                ? readableDateFilter(commands[0].sendTime, null, null, null, dateFormat)
-                : QueueLocale('general.none')
-            var text = QueueLocale('general.nextCommand') + ': ' + sendTime
-
-            opener.updateQuickview(text)
-        })
-
-        $window = $(ui.$window)
-        $switch = $window.find('a.switch')
-        $addForm = $window.find('form.addForm')
-        $origin = $window.find('input.origin')
-        $target = $window.find('input.target')
-        $arrive = $window.find('input.arrive')
-        $travelTimes = $window.find('table.travelTimes')
-        $sections = {
-            queue: $window.find('div.queue'),
-            sended: $window.find('div.sended'),
-            expired: $window.find('div.expired')
-        }
-
-        $travelTimes.find('.travelTime').forEach(function ($elem) {
-            var unit = $elem.getAttribute('unit')
-            
-            $travelTimeUnits[unit] = $elem
-        })
-
-        opener.click(function () {
-            ui.openWindow()
-        })
-
-        Queue.bind('error', function (error) {
-            emitNotif('error', error)
-        })
-
-        Queue.bind('remove', function (removed, command) {
-            if (!removed) {
-                return emitNotif('error', QueueLocale('error.removeError'))
-            }
-
-            removeCommandItem(command, 'queue')
-            emitNotif('success', genNotifText(command.type, 'removed', 'general'))
-        })
-
-        Queue.bind('expired', function (command) {
-            removeCommandItem(command, 'queue')
-            addCommandItem(command, 'expired')
-            emitNotif('error', genNotifText(command.type, 'expired', 'general'))
-        })
-
-        Queue.bind('add', function (command) {
-            addCommandItem(command, 'queue')
-            emitNotif('success', genNotifText(command.type, 'added', 'general'))
-        })
-
-        Queue.bind('send', function (command) {
-            removeCommandItem(command, 'queue')
-            addCommandItem(command, 'sended')
-            emitNotif('success', genNotifText(command.type, 'sended', 'general'))
-        })
-
-        Queue.bind('start', function (firstRun) {
-            opener.$elem.removeClass('btn-green').addClass('btn-red')
-
-            $switch.removeClass('btn-green').addClass('btn-red')
-            $switch.html(QueueLocale('general.deactivate'))
-
-            if (!firstRun) {
-                emitNotif('success', genNotifText('title', 'activated'))
-            }
-        })
-
-        Queue.bind('stop', function () {
-            opener.$elem.removeClass('btn-red').addClass('btn-green')
-            
-            $switch.removeClass('btn-red').addClass('btn-green')
-            $switch.html(QueueLocale('general.activate'))
-
-            emitNotif('success', genNotifText('title', 'deactivated'))
-        })
-
-        setInterval(function () {
-            if (ui.isVisible() && ui.activeTab === 'add' && validOrigin && validTarget && validArrive) {
-                calcTravelTimes()
-            }
-        }, 1000)
-
-        bindAdd()
-        showStoredCommands()
+    /**
+     * Oculpa os tempos de viagem
+     */
+    var hideTravelTimes = function () {
+        $travelTimes.css('display', 'none')
     }
 
-    function unitNameFilter (unit) {
+    /**
+     * Oculpa os tempos de viagem
+     */
+    var showTravelTimes = function () {
+        $travelTimes.css('display', '')
+    }
+
+    var i18nUnit = function (unit) {
         return $filter('i18n')(unit, $root.loc.ale, 'unit_names')
     }
 
-    function isUnit (value) {
+    /**
+     * Formata milisegundos em hora/data
+     * @return {String} Data e hora formatada
+     */
+    var formatDate = function (ms) {
+        return readableDateFilter(ms, null, null, null, dateFormat)
+    }
+
+    /**
+     * Analisa as condições para ver se é possível calcular os tempos de viagem.
+     * @return {Boolean}
+     */
+    var availableTravelTimes = function () {
+        return ui.isVisible() && ui.activeTab === 'add'
+            && validInput.origin && validInput.target && validInput.arrive
+    }
+
+    /**
+     * Popula as abas "Em espera" e "Registros" com os comandos armazenados.
+     */
+    var appendStoredCommands = function () {
+        Queue.getWaitingCommands().forEach(function (cmd) {
+            appendCommand(cmd, 'queue')
+        })
+
+        Queue.getSendedCommands().forEach(function (cmd) {
+            appendCommand(cmd, 'sended')
+        })
+
+        Queue.getExpiredCommands().forEach(function (cmd) {
+            appendCommand(cmd, 'expired')
+        })
+    }
+
+    /**
+     * Verifica se o valor passado é uma unidade.
+     * @param  {String} - value
+     * @return {Boolean}
+     */
+    var isUnit = function (value) {
         return unitNames.includes(value)
     }
 
-    function isOfficer (value) {
+    /**
+     * Verifica se o valor passado é um oficial.
+     * @param  {String} - value
+     * @return {Boolean}
+     */
+    var isOfficer = function (value) {
         return officerNames.includes(value)
     }
 
-    function dateToString (date) {
-        var ms = $timeHelper.zerofill(date.getMilliseconds(), 3)
-        var sec = $timeHelper.zerofill(date.getSeconds(), 2)
-        var min = $timeHelper.zerofill(date.getMinutes(), 2)
-        var hour = $timeHelper.zerofill(date.getHours(), 2)
-        var day = $timeHelper.zerofill(date.getDate(), 2)
-        var month = $timeHelper.zerofill(date.getMonth() + 1, 2)
+    /**
+     * Obtem a data atual do jogo fomatada para hh:mm:ss:SSS dd/MM/yyyy
+     * @return {[type]} [description]
+     */
+    var gameDateFormated = function () {
+        var zf = $timeHelper.zerofill
+        var date = $timeHelper.gameDate()
+        var ms = zf(date.getMilliseconds(), 3)
+        var sec = zf(date.getSeconds(), 2)
+        var min = zf(date.getMinutes(), 2)
+        var hour = zf(date.getHours(), 2)
+        var day = zf(date.getDate(), 2)
+        var month = zf(date.getMonth() + 1, 2)
         var year = date.getFullYear()
 
         return hour + ':' + min + ':' + sec + ':' + ms + ' ' + day + '/' + month + '/' + year
     }
 
-    function bindAdd () {
-        var inputsMap = ['origin', 'target', 'arrive'].concat(unitNames, officerNames)
-        var mapSelectedVillage = false
-        var commandType = 'attack'
-
-        $addForm.on('submit', function (event) {
-            event.preventDefault()
-
-            if (!$addForm[0].checkValidity()) {
-                return false
-            }
-
-            var command = {
-                units: {},
-                officers: {},
-                type: commandType
-            }
-
-            inputsMap.forEach(function (name) {
-                var $input = $addForm.find('[name="' + name + '"]')
-                var value = $input.val()
-
-                if ($input[0].className === 'unit') {
-                    if (isNaN(value) && value !== '*') {
-                        return false
-                    }
-
-                    value = isNaN(value) ? value : parseInt(value, 10)
-                }
-
-                if (!value) {
-                    return false
-                }
-
-                if (isUnit(name)) {
-                    return command.units[name] = value
-                }
-
-                if (isOfficer(name)) {
-                    return command.officers[name] = value
-                }
-
-                command[name] = value
-            })
-
-            Queue.addCommand(command)
-        })
-
-        $window.find('table.officers input').on('click', function () {
-            $(this).parent().toggleClass('icon-26x26-checkbox-checked')
-        })
-
-        $switch.on('click', function (event) {
-            if (Queue.isRunning()) {
-                Queue.stop()
-            } else {
-                Queue.start()
-            }
-        })
-
-        // botões para adicionar ataque/suporte/transferencia
-        $window.find('.farmOverflow-button-add a').on('click', function (event) {
-            commandType = this.name
-            $addForm.find('input:submit')[0].click()
-        })
-
-        $window.find('a.clear').on('click', function (event) {
-            clearRegisters()
-        })
-
-        $window.find('a.addSelected').on('click', function () {
-            var pos = $model.getSelectedVillage().getPosition()
-            $origin.val(pos.x + '|' + pos.y)
-            $origin.trigger('input')
-        })
-
-        $window.find('a.addMapSelected').on('click', function () {
-            if (!mapSelectedVillage) {
-                return emitNotif('error', QueueLocale('error.noMapSelectedVillage'))
-            }
-
-            $target.val(mapSelectedVillage.join('|'))
-            $target.trigger('input')
-        })
-
-        $window.find('a.addCurrentDate').on('click', function () {
-            var now = dateToString($timeHelper.gameDate())
-            $arrive.val(now)
-            $arrive.trigger('input')
-        })
-
-        $origin.on('input', function () {
-            validOrigin = isValidCoords($origin.val())
-            calcTravelTimes()
-        })
-
-        $target.on('input', function () {
-            validTarget = isValidCoords($target.val())
-            calcTravelTimes()
-        })
-
-        $arrive.on('input', function () {
-            validArrive = rdateTime.test($arrive.val())
-            checkArriveValidity()
-            calcTravelTimes()
-        })
-
-        $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
-            mapSelectedVillage = [menu.data.x, menu.data.y]
-        })
-
-        $root.$on($eventType.DESTROY_CONTEXT_MENU, function () {
-            mapSelectedVillage = false
-        })
-    }
-
-    function calcTravelTimes () {
-        if (!validOrigin || !validTarget) {
+    /**
+     * Calcula o tempo de viagem para cada unidade com tempo de viagem disti
+     * Tanto para ataque quanto para defesa.
+     */
+    var populateTravelTimes = function () {
+        if (!validInput.origin || !validInput.target) {
             return $travelTimes.hide()
         }
 
         var origin = $origin.val()
         var target = $target.val()
+        var officers = getOfficers()
+        var travelTime = {}
 
-        unitsBySpeed.forEach(function (unit) {
-            var units = {}
-            var officers = getOfficers()
+        if (validInput.arrive) {
+            var arrive = fixDate($arrive.val())
+            var arriveTime = new Date(arrive).getTime()
+        }
 
-            units[unit] = 1
+        ;['attack', 'support'].forEach(function (type) {
+            unitsBySpeed.forEach(function (unit) {
+                var units = {}
+                units[unit] = 1
 
-            var travelTime = Queue.getTravelTime(origin, target, units, 'attack', officers)
-            var readable = readableMillisecondsFilter(travelTime)
+                var travelTime = Queue.getTravelTime(origin, targetVillage, units, type, officers)
+                var readable = readableMillisecondsFilter(travelTime)
 
-            if (validArrive) {
-                var arrive = fixDate($arrive.val())
-                var arriveTime = new Date(arrive).getTime()
-                var sendTime = arriveTime - travelTime
+                if (validInput.arrive) {
+                    var sendTime = arriveTime - travelTime
 
-                if (!isValidDateTime(sendTime)) {
-                    readable = '<span class="text-red">' + readable + '</span>'
+                    if (!isValidSendTime(sendTime)) {
+                        readable = genRedSpan(readable)
+                    }
+                } else {
+                    readable = genRedSpan(readable)
                 }
-            } else {
-                readable = '<span class="text-red">' + readable + '</span>'
-            }
 
-            $travelTimeUnits[unit].innerHTML = readable
+                $unitTravelTimes[type][unit].innerHTML = readable
+            })
         })
 
-        $travelTimes.css('display', '')
+        showTravelTimes()
     }
 
-    function toggleEmptyMessage (section) {
-        var $where = $sections[section]
-        var $msg = $where.find('p.nothing')
-
-        var condition = section === 'queue'
-            ? Queue.getWaitingCommands()
-            : $where.find('div')
-
-        $msg.css('display', condition.length === 0 ? '' : 'none')
+    /**
+     * Gera um <span> com classe para texto vermelho.
+     */
+    var genRedSpan = function (text) {
+        return '<span class="text-red">' + text + '</span>'
     }
 
-    function addCommandItem (command, section) {
+    /**
+     * Altera a cor do texto do input
+     * 
+     * @param  {jqLite} $elem
+     */
+    var colorRed = function ($elem) {
+        $elem.css('color', '#a1251f')
+    }
+
+    /**
+     * Restaura a cor do texto do input
+     * 
+     * @param  {jqLite} $elem
+     */
+    var colorNeutral = function ($elem) {
+        $elem.css('color', '')
+    }
+
+    /**
+     * Adiciona um comando de acordo com os dados informados.
+     * 
+     * @param {String} type Tipo de comando (attack, support ou relocate)
+     */
+    var addCommand = function (type) {
+        var command = {
+            units: {},
+            officers: {},
+            type: type
+        }
+
+        inputsMap.forEach(function (name) {
+            var $input = $addForm.find('[name="' + name + '"]')
+            var value = $input.val()
+
+            if ($input[0].className === 'unit') {
+                if (isNaN(value) && value !== '*') {
+                    return false
+                }
+
+                value = isNaN(value) ? value : parseInt(value, 10)
+            }
+
+            if (!value) {
+                return false
+            }
+
+            if (isUnit(name)) {
+                return command.units[name] = value
+            }
+
+            if (isOfficer(name)) {
+                return command.officers[name] = value
+            }
+
+            command[name] = value
+        })
+
+        Queue.addCommand(command)
+    }
+
+    /**
+     * Adiciona um comando na seção.
+     * 
+     * @param {Object} command - Dados do comando que será adicionado na interface.
+     * @param {String} section - Seção em que o comandos erá adicionado.
+     */
+    var appendCommand = function (command, section) {
         var $command = document.createElement('div')
         $command.id = section + '-' + command.id
         $command.className = 'command'
@@ -375,7 +369,13 @@ define('TWOverflow/Queue/interface', [
         toggleEmptyMessage(section)
     }
 
-    function removeCommandItem (command, section) {
+    /**
+     * Remove um comando da seção especificada.
+     * 
+     * @param  {Object} command - Comando que será removido.
+     * @param  {String} section - Sessão em que o comando se encontra.
+     */
+    var removeCommand = function (command, section) {
         var $command = document.getElementById(section + '-' + command.id)
 
         if ($command) {
@@ -386,50 +386,157 @@ define('TWOverflow/Queue/interface', [
         ui.$scrollbar.recalc()
     }
 
-    function showStoredCommands () {
-        var queueCommands = Queue.getWaitingCommands()
-        var sendedCommands = Queue.getSendedCommands()
-        var expiredCommands = Queue.getExpiredCommands()
+    /**
+     * Mostra ou oculpa a mensagem "vazio" de acordo com
+     * a quantidade de comandos presetes na seção.
+     * 
+     * @param  {String} section
+     */
+    var toggleEmptyMessage = function (section) {
+        var $where = $sections[section]
+        var $msg = $where.find('p.nothing')
 
-        if (queueCommands.length) {
-            for (var i = 0; i < queueCommands.length; i++) {
-                addCommandItem(queueCommands[i], 'queue')
-            }
-        }
+        var condition = section === 'queue'
+            ? Queue.getWaitingCommands()
+            : $where.find('div')
 
-        if (sendedCommands.length) {
-            for (var i = 0; i < sendedCommands.length; i++) {
-                addCommandItem(sendedCommands[i], 'sended')
-            }
-        }
-
-        if (expiredCommands.length) {
-            for (var i = 0; i < expiredCommands.length; i++) {
-                addCommandItem(expiredCommands[i], 'expired')
-            }
-        }
+        $msg.css('display', condition.length === 0 ? '' : 'none')
     }
 
-    function clearRegisters () {
-        var sendedCommands = Queue.getSendedCommands()
-        var expiredCommands = Queue.getExpiredCommands()
-
-        if (sendedCommands.length) {
-            for (var i = 0; i < sendedCommands.length; i++) {
-                removeCommandItem(sendedCommands[i], 'sended')
+    /**
+     * Configura todos eventos dos elementos da interface.
+     */
+    var bindEvents = function () {
+        $switch.on('click', function (event) {
+            if (Queue.isRunning()) {
+                Queue.stop()
+            } else {
+                Queue.start()
             }
-        }
+        })
 
-        if (expiredCommands.length) {
-            for (var i = 0; i < expiredCommands.length; i++) {
-                removeCommandItem(expiredCommands[i], 'expired')
+        $window.find('.buttons .add').on('click', function () {
+            addCommand(this.name)
+        })
+
+        $window.find('a.clear').on('click', function () {
+            clearRegisters()
+        })
+
+        $window.find('a.addSelected').on('click', function () {
+            var coords = $model.getSelectedVillage().getPosition()
+
+            $origin.val(coords.x + '|' + coords.y)
+            $origin.trigger('input')
+        })
+
+        $window.find('a.addMapSelected').on('click', function () {
+            if (!mapSelectedVillage) {
+                return emitNotif('error', QueueLocale('error.noMapSelectedVillage'))
             }
-        }
+
+            $target.val(mapSelectedVillage.join('|'))
+            $target.trigger('input')
+        })
+
+        $window.find('a.addCurrentDate').on('click', function () {
+            $arrive.val(gameDateFormated())
+            $arrive.trigger('input')
+        })
+
+        $origin.on('input', function () {
+            validInput.origin = isValidCoords($origin.val())
+
+            populateTravelTimes()
+
+            if (!validInput.origin) {
+                return colorRed($origin)
+            }
+
+            Queue.getVillageByCoords($origin.val(), function (data) {
+                if (!data || data.id < 0) {
+                    validInput.origin = false
+
+                    hideTravelTimes()
+                    colorRed($origin)
+                } else {
+                    colorNeutral($origin)
+                }
+
+            })
+        })
+
+        $target.on('input', function () {
+            validInput.target = isValidCoords($target.val())
+
+            if (!validInput.target) {
+                return colorRed($target)
+            }
+
+            Queue.getVillageByCoords($target.val(), function (data) {
+                if (!data || data.id < 0) {
+                    validInput.target = false
+
+                    colorRed($target)
+                    hideTravelTimes()
+                } else {
+                    targetVillage = data
+
+                    colorNeutral($target)
+                    populateTravelTimes()
+                }
+            })
+        })
+
+        $arrive.on('input', function () {
+            validInput.arrive = isValidDateTime($arrive.val())
+
+            if (validInput.arrive) {
+                colorNeutral($arrive)
+            } else {
+                colorRed($arrive)
+            }
+
+            populateTravelTimes()
+        })
+
+        $officers.on('change', function () {
+            populateTravelTimes()
+        })
+
+        $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
+            mapSelectedVillage = [menu.data.x, menu.data.y]
+        })
+
+        $root.$on($eventType.DESTROY_CONTEXT_MENU, function () {
+            mapSelectedVillage = false
+        })
+    }
+
+    /**
+     * Remove todos os registros da interface e do localStorage.
+     */
+    var clearRegisters = function () {
+        Queue.getSendedCommands().forEach(function (cmd) {
+            removeCommand(cmd, 'sended')
+        })
+
+        Queue.getExpiredCommands().forEach(function (cmd) {
+            removeCommand(cmd, 'expired')
+        })
 
         Queue.clearRegisters()
     }
 
-    function genNotifText(key, key2, prefix) {
+    /**
+     * Gera um texto de notificação com as traduções.
+     * 
+     * @param  {String} key
+     * @param  {String} key2
+     * @param  {String=} prefix
+     * @return {String}
+     */
+    var genNotifText = function (key, key2, prefix) {
         if (prefix) {
             key = prefix + '.' + key
         }
@@ -437,7 +544,13 @@ define('TWOverflow/Queue/interface', [
         return QueueLocale(key) + ' ' + QueueLocale(key2)
     }
 
-    function isValidDateTime (time) {
+    /**
+     * Verifica se o tempo de envio é menor que o tempo atual do jogo.
+     * 
+     * @param  {Number}  time
+     * @return {Boolean}
+     */
+    var isValidSendTime = function (time) {
         if ($timeHelper.gameTime() > time) {
             return false
         }
@@ -445,18 +558,17 @@ define('TWOverflow/Queue/interface', [
         return true
     }
 
-    function checkArriveValidity () {
-        var valid = rdateTime.test($arrive.val())
-        
-        $arrive.css('color', valid ? '' : '#a1251f')
-    }
-
-    function getOfficers () {
+    /**
+     * Obtem todos oficiais ativados no formulário para adicioanr comandos.
+     * 
+     * @return {Object} Oficiais ativos
+     */
+    var getOfficers = function () {
         var officers = {}
 
         officerNames.forEach(function (officer) {
             var $input = $addForm.find('[name="' + officer + '"]')
-            
+
             if ($input.val()) {
                 officers[officer] = true
             }
@@ -465,12 +577,139 @@ define('TWOverflow/Queue/interface', [
         return officers
     }
 
-    function fixCommandTypeClass (type) {
+    /**
+     * Corrige o nome da classe do icone de acordo com o tipo do comando.
+     * 
+     * @param  {String} type - Tipo do comando
+     * @return {String} Classe modificada
+     */
+    var fixCommandTypeClass = function (type) {
         if (type === 'attack') {
             type += '-small'
         }
 
         return type
+    }
+
+    function QueueInterface () {
+        $player = $model.getSelectedCharacter()
+
+        // Valores a serem substituidos no template da janela
+        var replaces = {
+            version: Queue.version,
+            locale: QueueLocale,
+            i18nUnit: i18nUnit,
+            units: unitNames,
+            officers: officerNames
+        }
+
+        ui = new Interface('farmOverflow-queue', {
+            activeTab: 'info',
+            template: '___htmlQueueWindow',
+            replaces: replaces,
+            css: '___cssQueue'
+        })
+
+        opener = new FrontButton('Queue')
+
+        // Injeta a data do próximo comando a ser enviado pelo CommandQueue
+        // no botão para um rápida visualização.
+        opener.hover(function () {
+            var commands = Queue.getWaitingCommands()
+            var sendTime = commands.length ? formatDate(sendTime) : QueueLocale('general.none')
+            var text = QueueLocale('general.nextCommand') + ': ' + sendTime
+
+            opener.updateQuickview(text)
+        })
+
+        opener.click(function () {
+            ui.openWindow()
+        })
+
+        // Armazena os elementos da janela para rápido acesso.
+        $window = $(ui.$window)
+        $switch = $window.find('a.switch')
+        $addForm = $window.find('form.addForm')
+        $origin = $window.find('input.origin')
+        $target = $window.find('input.target')
+        $arrive = $window.find('input.arrive')
+        $officers = $window.find('.officers input')
+        $travelTimes = $window.find('table.travelTimes')
+        $sections = {
+            queue: $window.find('div.queue'),
+            sended: $window.find('div.sended'),
+            expired: $window.find('div.expired')
+        }
+
+        // Popula com os elementos de tempo de viagem
+        ;['attack', 'support'].forEach(function (type) {
+            $travelTimes.find('.' + type).forEach(function ($elem) {
+                var unit = $elem.getAttribute('unit')
+
+                $unitTravelTimes[type][unit] = $elem
+            })
+        })
+
+        Queue.bind('error', function (error) {
+            emitNotif('error', error)
+        })
+
+        // Remove o comando da lista de espera
+        Queue.bind('remove', function (removed, command) {
+            if (!removed) {
+                return emitNotif('error', QueueLocale('error.removeError'))
+            }
+
+            removeCommand(command, 'queue')
+            emitNotif('success', genNotifText(command.type, 'removed', 'general'))
+        })
+
+        // Remove o comando da lista de espera,
+        // inclui na lista de ignorados.
+        Queue.bind('expired', function (command) {
+            removeCommand(command, 'queue')
+            appendCommand(command, 'expired')
+            emitNotif('error', genNotifText(command.type, 'expired', 'general'))
+        })
+
+        // Adiciona o comando da lista de espera.
+        Queue.bind('add', function (command) {
+            appendCommand(command, 'queue')
+            emitNotif('success', genNotifText(command.type, 'added', 'general'))
+        })
+
+        // Remove o comando da lista de espera,
+        // inclui na lista de enviados.
+        Queue.bind('send', function (command) {
+            removeCommand(command, 'queue')
+            appendCommand(command, 'sended')
+            emitNotif('success', genNotifText(command.type, 'sended', 'general'))
+        })
+
+        Queue.bind('start', function () {
+            opener.$elem.removeClass('btn-green').addClass('btn-red')
+            $switch.removeClass('btn-green').addClass('btn-red')
+            $switch.html(QueueLocale('general.deactivate'))
+
+            emitNotif('success', genNotifText('title', 'activated'))
+        })
+
+        Queue.bind('stop', function () {
+            opener.$elem.removeClass('btn-red').addClass('btn-green')
+            $switch.removeClass('btn-red').addClass('btn-green')
+            $switch.html(QueueLocale('general.activate'))
+
+            emitNotif('success', genNotifText('title', 'deactivated'))
+        })
+
+        setInterval(function () {
+            if (availableTravelTimes()) {
+                populateTravelTimes()
+            }
+        }, 1000)
+
+        bindEvents()
+        appendStoredCommands()
     }
 
     return QueueInterface

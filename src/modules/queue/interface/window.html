@@ -114,13 +114,21 @@
                                         <span class="icon icon-34x34-unit-light_cavalry"></span>
                                         <span class="icon icon-34x34-unit-mounted_archer"></span>
                                     </div>
-                                    <span class="travelTime" unit="knight"></span>
+                                    <div class="travelTime box-time-sub-icon">
+                                        <div class="time-icon icon-20x20-attack"></div>
+                                        <span class="attack" unit="knight"></span>
+                                    </div>
+                                    <div class="travelTime box-time-sub-icon">
+                                        <div class="time-icon icon-20x20-support"></div>
+                                        <span class="support" unit="knight"></span>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="unit-wrap">
                                         <span class="icon icon-single icon-34x34-unit-heavy_cavalry"></span>
                                     </div>
-                                    <span class="travelTime" unit="heavy_cavalry"></span>
+                                    <div class="travelTime"><span class="attack" unit="heavy_cavalry"></span></div>
+                                    <div class="travelTime"><span class="support" unit="heavy_cavalry"></span></div>
                                 </td>
                                 <td class="odd">
                                     <div class="unit-wrap">
@@ -129,32 +137,37 @@
                                         <span class="icon icon-34x34-unit-axe"></span>
                                         <span class="icon icon-34x34-unit-doppelsoldner"></span>
                                     </div>
-                                    <span class="travelTime" unit="axe"></span>
+                                    <div class="travelTime"><span class="attack" unit="axe"></span></div>
+                                    <div class="travelTime"><span class="support" unit="axe"></span></div>
                                 </td>
                                 <td>
                                     <div class="unit-wrap">
                                         <span class="icon icon-single icon-34x34-unit-sword"></span>
                                     </div>
-                                    <span class="travelTime" unit="sword"></span>
+                                    <div class="travelTime"><span class="attack" unit="sword"></span></div>
+                                    <div class="travelTime"><span class="support" unit="sword"></span></div>
                                 </td>
                                 <td class="odd">
                                     <div class="unit-wrap">
                                         <span class="icon icon-34x34-unit-catapult"></span>
                                         <span class="icon icon-34x34-unit-ram"></span>
                                     </div>
-                                    <span class="travelTime" unit="ram"></span>
+                                    <div class="travelTime"><span class="attack" unit="ram"></span></div>
+                                    <div class="travelTime"><span class="support" unit="ram"></span></div>
                                 </td>
                                 <td>
                                     <div class="unit-wrap">
                                         <span class="icon icon-single icon-34x34-unit-snob"></span>
                                     </div>
-                                    <span class="travelTime" unit="snob"></span>
+                                    <div class="travelTime"><span class="attack" unit="snob"></span></div>
+                                    <div class="travelTime"><span class="support" unit="snob"></span></div>
                                 </td>
                                 <td class="odd">
                                     <div class="unit-wrap">
                                         <span class="icon icon-single icon-34x34-unit-trebuchet"></span>
                                     </div>
-                                    <span class="travelTime" unit="trebuchet"></span>
+                                    <div class="travelTime"><span class="attack" unit="trebuchet"></span></div>
+                                    <div class="travelTime"><span class="support" unit="trebuchet"></span></div>
                                 </td>
                             </tr>
                         </tbody>
@@ -177,7 +190,7 @@
                                 <td class="cell-space-left">
                                     <span class="float-left icon-bg-black icon-44x44-unit-<#= unit #>"></span>
                                     <div class="ff-cell-fix cell-space-44x44">
-                                        <span><#= unitNameFilter(unit) #></span>
+                                        <span><#= i18nUnit(unit) #></span>
                                         <input class="unit" type="text" name="<#= unit #>" placeholder="0">
                                     </div>
                                 </td>
@@ -227,18 +240,18 @@
         </div>
     </div>
     <footer class="win-foot">
-        <ul class="list-btn list-center">
+        <ul class="list-btn list-center buttons">
             <li class="farmOverflow-button-log">
                 <a class="btn-orange btn-border clear"><#= locale("general.clear") #></a>
             </li>
             <li class="farmOverflow-button-add">
-                <a class="btn-orange btn-border" name="attack"><span class="icon-26x26-attack-small"></span> <#= locale("general.attack") #></a>
+                <a class="btn-orange btn-border add" name="attack"><span class="icon-26x26-attack-small"></span> <#= locale("general.attack") #></a>
             </li>
             <li class="farmOverflow-button-add">
-                <a class="btn-orange btn-border" name="support"><span class="icon-26x26-support"></span> <#= locale("general.support") #></a>
+                <a class="btn-orange btn-border add" name="support"><span class="icon-26x26-support"></span> <#= locale("general.support") #></a>
             </li>
             <li class="farmOverflow-button-add">
-                <a class="btn-orange btn-border" name="relocate"><span class="icon-26x26-relocate"></span> <#= locale("general.relocate") #></a>
+                <a class="btn-orange btn-border add" name="relocate"><span class="icon-26x26-relocate"></span> <#= locale("general.relocate") #></a>
             </li>
             <li>
                 <a class="btn-green btn-border switch"><#= locale("general.activate") #></a>

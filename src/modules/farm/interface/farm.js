@@ -149,10 +149,6 @@ define('TWOverflow/Farm/interface', [
                     $input.parent().addClass('icon-26x26-checkbox-checked')
                 }
 
-                $input.on('click', function () {
-                    $input.parent().toggleClass('icon-26x26-checkbox-checked')
-                })
-
                 return
             }
 

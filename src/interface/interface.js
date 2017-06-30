@@ -42,6 +42,7 @@ define('TWOverflow/Interface', [
         self.bindTabs()
         self.setCollapse()
         self.setTooltips()
+        self.setCheckboxes()
 
         var $close = self.$window.querySelector('.farmOverflow-close')
 
@@ -245,6 +246,14 @@ define('TWOverflow/Interface', [
 
             $elem.addEventListener('mouseleave', function () {
                 $root.$broadcast($eventType.TOOLTIP_HIDE, 'twoverflow-tooltip')
+            })
+        })
+    }
+
+    Interface.prototype.setCheckboxes = function () {
+        this.$window.querySelectorAll('input[type=checkbox]').forEach(function ($elem) {
+            $elem.addEventListener('click', function () {
+                $($elem).parent().toggleClass('icon-26x26-checkbox-checked')
             })
         })
     }

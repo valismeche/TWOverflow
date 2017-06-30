@@ -19,47 +19,73 @@ define('TWOverflow/Queue', [
     $conf,
     Lockr
 ) {
+    /**
+     * Armazena todos os eventos adicionados para serem
+     * chamados pelo .trigger()
+     * 
+     * @type {Object}
+     */
     var eventListeners = {}
+
+    /**
+     * Lista de comandos em espera.
+     * 
+     * @type {Array}
+     */
     var waitingCommands = []
+
+    /**
+     * Lista de comandos que já foram enviados.
+     * 
+     * @type {Array}
+     */
     var sendedCommands = []
+
+    /**
+     * Lista de comandos que se expiraram.
+     * 
+     * @type {Array}
+     */
     var expiredCommands = []
+
+    /**
+     * Indica se o CommandQueue está ativado.
+     * 
+     * @type {Boolean}
+     */
     var running = false
 
-    // privates
+    /**
+     * Dados do jogador.
+     *
+     * @type {Object}
+     */
+    var $player
 
-    function guid () {
-        return Math.floor((Math.random()) * 0x1000000).toString(16)
+    /**
+     * Gera um prefix com o mundo atual para que
+     * cada mundo tenha sua própria lista de comandos.
+     * 
+     * @param  {String} id
+     * @return {String}
+     */
+    var worldPrefix = function (id) {
+        return $player.getWorldId() + '-' + id
     }
 
-    function worldPrefix (id) {
-        var wid = $model.getSelectedCharacter().getWorldId()
-
-        return wid + '-' + id
-    }
-
-    function getVillageByCoords (coords, callback) {
-        var splitCoords = coords.split('|').map(function (coord) {
-            return parseInt(coord, 10)
-        })
-
-        var x = splitCoords[0]
-        var y = splitCoords[1]
-        var loaded = $mapData.hasTownDataInChunk(x, y)
-
-        if (!loaded) {
-            return $mapData.loadTownDataAsync(x, y, 1, 1, function () {
-                getVillageByCoords(coords, callback)
-            })
-        }
-
-        var sectors = $mapData.loadTownData(x, y, 1, 1, $conf.MAP_CHUNK_SIZE)
-        var sector = sectors[0].data
-        var villageData = sector[x][y]
-
-        callback(villageData ? villageData : false)
-    }
-
-    function isValidDateTime (time) {
+    // TODO
+    // Mover alguns utils para um modulo separado,
+    // assim evitando que utils que precisem de dados
+    // de outros modulos tipo $timeHelper não precisem
+    // ser definidos dentro de cada modulo.
+    
+    /**
+     * Verifica se o tempo de envio é menor que o tempo atual do jogo.
+     * 
+     * @param  {Number}  time
+     * @return {Boolean}
+     */
+    var isValidSendTime = function (time) {
         if ($timeHelper.gameTime() > time) {
             return false
         }
@@ -67,7 +93,17 @@ define('TWOverflow/Queue', [
         return true
     }
 
-    function cleanZeroUnits (units) {
+    /**
+     * Remove os zeros das unidades passadas pelo jogador.
+     * A razão de remover é por que o próprio não os envia
+     * quando os comandos são enviados manualmente, então
+     * caso seja enviado as unidades com valores zero poderia
+     * ser uma forma de detectar os comandos automáticos.
+     * 
+     * @param  {[type]} units [description]
+     * @return {[type]}       [description]
+     */
+    var cleanZeroUnits = function (units) {
         var cleanUnits = {}
 
         for (var unit in units) {
@@ -81,37 +117,70 @@ define('TWOverflow/Queue', [
         return cleanUnits
     }
 
-    function orderWaitingQueue () {
+    /**
+     * Ordenada a lista de comandos em espera por tempo de saída.
+     */
+    var orderWaitingQueue = function () {
         waitingCommands = waitingCommands.sort(function (a, b) {
             return a.sendTime - b.sendTime
         })
     }
 
-    function pushWaitingCommand (command) {
+    /**
+     * Adiciona um comando a lista de comandos em espera.
+     * 
+     * @param  {Object} command - Comando a ser adicionado
+     */
+    var pushWaitingCommand = function (command) {
         waitingCommands.push(command)
     }
 
-    function pushSendedCommand (command) {
+    /**
+     * Adiciona um comando a lista de comandos enviados.
+     * 
+     * @param  {Object} command - Comando a ser adicionado
+     */
+    var pushSendedCommand = function (command) {
         sendedCommands.push(command)
     }
 
-    function pushExpiredCommand (command) {
+    /**
+     * Adiciona um comando a lista de comandos expirados.
+     * 
+     * @param  {Object} command - Comando a ser adicionado
+     */
+    var pushExpiredCommand = function (command) {
         expiredCommands.push(command)
     }
 
-    function storeWaitingQueue () {
+    /**
+     * Salva a lista de comandos em espera no localStorage.
+     */
+    var storeWaitingQueue = function () {
         Lockr.set(worldPrefix('queue-commands'), waitingCommands)
     }
 
-    function storeSendedQueue () {
+    /**
+     * Salva a lista de comandos enviados no localStorage.
+     */
+    var storeSendedQueue = function () {
         Lockr.set(worldPrefix('queue-sended'), sendedCommands)
     }
 
-    function storeExpiredQueue () {
+    /**
+     * Salva a lista de comandos expirados no localStorage.
+     */
+    var storeExpiredQueue = function () {
         Lockr.set(worldPrefix('queue-expired'), expiredCommands)
     }
 
-    function loadStoredCommands () {
+    /**
+     * Carrega a lista de comandos em espera salvos no localStorage
+     * e os adiciona ao CommandQueue;
+     * Commandos que já deveriam ter saído são movidos para a lista de
+     * expirados.
+     */
+    var loadStoredCommands = function () {
         var storedQueue = Lockr.get(worldPrefix('queue-commands'), [], true)
 
         if (storedQueue.length) {
@@ -127,7 +196,16 @@ define('TWOverflow/Queue', [
         }
     }
 
-    function parseDynamicUnits (command) {
+    /**
+     * Transforma valores curingas das unidades.
+     * - Asteriscos são convetidos para o núrero total de unidades
+     *    que se encontram na aldeia.
+     * - Números negativos são convertidos núrero total de unidades
+     *    menos a quantidade específicada.
+     * 
+     * @param  {Object} command - Dados do comando
+     */
+    var parseDynamicUnits = function (command) {
         var playerVillages = $model.getVillages()
         var village = playerVillages[command.origin.id]
 
@@ -161,39 +239,51 @@ define('TWOverflow/Queue', [
         return parsedUnits
     }
 
-    // publics
-
     var Queue = {
-        version: '___queueVersion'
+        /**
+         * Versão atual do CommandQueue
+         * 
+         * @type {String}
+         */
+        version: '___queueVersion',
+
+        /**
+         * Indica se o CommandQueue já foi inicializado.
+         * 
+         * @type {Boolean}
+         */
+        initialized: false
     }
 
+    /**
+     * Inicializa o CommandQueue.
+     * Adiciona/expira comandos salvos em execuções anteriores.
+     */
     Queue.init = function () {
+        $player = $model.getSelectedCharacter()
+
+        // Inicializado!
         Queue.initialized = true
-        
+
+        // Carrega os dados previamente adicionados.
         loadStoredCommands()
 
         sendedCommands = Lockr.get(worldPrefix('queue-sended'), [], true)
         expiredCommands = Lockr.get(worldPrefix('queue-expired'), [], true)
 
         setInterval(function () {
-            if (!waitingCommands.length) {
-                return false
-            }
-
-            var gameTime = $timeHelper.gameTime()
-
-            for (var i = 0; i < waitingCommands.length; i++) {
-                if (waitingCommands[i].sendTime - gameTime < 0) {
+            waitingCommands.some(function (command) {
+                if (isValidSendTime(command.sendTime)) {
                     if (running) {
-                        Queue.sendCommand(waitingCommands[i])
+                        Queue.sendCommand(command)
                     } else {
-                        Queue.expireCommand(waitingCommands[i])
+                        Queue.expireCommand(command)
                     }
                 } else {
-                    break
+                    return true
                 }
-            }
-        }, 250)
+            })
+        }, 200)
 
         window.addEventListener('beforeunload', function (event) {
             if (running && waitingCommands.length) {
@@ -202,14 +292,12 @@ define('TWOverflow/Queue', [
         })
     }
 
-    Queue.trigger = function (event, args) {
-        if (eventListeners.hasOwnProperty(event)) {
-            eventListeners[event].forEach(function (handler) {
-                handler.apply(this, args)
-            })
-        }
-    }
-
+    /**
+     * Adiciona um evento.
+     * 
+     * @param  {String} event - Identificação do evento.
+     * @param  {Function} handler - Função executado quando o evento é disparado.
+     */
     Queue.bind = function (event, handler) {
         if (!eventListeners.hasOwnProperty(event)) {
             eventListeners[event] = []
@@ -218,6 +306,24 @@ define('TWOverflow/Queue', [
         eventListeners[event].push(handler)
     }
 
+    /**
+     * Dispara um evento.
+     * @param  {String} event - Identificação do evento.
+     * @param  {Array} args - Lista de argumentos que serão passados ao handler.
+     */
+    Queue.trigger = function (event, args) {
+        if (eventListeners.hasOwnProperty(event)) {
+            eventListeners[event].forEach(function (handler) {
+                handler.apply(this, args)
+            })
+        }
+    }
+
+    /**
+     * Envia um comando.
+     * 
+     * @param {Object} command - Dados do comando que será enviado.
+     */
     Queue.sendCommand = function (command) {
         command.units = parseDynamicUnits(command)
 
@@ -242,6 +348,11 @@ define('TWOverflow/Queue', [
         Queue.trigger('send', [command])
     }
 
+    /**
+     * Expira um comando.
+     * 
+     * @param {Object} command - Dados do comando que será expirado.
+     */
     Queue.expireCommand = function (command) {
         pushExpiredCommand(command)
         storeExpiredQueue()
@@ -249,69 +360,54 @@ define('TWOverflow/Queue', [
         Queue.removeCommand(command, 'expired')
     }
 
+    /**
+     * Adiciona um comando a lista de espera.
+     * 
+     * @param {Object} command - Dados do comando que será adicionado.
+     * @param {String} command.origin - Coordenadas da aldeia de origem.
+     * @param {String} command.target - Coordenadas da aldeia alvo.
+     * @param {String} command.arrive - Data e hora que o comando deve chegar.
+     * @param {Object} command.units - Unidades que serão enviados pelo comando.
+     * @param {Object} command.officers - Oficiais que serão enviados pelo comando.
+     * @param {String} command.type - Tipo de comando.
+     */
     Queue.addCommand = function (command) {
         if (!isValidCoords(command.origin)) {
-            return Queue.trigger('error', [QueueLocale('error.origin', {
-                origin: command.origin
-            })])
+            return Queue.trigger('error', [QueueLocale('error.origin')])
         }
 
         if (!isValidCoords(command.target)) {
-            return Queue.trigger('error', [QueueLocale('error.target', {
-                target: command.target
-            })])
+            return Queue.trigger('error', [QueueLocale('error.target')])
+        }
+
+        if (!isValidDateTime(command.arrive)) {
+            return Queue.trigger('error', [QueueLocale('error.invalidDate')])
         }
 
         if (angular.equals(command.units, {})) {
             return Queue.trigger('error', [QueueLocale('error.noUnits')])
         }
 
-        command.origin = command.origin.trim()
-        command.target = command.target.trim()
-        command.arrive = command.arrive.trim()
-        command.units = cleanZeroUnits(command.units)
-        command.arrive = fixDate(command.arrive)
-
-        var arriveTime = new Date(command.arrive).getTime()
-        var travelTime = Queue.getTravelTime(command.origin, command.target, command.units, command.type)
-        var sendTime = arriveTime - travelTime
-
-        if (!isValidDateTime(sendTime)) {
-            return Queue.trigger('error', [QueueLocale('error.alreadySent', {
-                date: readableDateFilter(sendTime),
-                type: QueueLocale(command.type)
-            })])
-        }
-
-        // Originalmente o jogo envia os oficiais por quantidade,
-        // mesmo que seja sempre 1.
-        for (var officer in command.officers) {
-            command.officers[officer] = 1
-        }
-
-        command.id = guid()
-        command.sendTime = sendTime
-        command.travelTime = travelTime
+        command.originCoords = command.origin
+        command.targetCoords = command.target
 
         var getOriginVillage = new Promise(function (resolve, reject) {
-            getVillageByCoords(command.origin, function (data) {
-                if (!data) {
-                    return reject('error.originNotExist')
+            Queue.getVillageByCoords(command.origin, function (data) {
+                if (data) {
+                    return resolve(data)
                 }
 
-                data.type = 'origin'
-                resolve(data)
+                reject('error.originNotExist')
             })
         })
 
         var getTargetVillage = new Promise(function (resolve, reject) {
-            getVillageByCoords(command.target, function (data) {
-                if (!data) {
-                    return reject('error.originNotExist')
+            Queue.getVillageByCoords(command.target, function (data) {
+                if (data) {
+                    return resolve(data)
                 }
 
-                data.type = 'target'
-                resolve(data)
+                reject('error.originNotExist')
             })
         })
 
@@ -321,14 +417,35 @@ define('TWOverflow/Queue', [
         ])
         
         loadVillagesData.then(function (villages) {
-            villages.forEach(function (village) {
-                command[village.type] = {
-                    id: village.id,
-                    name: village.name,
-                    x: village.x,
-                    y: village.y
-                }
-            })
+            command.origin = villages[0]
+            command.target = villages[1]
+            command.units = cleanZeroUnits(command.units)
+            command.arrive = fixDate(command.arrive)
+
+            var arriveTime = new Date(command.arrive).getTime()
+            var travelTime = Queue.getTravelTime(command.origin, command.target, command.units, command.type, command.officers)
+            var sendTime = arriveTime - travelTime
+
+            if (!isValidSendTime(sendTime)) {
+                return Queue.trigger('error', [QueueLocale('error.alreadySent', {
+                    date: readableDateFilter(sendTime),
+                    type: QueueLocale(command.type)
+                })])
+            }
+
+            if (command.type === 'attack' && 'supporter' in command.officers) {
+                delete command.officers.supporter
+            }
+
+            // Originalmente o jogo envia os oficiais por quantidade,
+            // mesmo que seja sempre 1.
+            for (var officer in command.officers) {
+                command.officers[officer] = 1
+            }
+
+            command.id = guid()
+            command.sendTime = sendTime
+            command.travelTime = travelTime
 
             pushWaitingCommand(command)
             orderWaitingQueue()
@@ -342,6 +459,12 @@ define('TWOverflow/Queue', [
         })
     }
 
+    /**
+     * Remove um comando da lista de espera.
+     * 
+     * @param  {Object} command - Dados do comando a ser removido.
+     * @param  {String} reason - Razão do comando ter sido removido. (expired/removed)
+     */
     Queue.removeCommand = function (command, reason) {
         for (var i = 0; i < waitingCommands.length; i++) {
             if (waitingCommands[i].id == command.id) {
@@ -360,6 +483,9 @@ define('TWOverflow/Queue', [
         Queue.trigger('remove', [false])
     }
 
+    /**
+     * Remove todos os comandos já enviados e expirados da lista e do localStorage.
+     */
     Queue.clearRegisters = function () {
         Lockr.set(worldPrefix('queue-expired'), [])
         Lockr.set(worldPrefix('queue-sended'), [])
@@ -367,55 +493,137 @@ define('TWOverflow/Queue', [
         sendedCommands = []
     }
 
-    Queue.start = function (firstRun) {
+    /**
+     * Ativa o CommandQueue. Qualquer comando que chegar no horário
+     * de envio, será enviado.
+     */
+    Queue.start = function () {
         running = true
-        Queue.trigger('start', [firstRun])
+        Queue.trigger('start')
     }
 
+    /**
+     * Desativa o CommandQueue
+     */
     Queue.stop = function () {
         running = false
         Queue.trigger('stop')
     }
 
+    /**
+     * Verifica se o CommandQueue está ativado.
+     * 
+     * @return {Boolean}
+     */
     Queue.isRunning = function () {
         return running
     }
 
+    /**
+     * Obtem lista de comandos em espera;
+     * 
+     * @return {Array}
+     */
     Queue.getWaitingCommands = function () {
         return waitingCommands
     }
 
+    /**
+     * Obtem lista de comandos enviados;
+     * 
+     * @return {Array}
+     */
     Queue.getSendedCommands = function () {
         return sendedCommands
     }
 
+    /**
+     * Obtem lista de comandos expirados;
+     * 
+     * @return {Array}
+     */
     Queue.getExpiredCommands = function () {
         return expiredCommands
     }
 
+    // TODO
+    // Verificar se é preciso checar se origin/target são strings ou objecto.
+    
+    /**
+     * Calcula o tempo de viagem de uma aldeia a outra
+     * 
+     * @param  {String|Object} origin - Coordenadas da aldeia alvo ou objeto da aldeia.
+     * @param  {String|Object} target - Veja Coordenadas da aldeia alvo ou objeto da aldeia.
+     * @param  {Object} units - Exercito usado no ataque como referência para calcular o tempo.
+     * @param  {String} type - Tipo de comando (attack,support,relocate)
+     * @param  {Object} officers - Oficiais usados no comando (usados para efeitos)
+     * 
+     * @return {Number} Tempo de viagem
+     */
     Queue.getTravelTime = function (origin, target, units, type, officers) {
+        officers = angular.copy(officers)
+
         var army = {
             units: units,
             officers: officers
         }
 
+        var originCoords = {}
+        var targetCoords = {}
+        var targetIsBarbarian = false
+        var targetIsSameTribe = false
+
+        if (typeof origin === 'string') {
+            var splitOrigin = origin.split('|')
+            originCoords.x = splitOrigin[0]
+            originCoords.y = splitOrigin[1]
+        } else {
+            originCoords.x = origin.x
+            originCoords.y = origin.y
+        }
+
+        if (typeof target === 'string') {
+            var splitTarget = target.split('|')
+            targetCoords.x = splitTarget[0]
+            targetCoords.y = splitTarget[1]
+        } else {
+            targetCoords.x = target.x
+            targetCoords.y = target.y
+            targetIsBarbarian = !target.character_id
+
+            if (!targetIsBarbarian) {
+                targetIsSameTribe = target.tribe_id && target.tribe_id === $player.getTribeId()
+            }
+        }
+
+        var useEffects = false
+
+        if (type === 'attack') {
+            if ('supporter' in officers) {
+                delete officers.supporter
+            }
+
+            if (targetIsBarbarian) {
+                useEffects = true
+            }
+        } else if (type === 'support') {
+            if (targetIsSameTribe) {
+                useEffects = true
+            }
+
+            if ('supporter' in officers) {
+                useEffects = true
+            }
+        }
+
+        var distance = $math.actualDistance(originCoords, targetCoords)
+
         var travelTime = $armyService.calculateTravelTime(army, {
-            barbarian: false,
-            ownTribe: false,
+            barbarian: targetIsBarbarian,
+            ownTribe: targetIsSameTribe,
             officers: officers,
-            effects: false
-        })
-
-        origin = origin.split('|')
-        target = target.split('|')
-
-        var distance = $math.actualDistance({
-            x: origin[0],
-            y: origin[1]
-        }, {
-            x: target[0],
-            y: target[1]
-        })
+            effects: useEffects
+        }, type)
 
         var totalTravelTime = $armyService.getTravelTimeForDistance(
             army,
@@ -425,6 +633,38 @@ define('TWOverflow/Queue', [
         )
 
         return totalTravelTime * 1000
+    }
+
+    /**
+     * Carrega os dados de uma aldeia pelas coordenadas.
+     * 
+     * @param  {String} coords - Coordendas da aldeia.
+     * @param  {Function} callback
+     */
+    Queue.getVillageByCoords = function (coords, callback) {
+        var splitCoords = coords.split('|').map(function (coord) {
+            return parseInt(coord, 10)
+        })
+
+        var x = splitCoords[0]
+        var y = splitCoords[1]
+        var loaded = $mapData.hasTownDataInChunk(x, y)
+
+        if (!loaded) {
+            return $mapData.loadTownDataAsync(x, y, 1, 1, function () {
+                Queue.getVillageByCoords(coords, callback)
+            })
+        }
+
+        var sectors = $mapData.loadTownData(x, y, 1, 1, $conf.MAP_CHUNK_SIZE)
+        var sector = sectors[0].data
+        var village = false
+
+        if (sector[x] && sector[x][y]) {
+            village = sector[x][y]
+        }
+
+        callback(village ? village : false)
     }
 
     return Queue
