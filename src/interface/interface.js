@@ -16,7 +16,7 @@ define('TWOverflow/Interface', [
     function buildStyle (id, css) {
         var $style = document.createElement('style')
         $style.type = 'text/css'
-        $style.id = 'farmOverflow-style-' + id
+        $style.id = 'twOverflow-style-' + id
         $style.innerHTML = css
 
         document.querySelector('head').appendChild($style)
@@ -44,7 +44,7 @@ define('TWOverflow/Interface', [
         self.setTooltips()
         self.setCheckboxes()
 
-        var $close = self.$window.querySelector('.farmOverflow-close')
+        var $close = self.$window.querySelector('.twOverflow-close')
 
         $close.addEventListener('click', function () {
             self.closeWindow()
@@ -65,7 +65,7 @@ define('TWOverflow/Interface', [
 
         this.$window = document.createElement('section')
         this.$window.id = this.windowId
-        this.$window.className = 'farmOverflow-window twx-window screen left'
+        this.$window.className = 'twOverflow-window twx-window screen left'
 
         this.$window.innerHTML = ejs.render(this.settings.template, this.settings.replaces)
         this.$wrapper.append(this.$window)
@@ -127,8 +127,8 @@ define('TWOverflow/Interface', [
         self.$tabs.forEach(function ($tab) {
             var name = $tab.getAttribute('tab')
 
-            var $content = self.$window.querySelector('.farmOverflow-content-' + name)
-            var $buttons = self.$window.querySelectorAll('.farmOverflow-button-' + name)
+            var $content = self.$window.querySelector('.twOverflow-content-' + name)
+            var $buttons = self.$window.querySelectorAll('.twOverflow-button-' + name)
             var $inner = $tab.querySelector('.tab-inner > div')
             var $a = $tab.querySelector('a')
 
@@ -186,7 +186,7 @@ define('TWOverflow/Interface', [
      * Remove todo html/eventos criados.
      */
     Interface.prototype.destroy = function () {
-        document.querySelector('#farmOverflow-style-' + this.windowId).remove()
+        document.querySelector('#twOverflow-style-' + this.windowId).remove()
         this.$window.remove()
     }
 

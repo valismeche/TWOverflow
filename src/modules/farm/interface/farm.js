@@ -388,7 +388,7 @@ define('TWOverflow/Farm/interface', [
             locale: Locale
         }
 
-        ui = new Interface('farmOverflow-farm', {
+        ui = new Interface('FarmOverflow', {
             activeTab: 'info',
             template: '___htmlFarmWindow',
             replaces: replaces,

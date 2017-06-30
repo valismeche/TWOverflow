@@ -603,7 +603,7 @@ define('TWOverflow/Queue/interface', [
             officers: officerNames
         }
 
-        ui = new Interface('farmOverflow-queue', {
+        ui = new Interface('CommandQueue', {
             activeTab: 'info',
             template: '___htmlQueueWindow',
             replaces: replaces,

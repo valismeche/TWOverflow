@@ -53,11 +53,11 @@ define('TWOverflow/FrontButton', [
     }
 
     FrontButton.prototype.buildWrapper = function () {
-        var $wrapper = document.getElementById('farmOverflow-leftbar')
+        var $wrapper = document.getElementById('twOverflow-leftbar')
 
         if (!$wrapper) {
             $wrapper = document.createElement('div')
-            $wrapper.id = 'farmOverflow-leftbar'
+            $wrapper.id = 'twOverflow-leftbar'
             $('#toolbar-left').prepend($wrapper)
         }
 
