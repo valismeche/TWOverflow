@@ -74,17 +74,13 @@ define('TWOverflow/Queue', [
     // ser definidos dentro de cada modulo.
     
     /**
-     * Verifica se o tempo de envio é menor que o tempo atual do jogo.
+     * Verifica se tem um intervalo entre a horario do envio e o horario do jogo.
      * 
-     * @param  {Number}  time
+     * @param  {Number} - sendTime
      * @return {Boolean}
      */
-    var isValidSendTime = function (time) {
-        if ($timeHelper.gameTime() > time) {
-            return false
-        }
-
-        return true
+    var isTimeToSend = function (sendTime) {
+        return sendTime < $timeHelper.gameTime()
     }
 
     /**
@@ -94,8 +90,8 @@ define('TWOverflow/Queue', [
      * caso seja enviado as unidades com valores zero poderia
      * ser uma forma de detectar os comandos automáticos.
      * 
-     * @param  {[type]} units [description]
-     * @return {[type]}       [description]
+     * @param  {Object} units - Unidades a serem analisadas
+     * @return {Object} Objeto sem nenhum valor zero
      */
     var cleanZeroUnits = function (units) {
         var cleanUnits = {}
@@ -269,7 +265,7 @@ define('TWOverflow/Queue', [
 
         setInterval(function () {
             waitingCommands.some(function (command) {
-                if (isValidSendTime(command.sendTime)) {
+                if (isTimeToSend(command.sendTime)) {
                     if (running) {
                         Queue.sendCommand(command)
                     } else {
@@ -422,7 +418,7 @@ define('TWOverflow/Queue', [
             var travelTime = Queue.getTravelTime(command.origin, command.target, command.units, command.type, command.officers)
             var sendTime = arriveTime - travelTime
 
-            if (!isValidSendTime(sendTime)) {
+            if (isTimeToSend(sendTime)) {
                 return Queue.trigger('error', [Locale('queue', 'error.alreadySent', {
                     date: readableDateFilter(sendTime),
                     type: Locale('queue', command.type)

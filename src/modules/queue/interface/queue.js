@@ -154,8 +154,7 @@ define('TWOverflow/Queue/interface', [
      * @return {Boolean}
      */
     var availableTravelTimes = function () {
-        return ui.isVisible() && ui.activeTab === 'add'
-            && validInput.origin && validInput.target && validInput.arrive
+        return ui.isVisible('add') && validInput.origin && validInput.target && validInput.arrive
     }
 
     /**
