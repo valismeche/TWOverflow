@@ -1,19 +1,35 @@
 define('TWOverflow/Interface', [
     'queues/EventQueue',
+    'helper/dom',
     'ejs'
 ], function (
     $eventQueue,
+    domHelper,
     ejs
 ) {
+    /**
+     * Lista com todas janelas criadas pelo Interface()
+     * 
+     * @type {Array}
+     */
     var interfaceInstances = []
 
-    function closeAllInstances () {
+    /**
+     * Fecha todas as janelas criadas pelo Interface()
+     */
+    var closeAllInstances = function () {
         interfaceInstances.forEach(function (ui) {
             ui.closeWindow()
         })
     }
     
-    function buildStyle (id, css) {
+    /**
+     * Gera um elemento <style>
+     * 
+     * @param  {String} id - ID do element
+     * @param  {String} css - Estilos formato CSS
+     */
+    var buildStyle = function (id, css) {
         var $style = document.createElement('style')
         $style.type = 'text/css'
         $style.id = 'twOverflow-style-' + id
@@ -22,6 +38,136 @@ define('TWOverflow/Interface', [
         document.querySelector('head').appendChild($style)
     }
 
+    /**
+     * Gera um <select> customizado
+     * 
+     * @param  {Element} $originalSelect - Elemento <select> que será substituido
+     */
+    var createSelect = function ($originalSelect) {
+        var visible = false
+        var selectId = 'custom-select'
+        var $select = document.createElement('span')
+        var $selectedOption = document.createElement('span')
+        var $selectArrow = document.createElement('span')
+        var $dataContainer = document.createElement('span')
+
+        var clickHandler = function () {
+            var elem = event.srcElement || event.target
+
+            if (!matchesElem(elem, '.custom-select')) {
+                hideSelect()
+            }
+        }
+
+        var hideSelect = function () {
+            $root.$broadcast($eventType.SELECT_HIDE, selectId)
+            
+            $(window).off('click', clickHandler)
+            $('.win-main').off('mousewheel', hideSelect)
+
+            visible = false
+
+            onHide()
+        }
+
+        var onSelect = function (data, event) {
+            $selectedOption.innerHTML = data.name
+            $select.dataset.name = data.name
+            $select.dataset.value = data.value
+
+            $eventQueue.trigger('custom_select_selected', data, $select)
+            hideSelect()
+        }
+
+        var onShow = function () {
+            $selectArrow.classList.remove('icon-26x26-arrow-down')
+            $selectArrow.classList.add('icon-26x26-arrow-up')
+        }
+
+        var onHide = function () {
+            $selectArrow.classList.remove('icon-26x26-arrow-up')
+            $selectArrow.classList.add('icon-26x26-arrow-down')
+        }
+
+        var $options = $originalSelect.querySelectorAll('option')
+
+        $options.forEach(function ($option) {
+            var dataElem = document.createElement('span')
+            dataElem.dataset.name = $option.innerText
+            dataElem.dataset.value = $option.value
+
+            $dataContainer.appendChild(dataElem)
+
+            if ($option.hasAttribute('selected')) {
+                $selectedOption.innerHTML = $option.innerText
+                $select.dataset.name = $option.innerText
+                $select.dataset.value = $option.value
+            }
+        })
+
+        for (var i in $originalSelect.dataset) {
+            $select.dataset[i] = $originalSelect.dataset[i]
+        }
+
+        $select.className = 'custom-select ' + $originalSelect.className
+        $selectArrow.className = 'custom-select-button icon-26x26-arrow-down'
+        $selectedOption.className = 'custom-select-handler'
+        $dataContainer.className = 'custom-select-data'
+
+        $select.appendChild($selectedOption)
+        $select.appendChild($selectArrow)
+        $select.appendChild($dataContainer)
+
+        $select.addEventListener('click', function () {
+            if (visible) {
+                return hideSelect()
+            }
+
+            var dataElements = $dataContainer.querySelectorAll('span')
+            var selectData = []
+            var selectedData = {}
+
+            dataElements.forEach(function (elem) {
+                var data = {
+                    name: elem.dataset.name,
+                    value: elem.dataset.value
+                }
+
+                if (elem.dataset.icon) {
+                    data.leftIcon = elem.dataset.icon
+                }
+
+                if (elem.dataset.name === $selectedOption.innerHTML) {
+                    selectedData = data
+                }
+
+                selectData.push(data)
+            })
+
+            $root.$broadcast(
+                $eventType.SELECT_SHOW,
+                selectId,
+                selectData,
+                selectedData,
+                onSelect,
+                $select,
+                true /*dropdown please*/
+            )
+
+            visible = true
+
+            onShow()
+
+            $('.win-main').on('mousewheel', hideSelect)
+            $(window).on('click', clickHandler)
+        })
+
+        $originalSelect.replaceWith($select)
+    }
+
+    // TODO
+    // mover todos arquivos de interface para um modulo próprio
+    
     buildStyle('own', '___cssWindow')
 
     /**
@@ -43,6 +189,7 @@ define('TWOverflow/Interface', [
         self.setCollapse()
         self.setTooltips()
         self.setCheckboxes()
+        self.setSelects()
 
         var $close = self.$window.querySelector('.twOverflow-close')
 
@@ -270,6 +417,12 @@ define('TWOverflow/Interface', [
 
     Interface.prototype.recalcScrollbar = function () {
         this.$scrollbar.recalc()
+    }
+
+    Interface.prototype.setSelects = function () {
+        this.$window.querySelectorAll('select').forEach(function ($elem) {
+            createSelect($elem)
+        })
     }
 
     return Interface

@@ -81,3 +81,11 @@ function fixDate (dateTime) {
 function guid () {
     return Math.floor((Math.random()) * 0x1000000).toString(16)
 }
+
+function matchesElem (elem, selector) {
+    if ($(elem).parents(selector).length) {
+        return true
+    }
+
+    return false
+}

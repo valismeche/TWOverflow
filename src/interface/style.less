@@ -97,6 +97,33 @@
         background-color: #b28e68;
     }
 
+    .custom-select {
+        position: relative;
+        display: inline-block;
+        min-width: 70%;
+
+        .custom-select-button {
+            height: 21px;
+            position: absolute;
+            right: 1px;
+            top: 1px;
+        }
+
+        .custom-select-handler {
+            text-align: center;
+            line-height: 25px;
+            height: 25px;
+            display: block;
+            background: #ceab84;
+            box-shadow: inset 0 0 0 1px #533a1f, inset 0 0 0 2px #dcba94, 0 0 7px rgba(0,0,0,0.6);
+            padding: 0 10px;
+        }
+
+        .custom-select-data {
+            display: none;
+        }
+    }
+
     .center {
         text-align: center;
     }
@@ -130,4 +157,12 @@
 
 .contract-button {
     animation: contract-button 0.1s forwards;
+}
+
+.icon-26x26-preset {
+    background-image: url(https://twxbr.innogamescdn.com/img/icons/alpha_d7ece8ac13.png);
+    background-position: -884px -984px;
+    zoom: 0.8;
+    margin-top: 2px;
+    margin-left: 5px;
 }

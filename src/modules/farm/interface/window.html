@@ -38,7 +38,7 @@
                 <p class="center"><#- locale("farm", "info.development3") #></p>
                 <p class="center"><#- locale("farm", "info.development4") #> <span class="opensource"></span> <a href="https://github.com/FarmOverflow/FarmOverflow">Open Source</a></p>
             </div>
-            <h5 class="twx-section collapse hidden-content"><#- locale("farm", "info.presets1") #></h5>
+            <h5 class="twx-section collapse"><#- locale("farm", "info.presets1") #></h5>
             <div>
                 <p><#- locale("farm", "info.presets2") #></p>
                 <p><#- locale("farm", "info.presets3") #></p>
@@ -53,32 +53,32 @@
                 </p>
                 <p><#- locale("farm", "info.presets6") #></p>
             </div>
-            <h5 class="twx-section collapse hidden-content"><#- locale("farm", "info.ignore1") #></h5>
+            <h5 class="twx-section collapse"><#- locale("farm", "info.ignore1") #></h5>
             <div>
                 <p><#- locale("farm", "info.ignore2") #></p>
             </div>
-            <h5 class="twx-section collapse hidden-content"><#- locale("farm", "info.include1") #></h5>
+            <h5 class="twx-section collapse"><#- locale("farm", "info.include1") #></h5>
             <div>
                 <p><#- locale("farm", "info.include2") #></p>
             </div>
-            <h5 class="twx-section collapse hidden-content"><#- locale("farm", "info.randomBase1") #></h5>
+            <h5 class="twx-section collapse"><#- locale("farm", "info.randomBase1") #></h5>
             <div>
                 <p><#- locale("farm", "info.randomBase2") #></p>
             </div>
-            <h5 class="twx-section collapse hidden-content"><#- locale("farm", "info.groupOnly1") #></h5>
+            <h5 class="twx-section collapse"><#- locale("farm", "info.groupOnly1") #></h5>
             <div>
                 <p><#- locale("farm", "info.groupOnly2") #></p>
             </div>
-            <h5 class="twx-section collapse hidden-content"><#- locale("farm", "info.ignoreOnLoss1") #></h5>
+            <h5 class="twx-section collapse"><#- locale("farm", "info.ignoreOnLoss1") #></h5>
             <div>
                 <p><#- locale("farm", "info.ignoreOnLoss2") #></p>
                 <p><#- locale("farm", "info.ignoreOnLoss3") #></p>
             </div>
-            <h5 class="twx-section collapse hidden-content"><#- locale("farm", "info.priorityTargets1") #></h5>
+            <h5 class="twx-section collapse"><#- locale("farm", "info.priorityTargets1") #></h5>
             <div>
                 <p><#- locale("farm", "info.priorityTargets2") #></p>
             </div>
-            <h5 class="twx-section collapse hidden-content"><#- locale("farm", "info.remote1") #></h5>
+            <h5 class="twx-section collapse"><#- locale("farm", "info.remote1") #></h5>
             <div>
                 <p><#- locale("farm", "info.remote2") #></p>
                 <p><#- locale("farm", "info.remote3") #></p>
@@ -105,62 +105,68 @@
                         <col>
                     </colgroup>
                     <tbody>
-                        <tr tooltip="<#= locale("farm", "tooltip.presets") #>">
-                            <td>
+                        <tr>
+                            <td tooltip="<#= locale("farm", "tooltip.presets") #>">
                                 <span class="icon-34x34-preset"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.presetName") #></span>
                             </td>
                             <td>
-                                <select name="presetName" class="preset"></select>
+                                <select data-setting="presetName" class="preset"></select>
                             </td>
                         </tr>
-                        <tr tooltip="<#= locale("farm", "tooltip.groupIgnore") #>">
-                            <td>
+                        <tr>
+                            <td tooltip="<#= locale("farm", "tooltip.groupIgnore") #>">
                                 <span class="icon-20x20-queue-indicator-short"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.groupIgnore") #></span>
                             </td>
                             <td>
-                                <select name="groupIgnore" class="ignore"></select>
+                                <select data-setting="groupIgnore" class="ignore"></select>
                             </td>
                         </tr>
-                        <tr tooltip="<#= locale("farm", "tooltip.groupInclude") #>">
-                            <td>
+                        <tr>
+                            <td tooltip="<#= locale("farm", "tooltip.groupInclude") #>">
                                 <span class="icon-20x20-queue-indicator-long"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.groupInclude") #></span>
                             </td>
                             <td>
-                                <select name="groupInclude" class="include"></select>
+                                <select data-setting="groupInclude" class="include"></select>
                             </td>
                         </tr>
-                        <tr tooltip="<#= locale("farm", "tooltip.groupOnly") #>">
-                            <td>
+                        <tr>
+                            <td tooltip="<#= locale("farm", "tooltip.groupOnly") #>">
                                 <span class="icon-20x20-favourite"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.groupOnly") #></span>
                             </td>
                             <td>
-                                <select name="groupOnly" class="only"></select>
+                                <select data-setting="groupOnly" class="only"></select>
                             </td>
                         </tr>
-                        <tr tooltip="<#= locale("farm", "tooltip.randomBase") #>">
-                            <td><span class="ff-cell-fix"><#= locale("farm", "settings.randomBase") #></span></td>
-                            <td><input name="randomBase" type="number" class="textfield-border" min="0" required></td>
-                        </tr>
-                        <tr tooltip="<#= locale("farm", "tooltip.priorityTargets") #>">
+                        <tr>
+                            <td tooltip="<#= locale("farm", "tooltip.randomBase") #>">
+                                <span class="ff-cell-fix"><#= locale("farm", "settings.randomBase") #></span>
+                            </td>
                             <td>
+                                <input data-setting="randomBase" type="number" class="textfield-border" min="0" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td tooltip="<#= locale("farm", "tooltip.priorityTargets") #>">
                                 <span class="icon-34x34-name_changed"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.priorityTargets") #></span>
                             </td>
                             <td>
                                 <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-priorityTargets">
-                                    <input id="settings-priorityTargets" type="checkbox" name="priorityTargets">
+                                    <input id="settings-priorityTargets" type="checkbox" data-setting="priorityTargets">
                                 </label>
                             </td>
                         </tr>
-                        <tr tooltip="<#= locale("farm", "tooltip.ignoreOnLoss") #>">
-                            <td><#- locale("farm", "settings.ignoreOnLoss") #></td>
+                        <tr>
+                            <td tooltip="<#= locale("farm", "tooltip.ignoreOnLoss") #>">
+                                <span class="ff-cell-fix"><#- locale("farm", "settings.ignoreOnLoss") #></span>
+                            </td>
                             <td>
                                 <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-ignoreOnLoss">
-                                    <input id="settings-ignoreOnLoss" type="checkbox" name="ignoreOnLoss">
+                                    <input id="settings-ignoreOnLoss" type="checkbox" data-setting="ignoreOnLoss">
                                 </label>
                             </td>
                         </tr>
@@ -179,40 +185,40 @@
                                 <span class="icon-26x26-double-arrow"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.minDistance") #></span>
                             </td>
-                            <td><input name="minDistance" type="number" class="textfield-border" min="0" max="60" required></td>
+                            <td><input data-setting="minDistance" type="number" class="textfield-border" min="0" max="60" required></td>
                         </tr>
                         <tr>
                             <td>
                                 <span class="icon-26x26-double-arrow"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.maxDistance") #></span>
                             </td>
-                            <td><input name="maxDistance" type="number" class="textfield-border" min="1" max="60" required></td>
+                            <td><input data-setting="maxDistance" type="number" class="textfield-border" min="1" max="60" required></td>
                         </tr>
                         <tr>
                             <td>
                                 <span class="icon-34x34-points-per-village"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.minPoints") #></span>
                             </td>
-                            <td><input name="minPoints" type="number" class="textfield-border" required></td>
+                            <td><input data-setting="minPoints" type="number" class="textfield-border" required></td>
                         </tr>
                         <tr>
                             <td>
                                 <span class="icon-34x34-points-per-village"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.maxPoints") #></span>
                             </td>
-                            <td><input name="maxPoints" type="number" class="textfield-border" required></td>
+                            <td><input data-setting="maxPoints" type="number" class="textfield-border" required></td>
                         </tr>
                         <tr>
                             <td>
                                 <span class="icon-26x26-time"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.maxTravelTime") #></span>
                             </td>
-                            <td><input name="maxTravelTime" type="text" class="textfield-border" pattern="\\d{1,2}:\\d{1,2}:\\d{1,2}" required></td>
+                            <td><input data-setting="maxTravelTime" type="text" class="textfield-border" pattern="\\d{1,2}:\\d{1,2}:\\d{1,2}" required></td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h5 class="twx-section collapse hidden-content"><#= locale("farm", "settings.events") #></h5>
+                <h5 class="twx-section collapse"><#= locale("farm", "settings.events") #></h5>
                 <table class="tbl-border-light tbl-striped">
                     <colgroup>
                         <col width="50%">
@@ -224,14 +230,14 @@
                                 <span class="icon-26x26-info"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.eventsLimit") #></span>
                             </td>
-                            <td><input name="eventsLimit" type="number" class="textfield-border" min="1" required></td>
+                            <td><input data-setting="eventsLimit" type="number" class="textfield-border" min="1" required></td>
                         </tr>
 
                         <tr>
                             <td><#= locale("farm", "settings.eventAttack") #></td>
                             <td>
                                 <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-eventAttack">
-                                    <input id="settings-eventAttack" type="checkbox" name="eventAttack">
+                                    <input id="settings-eventAttack" type="checkbox" data-setting="eventAttack">
                                 </label>
                             </td>
                         </tr>
@@ -239,7 +245,7 @@
                             <td><#= locale("farm", "settings.eventVillageChange") #></td>
                             <td>
                                 <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-eventVillageChange">
-                                    <input id="settings-eventVillageChange" type="checkbox" name="eventVillageChange">
+                                    <input id="settings-eventVillageChange" type="checkbox" data-setting="eventVillageChange">
                                 </label>
                             </td>
                         </tr>
@@ -247,7 +253,7 @@
                             <td><#= locale("farm", "settings.eventPriorityAdd") #></td>
                             <td>
                                 <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-eventPriorityAdd">
-                                    <input id="settings-eventPriorityAdd" type="checkbox" name="eventPriorityAdd">
+                                    <input id="settings-eventPriorityAdd" type="checkbox" data-setting="eventPriorityAdd">
                                 </label>
                             </td>
                         </tr>
@@ -255,14 +261,14 @@
                             <td><#= locale("farm", "settings.eventIgnoredVillage") #></td>
                             <td>
                                 <label class="size-26x26 btn-orange icon-26x26-checkbox" for="settings-eventIgnoredVillage">
-                                    <input id="settings-eventIgnoredVillage" type="checkbox" name="eventIgnoredVillage">
+                                    <input id="settings-eventIgnoredVillage" type="checkbox" data-setting="eventIgnoredVillage">
                                 </label>
                             </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h5 class="twx-section collapse hidden-content"><#= locale("farm", "settings.others") #></h5>
+                <h5 class="twx-section collapse"><#= locale("farm", "settings.others") #></h5>
                 <table class="tbl-border-light tbl-striped">
                     <colgroup>
                         <col width="50%">
@@ -274,15 +280,15 @@
                                 <span class="icon-26x26-message-misc"></span>
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.remote") #></span>
                             </td>
-                            <td><input name="remoteId" type="text" class="textfield-border" min="3" max="45"></td>
+                            <td><input data-setting="remoteId" type="text" class="textfield-border" min="3" max="45"></td>
                         </tr>
                         <tr>
                             <td><#= locale("farm", "settings.hotkeySwitch") #></td>
-                            <td><input name="hotkeySwitch" type="text" class="textfield-border"></td>
+                            <td><input data-setting="hotkeySwitch" type="text" class="textfield-border"></td>
                         </tr>
                         <tr>
                             <td><#= locale("farm", "settings.hotkeyWindow") #></td>
-                            <td><input name="hotkeyWindow" type="text" class="textfield-border"></td>
+                            <td><input data-setting="hotkeyWindow" type="text" class="textfield-border"></td>
                         </tr>
                         <tr>
                             <td>
@@ -290,7 +296,7 @@
                                 <span class="ff-cell-fix"><#= locale("farm", "settings.language") #></span>
                             </td>
                             <td>
-                                <select name="language">
+                                <select data-setting="language" class="language">
                                     <# locale.eachLang("farm", function(id, name) { #>
                                         <option value="<#= id #>"><#= name #></option>
                                     <# }) #>
@@ -299,7 +305,6 @@
                         </tr>
                     </tbody>
                 </table>
-                <input type="submit" hidden>
             </form>
         </div>
 

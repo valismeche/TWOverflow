@@ -4,6 +4,7 @@
 
         "attack": "ataque",
         "support": "apoio",
+        "relocate": "transferência",
         "sended": "enviado",
         "activated": "ativado",
         "deactivated": "desativado",

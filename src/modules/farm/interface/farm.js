@@ -28,6 +28,37 @@ define('TWOverflow/Farm/interface', [
     var $status
     var $start
     var $settings
+    var $preset
+    var $langs
+
+    /**
+     * Tipo de input usado por cada opção de configuração.
+     * 
+     * @type {Object}
+     */
+    var settingsMap = {
+        maxDistance: 'text',
+        minDistance: 'text',
+        maxTravelTime: 'text',
+        randomBase: 'text',
+        presetName: 'select',
+        groupIgnore: 'select',
+        groupInclude: 'select',
+        groupOnly: 'select',
+        minPoints: 'text',
+        maxPoints: 'text',
+        eventsLimit: 'text',
+        ignoreOnLoss: 'checkbox',
+        language: 'select',
+        priorityTargets: 'checkbox',
+        eventAttack: 'checkbox',
+        eventVillageChange: 'checkbox',
+        eventPriorityAdd: 'checkbox',
+        eventIgnoredVillage: 'checkbox',
+        remoteId: 'text',
+        hotkeySwitch: 'text',
+        hotkeyWindow: 'text'
+    }
 
     /**
      * Contagem de eventos inseridos na visualização.
@@ -63,6 +94,13 @@ define('TWOverflow/Farm/interface', [
     var dateFormat = 'dd/MM/yyyy hh:mm:ss'
 
     /**
+     * Tradução de "desativado" para a linguagem selecionada.
+     * 
+     * @type {String}
+     */
+    var disabled
+
+    /**
      * Lista de grupos disponíveis na conta do jogador
      *
      * @type {Object}
@@ -77,30 +115,46 @@ define('TWOverflow/Farm/interface', [
     var $groups
 
     /**
-     * Atualiza as informações rápidas do botão inicial do FarmOverflow
-     * @return {[type]} [description]
-     */
-    var updateQuickview = function () {
-        var last = Locale('farm', 'events.lastAttack')
-        var text = last + ': ' + $last.html()
-
-        opener.updateQuickview(text)
-    }
-
-    /**
      * Loop em todas configurações do FarmOverflow
      * 
      * @param {Function} callback
      */
     var eachSetting = function (callback) {
-        for (var key in Farm.settings) {
-            var $input = $window.find('[name="' + key + '"]')
+        $window.find('[data-setting]').forEach(function ($input) {
+            var settingId = $input.dataset.setting
 
-            if (!$input.length) {
-                continue
+            callback($input, settingId)
+        })
+    }
+
+    var saveSettings = function () {
+        var newSettings = {}
+
+        eachSetting(function ($input, settingId) {
+            var inputType = settingsMap[settingId]
+
+            switch (inputType) {
+            case 'text':
+                newSettings[settingId] = $input.type === 'number'
+                    ? parseInt($input.value, 10)
+                    : $input.value
+
+                break
+            case 'select':
+                newSettings[settingId] = $input.dataset.value
+
+                break
+            case 'checkbox':
+                newSettings[settingId] = $input.checked
+
+                break
             }
+        })
 
-            callback($input)
+        Farm.updateSettings(newSettings)
+
+        if (Farm.notifsEnabled) {
+            emitNotif('success', Locale('farm', 'settings.saved'))
         }
     }
 
@@ -108,28 +162,61 @@ define('TWOverflow/Farm/interface', [
      * Insere as configurações na interface.
      */
     var populateSettings = function () {
-        eachSetting(function ($input) {
-            var type = $input[0].type
-            var name = $input[0].name
+        eachSetting(function ($input, settingId) {
+            var inputType = settingsMap[settingId]
 
-            if (type === 'select-one') {
-                if (name === 'language') {
-                    $input[0].value = Farm.settings.language
+            switch (inputType) {
+            case 'text':
+                $input.value = Farm.settings[settingId]
+
+                break
+            case 'select':
+                $input.dataset.value = Farm.settings[settingId]
+
+                break
+            case 'checkbox':
+                if (Farm.settings[settingId]) {
+                    $input.checked = true
+                    $input.parentElement.classList.add('icon-26x26-checkbox-checked')
                 }
 
+                break
+            }
+        })
+    }
+
+    /**
+     * Popula a lista de eventos que foram gerados em outras execuções
+     * do FarmOverflow.
+     */
+    var populateEvents = function () {
+        // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
+        if (Farm.lastEvents.length > 0) {
+            $events.find('.nothing').remove()
+        }
+
+        Farm.lastEvents.some(function (event) {
+            if (eventsCount >= Farm.settings.eventsLimit) {
+                return true
+            }
+
+            if (!Farm.settings.eventAttack && event.type === 'sendCommand') {
                 return
             }
 
-            if (type === 'checkbox') {
-                if (Farm.settings[name]) {
-                    $input[0].checked = true
-                    $input.parent().addClass('icon-26x26-checkbox-checked')
-                }
-
+            if (!Farm.settings.eventVillageChange && event.type === 'nextVillage') {
                 return
             }
 
-            $input.val(Farm.settings[name])
+            if (!Farm.settings.eventPriorityAdd && event.type === 'priorityTargetAdded') {
+                return
+            }
+
+            if (!Farm.settings.eventIgnoredVillage && event.type === 'ignoredVillage') {
+                return
+            }
+
+            addEvent(event, true)
         })
     }
 
@@ -149,57 +236,9 @@ define('TWOverflow/Farm/interface', [
             Farm.switch()
         })
 
-        $settings.on('submit', function (event) {
-            event.preventDefault()
-
-            if ($settings[0].checkValidity()) {
-                var settings = {}
-
-                eachSetting(function ($input) {
-                    var name = $input[0].name
-                    var type = $input[0].type
-                    var value = $input.val()
-
-                    if ($input[0].type === 'number') {
-                        value = parseInt(value, 10)
-                    }
-
-                    settings[name] = value
-                })
-
-                Farm.updateSettings(settings)
-
-                if (Farm.notifsEnabled) {
-                    emitNotif('success', Locale('farm', 'settings.saved'))
-                }
-            }
-
-            return false
-        })
-
         $window.find('.save').on('click', function (event) {
-            $settings.find('input:submit')[0].click()
+            saveSettings()
         })
-    }
-
-    /**
-     * Atualiza o elemento com a data do último ataque enviado
-     * Tambem armazena para ser utilizado nas proximas execuções.
-     *
-     * @param {[type]} [varname] [description]
-     */
-    var updateLastAttack = function (lastAttack) {
-        if (!lastAttack) {
-            lastAttack = Farm.lastAttack
-
-            if (lastAttack === -1) {
-                return false
-            }
-        }
-
-        $last.html(readableDateFilter(lastAttack, null, null, null, dateFormat))
-
-        updateQuickview()
     }
 
     /**
@@ -292,38 +331,23 @@ define('TWOverflow/Farm/interface', [
     }
 
     /**
-     * Popula a lista de eventos que foram gerados em outras execuções
-     * do FarmOverflow.
+     * Atualiza o elemento com a data do último ataque enviado
+     * Tambem armazena para ser utilizado nas proximas execuções.
+     *
+     * @param {[type]} [varname] [description]
      */
-    var populateEvents = function () {
-        // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
-        if (Farm.lastEvents.length > 0) {
-            $events.find('.nothing').remove()
+    var updateLastAttack = function (lastAttack) {
+        if (!lastAttack) {
+            lastAttack = Farm.lastAttack
+
+            if (lastAttack === -1) {
+                return false
+            }
         }
 
-        Farm.lastEvents.some(function (event) {
-            if (eventsCount >= Farm.settings.eventsLimit) {
-                return true
-            }
+        $last.html(readableDateFilter(lastAttack, null, null, null, dateFormat))
 
-            if (!Farm.settings.eventAttack && event.type === 'sendCommand') {
-                return
-            }
-
-            if (!Farm.settings.eventVillageChange && event.type === 'nextVillage') {
-                return
-            }
-
-            if (!Farm.settings.eventPriorityAdd && event.type === 'priorityTargetAdded') {
-                return
-            }
-
-            if (!Farm.settings.eventIgnoredVillage && event.type === 'ignoredVillage') {
-                return
-            }
-
-            addEvent(event, true)
-        })
+        updateQuickview()
     }
 
     /**
@@ -331,13 +355,35 @@ define('TWOverflow/Farm/interface', [
      */
     var updateGroupList = function () {
         for (var type in $groups) {
-            $groups[type].html(genSelect('', Locale('farm', 'general.disabled')))
+            var $selectedOption = $groups[type].find('.custom-select-handler').html('')
+            var $data = $groups[type].find('.custom-select-data').html('')
+
+            appendDisabledOption($data, '0')
 
             for (var id in groups) {
                 var name = groups[id].name
                 var selected = Farm.settings[type] == id
+
+                if (Farm.settings[type] == 0) {
+                    $selectedOption.html(disabled)
+                    $groups[type][0].dataset.name = disabled
+                    $groups[type][0].dataset.value = '0'
+                } else if (Farm.settings[type] == id) {
+                    $selectedOption.html(name)
+                    $groups[type][0].dataset.name = name
+                    $groups[type][0].dataset.value = id
+                }
+
+                appendSelectData($data, {
+                    name: name,
+                    value: id
+                })
                 
-                $groups[type].append(genSelect(id, name, selected))
+                $groups[type].append($data)
+            }
+
+            if (!Farm.settings[type]) {
+                $selectedOption.html(disabled)
             }
         }
     }
@@ -348,31 +394,112 @@ define('TWOverflow/Farm/interface', [
     var updatePresetList = function () {
         var loaded = {}
         var presets = $model.getPresetList().presets
-        var $preset = $window.find('.preset')
-        
-        $preset.html(genSelect('', Locale('farm', 'general.disabled')))
+
+        var selectedPreset = Farm.settings.presetName
+        var $selectedOption = $preset.find('.custom-select-handler').html('')
+        var $data = $preset.find('.custom-select-data').html('')
+
+        appendDisabledOption($data)
 
         for (var id in presets) {
-            var cleanName = presets[id].name.replace(rpreset, '').trim()
+            var presetName = presets[id].name.replace(rpreset, '').trim()
 
-            if (cleanName in loaded) {
+            if (presetName in loaded) {
                 continue
             }
 
             // presets apenas com descrição sem identificação são ignorados
-            if (!cleanName) {
+            if (!presetName) {
                 continue
             }
 
-            loaded[cleanName] = true
-            var selected = Farm.settings.presetName === cleanName
+            if (selectedPreset === '') {
+                $selectedOption.html(disabled)
+                $preset[0].dataset.name = disabled
+                $preset[0].dataset.value = ''
+            } else if (selectedPreset === presetName) {
+                $selectedOption.html(presetName)
+                $preset[0].dataset.name = presetName
+                $preset[0].dataset.value = presetName
+            }
 
-            $preset.append(genSelect(cleanName, cleanName, selected))
+            appendSelectData($data, {
+                name: presetName,
+                value: presetName,
+                icon: 'size-34x34 icon-26x26-preset'
+            })
+
+            loaded[presetName] = true
         }
+    }
+
+    /**
+     * Atualiza a lista de linguagens ana aba de configurações
+     */
+    var updateLanguages = function () {
+        var $selectedOption = $langs.find('.custom-select-handler').html('')
+        var $data = $langs.find('.custom-select-data').html('')
+        var selectedLang = Locale.current('farm')
+
+        Locale.eachLang('farm', function (langId, langName) {
+            if (selectedLang === langId) {
+                $selectedOption.html(langName)
+                $langs[0].dataset.name = langName
+                $langs[0].dataset.value = langId
+            }
+
+            appendSelectData($data, {
+                name: langName,
+                value: langId
+            })
+        })
+    }
+
+    /**
+     * Atualiza as informações rápidas do botão inicial do FarmOverflow
+     * @return {[type]} [description]
+     */
+    var updateQuickview = function () {
+        var last = Locale('farm', 'events.lastAttack')
+        var text = last + ': ' + $last.html()
+
+        opener.updateQuickview(text)
+    }
+
+    /**
+     * Gera uma opção "desativada" padrão em um custom-select
+     * 
+     * @param  {jqLite} $data - Elemento que armazenada o <span> com dataset.
+     * @param {String=} _disabledValue - Valor da opção "desativada".
+     */
+    var appendDisabledOption = function ($data, _disabledValue) {
+        var dataElem = document.createElement('span')
+        dataElem.dataset.name = disabled
+        dataElem.dataset.value = _disabledValue || ''
+
+        $data.append(dataElem)
+    }
+
+    /**
+     * Popula o dataset um elemento <span>
+     * 
+     * @param  {jqLite} $data - Elemento que armazenada o <span> com dataset.
+     * @param  {[type]} data - Dados a serem adicionados no dataset.
+     */
+    var appendSelectData = function ($data, data) {
+        var dataElem = document.createElement('span')
+
+        for (var key in data) {
+            dataElem.dataset[key] = data[key]
+        }
+
+        $data.append(dataElem)
     }
 
     function FarmInterface () {
         groups = $model.getGroupList().getGroups()
+
+        disabled = Locale('farm', 'general.disabled')
 
         // Valores a serem substituidos no template da janela
         var replaces = {
@@ -400,13 +527,13 @@ define('TWOverflow/Farm/interface', [
         $status = $window.find('.status')
         $start = $window.find('.start')
         $settings = $window.find('.settings')
+        $preset = $window.find('.preset')
+        $langs = $window.find('.language')
         $groups = {
             groupIgnore: $window.find('.ignore'),
             groupInclude: $window.find('.include'),
             groupOnly: $window.find('.only')
         }
-
-
 
         Farm.bind('sendCommand', function (from, to) {
             $status.html(Locale('farm', 'events.attacking'))
@@ -561,6 +688,7 @@ define('TWOverflow/Farm/interface', [
         populateSettings()
         bindEvents()
         updateGroupList()
+        updateLanguages()
         updateSelectedVillage()
         updateLastAttack()
         populateEvents()
