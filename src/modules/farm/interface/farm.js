@@ -239,46 +239,34 @@ define('TWOverflow/Farm/interface', [
      *      a lista de eventos, então os elementos são adicionados no final da lista.
      */
     var addRow = function ($where, options, _populate) {
-        // Copia o objeto porque ele será armazenado e não queremos os
-        // dados guardados já renderizados.
-        options = angular.copy(options)
+        var linkButton = {}
+        var linkTemplate = {}
+        var links = options.links
+        var timestamp = options.timestamp || $timeHelper.gameTime()
+        var eventElement = document.createElement('tr')
 
-        var buttons = {}
-        var replaces = {}
-
-        if (options.links) {
-            for (var key in options.links) {
-                var button = buttonLink(options.links[key].type, options.links[key].name)
-                buttons[key] = button
-                replaces[key] = button.html
+        if (links) {
+            for (var key in links) {
+                linkButton[key] = buttonLink(links[key].type, links[key].name, links[key].id)
+                linkTemplate[key] = '<a id="' + linkButton[key].id + '"></a>'
             }
 
-            options.text = Locale('farm', 'events.' + options.type, replaces)
+            options.content = Locale('farm', 'events.' + options.type, linkTemplate)
         }
 
-        var $tr = document.createElement('tr')
-
-        $tr.innerHTML = ejs.render('___htmlFarmEvent', {
-            date: readableDateFilter(options.timestamp || $timeHelper.gameTime(), null, null, null, dateFormat),
+        eventElement.innerHTML = ejs.render('___htmlFarmEvent', {
+            date: readableDateFilter(timestamp, null, null, null, dateFormat),
             icon: options.icon,
-            text: options.text
+            content: options.content
         })
 
-        if (!options.icon) {
-            $tr.querySelector('.icon-bg-black').remove()
-            $tr.querySelector('.text-tribe-news').className = ''
-        }
-
-        if (options.links) {
-            for (var key in buttons) {
-                options.links[key].elem = $tr.querySelector('#' + buttons[key].id)
-                options.links[key].elem.addEventListener('click', function () {
-                    $wds.openVillageInfo(options.links[key].id)
-                })
+        if (links) {
+            for (var key in linkButton) {
+                eventElement.querySelector('#' + linkButton[key].id).replaceWith(linkButton[key].elem)
             }
         }
 
-        $where[_populate ? 'append' : 'prepend']($tr)
+        $where[_populate ? 'append' : 'prepend'](eventElement)
         ui.$scrollbar.recalc()
     }
 
