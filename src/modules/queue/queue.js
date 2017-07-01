@@ -324,7 +324,7 @@ define('TWOverflow/Queue', [
         command.units = parseDynamicUnits(command)
 
         if (!command.units) {
-            return Queue.trigger('error', [QueueLocale('queue', 'error.noUnitsEnough')])
+            return Queue.trigger('error', [Locale('queue', 'error.noUnitsEnough')])
         }
 
         $socket.emit($route.SEND_CUSTOM_ARMY, {
@@ -369,19 +369,19 @@ define('TWOverflow/Queue', [
      */
     Queue.addCommand = function (command) {
         if (!isValidCoords(command.origin)) {
-            return Queue.trigger('error', [QueueLocale('queue', 'error.origin')])
+            return Queue.trigger('error', [Locale('queue', 'error.origin')])
         }
 
         if (!isValidCoords(command.target)) {
-            return Queue.trigger('error', [QueueLocale('queue', 'error.target')])
+            return Queue.trigger('error', [Locale('queue', 'error.target')])
         }
 
         if (!isValidDateTime(command.arrive)) {
-            return Queue.trigger('error', [QueueLocale('queue', 'error.invalidDate')])
+            return Queue.trigger('error', [Locale('queue', 'error.invalidDate')])
         }
 
         if (angular.equals(command.units, {})) {
-            return Queue.trigger('error', [QueueLocale('queue', 'error.noUnits')])
+            return Queue.trigger('error', [Locale('queue', 'error.noUnits')])
         }
 
         command.originCoords = command.origin
@@ -423,9 +423,9 @@ define('TWOverflow/Queue', [
             var sendTime = arriveTime - travelTime
 
             if (!isValidSendTime(sendTime)) {
-                return Queue.trigger('error', [QueueLocale('queue', 'error.alreadySent', {
+                return Queue.trigger('error', [Locale('queue', 'error.alreadySent', {
                     date: readableDateFilter(sendTime),
-                    type: QueueLocale('queue', command.type)
+                    type: Locale('queue', command.type)
                 })])
             }
 
@@ -451,7 +451,7 @@ define('TWOverflow/Queue', [
         })
         
         loadVillagesData.catch(function (error) {
-            Queue.trigger('error', [QueueLocale('queue', error)])
+            Queue.trigger('error', [Locale('queue', error)])
         })
     }
 

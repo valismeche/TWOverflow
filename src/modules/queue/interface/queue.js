@@ -8,7 +8,7 @@ define('TWOverflow/Queue/interface', [
     'ejs'
 ], function (
     Queue,
-    QueueLocale,
+    Locale,
     Interface,
     buttonLink,
     FrontButton,
@@ -349,7 +349,7 @@ define('TWOverflow/Queue/interface', [
             hasOfficers: hasOfficers,
             officers: command.officers,
             section: section,
-            locale: QueueLocale
+            locale: Locale
         })
 
         $command.querySelector('.origin').replaceWith(origin.elem)
@@ -383,7 +383,10 @@ define('TWOverflow/Queue/interface', [
         }
 
         toggleEmptyMessage(section)
-        ui.$scrollbar.recalc()
+        
+        if (ui.isVisible('queue')) {
+            ui.recalcScrollbar()
+        }
     }
 
     /**
@@ -432,7 +435,7 @@ define('TWOverflow/Queue/interface', [
 
         $window.find('a.addMapSelected').on('click', function () {
             if (!mapSelectedVillage) {
-                return emitNotif('error', QueueLocale('queue', 'error.noMapSelectedVillage'))
+                return emitNotif('error', Locale('queue', 'error.noMapSelectedVillage'))
             }
 
             $target.val(mapSelectedVillage.join('|'))
@@ -541,7 +544,7 @@ define('TWOverflow/Queue/interface', [
             key = prefix + '.' + key
         }
 
-        return QueueLocale(key) + ' ' + QueueLocale(key2)
+        return Locale('queue', key) + ' ' + Locale('queue', key2)
     }
 
     /**
@@ -597,7 +600,7 @@ define('TWOverflow/Queue/interface', [
         // Valores a serem substituidos no template da janela
         var replaces = {
             version: Queue.version,
-            locale: QueueLocale,
+            locale: Locale,
             i18nUnit: i18nUnit,
             units: unitNames,
             officers: officerNames
@@ -616,8 +619,8 @@ define('TWOverflow/Queue/interface', [
         // no botão para um rápida visualização.
         opener.hover(function () {
             var commands = Queue.getWaitingCommands()
-            var sendTime = commands.length ? formatDate(sendTime) : QueueLocale('queue', 'general.none')
-            var text = QueueLocale('queue', 'general.nextCommand') + ': ' + sendTime
+            var sendTime = commands.length ? formatDate(sendTime) : Locale('queue', 'general.none')
+            var text = Locale('queue', 'general.nextCommand') + ': ' + sendTime
 
             opener.updateQuickview(text)
         })
@@ -657,7 +660,7 @@ define('TWOverflow/Queue/interface', [
         // Remove o comando da lista de espera
         Queue.bind('remove', function (removed, command) {
             if (!removed) {
-                return emitNotif('error', QueueLocale('queue', 'error.removeError'))
+                return emitNotif('error', Locale('queue', 'error.removeError'))
             }
 
             removeCommand(command, 'queue')
@@ -689,7 +692,7 @@ define('TWOverflow/Queue/interface', [
         Queue.bind('start', function () {
             opener.$elem.removeClass('btn-green').addClass('btn-red')
             $switch.removeClass('btn-green').addClass('btn-red')
-            $switch.html(QueueLocale('queue', 'general.deactivate'))
+            $switch.html(Locale('queue', 'general.deactivate'))
 
             emitNotif('success', genNotifText('title', 'activated'))
         })
@@ -697,7 +700,7 @@ define('TWOverflow/Queue/interface', [
         Queue.bind('stop', function () {
             opener.$elem.removeClass('btn-red').addClass('btn-green')
             $switch.removeClass('btn-red').addClass('btn-green')
-            $switch.html(QueueLocale('queue', 'general.activate'))
+            $switch.html(Locale('queue', 'general.activate'))
 
             emitNotif('success', genNotifText('title', 'deactivated'))
         })

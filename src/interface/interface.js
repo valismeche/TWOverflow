@@ -158,7 +158,7 @@ define('TWOverflow/Interface', [
                 }
             }
 
-            self.$scrollbar.recalc()
+            self.recalcScrollbar()
         })
     }
 
@@ -225,7 +225,7 @@ define('TWOverflow/Interface', [
                     visible = false
                 }
 
-                self.$scrollbar.recalc()
+                self.recalcScrollbar()
             })
         })
     }
@@ -258,8 +258,18 @@ define('TWOverflow/Interface', [
         })
     }
 
-    Interface.prototype.isVisible = function () {
-        return this.$window.style.visibility === 'visible'
+    Interface.prototype.isVisible = function (tab) {
+        var visible = this.$window.style.visibility === 'visible'
+
+        if (visible && tab) {
+            visible = this.activeTab === tab
+        }
+
+        return visible
+    }
+
+    Interface.prototype.recalcScrollbar = function () {
+        this.$scrollbar.recalc()
     }
 
     return Interface

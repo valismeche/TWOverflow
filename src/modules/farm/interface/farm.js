@@ -267,7 +267,12 @@ define('TWOverflow/Farm/interface', [
         }
 
         $where[_populate ? 'append' : 'prepend'](eventElement)
-        ui.$scrollbar.recalc()
+        
+        // Recalcula o scrollbar apenas se a janela e
+        // aba correta estiverem abertas.
+        if (ui.isVisible('log')) {
+            ui.recalcScrollbar()
+        }
     }
 
     /**
