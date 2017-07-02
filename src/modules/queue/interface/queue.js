@@ -29,6 +29,7 @@ define('TWOverflow/Queue/interface', [
     var $officers
     var $sections
     var $dateType
+    var $filters
 
     /**
      * Elementos da previsão dos tempos de viagem de todas unidades.
@@ -77,6 +78,55 @@ define('TWOverflow/Queue/interface', [
         origin: false,
         target: false,
         date: false
+    }
+
+    /**
+     * ID do setTimeout para que ações não sejam executadas imediatamente
+     * assim que digitas no <input>
+     *
+     * @type {Number}
+     */
+    var timeoutInputDelayId
+
+    /**
+     * Lista de filtros ativos dos comandos da visualização "Em espera"
+     *
+     * @type {Object}
+     */
+    var activeFilters = {
+        selectedVillage: false,
+        barbarianTarget: false,
+        allowedTypes: true,
+        attack: true,
+        support: true,
+        relocate: true,
+        textMatch: true
+    }
+
+    /**
+     * Ordem em que os filtros são aplicados.
+     *
+     * @type {Array}
+     */
+    var filterOrder = [
+        'selectedVillage',
+        'barbarianTarget',
+        'allowedTypes',
+        'textMatch'
+    ]
+
+    /**
+     * Dados dos filtros
+     *
+     * @type {Object}
+     */
+    var filtersData = {
+        allowedTypes: {
+            attack: true,
+            support: true,
+            relocate: true
+        },
+        textMatch: ''
     }
     
     /**
@@ -174,6 +224,7 @@ define('TWOverflow/Queue/interface', [
         appendWaitingCommands()
         appendSendedCommands()
         appendExpiredCommands()
+        applyCommandFilters()
     }
 
     /**
@@ -400,7 +451,7 @@ define('TWOverflow/Queue/interface', [
      */
     var appendCommand = function (command, section) {
         var $command = document.createElement('div')
-        $command.id = section + '-' + command.id
+        $command.dataset.id = command.id
         $command.className = 'command'
 
         var origin = buttonLink('village', villageLabel(command.origin), command.origin.id)
@@ -493,6 +544,48 @@ define('TWOverflow/Queue/interface', [
      */
     var removeCommandCountdown = function (commandId) {
         delete countDownElements[commandId]
+    }
+
+    /**
+     * Loop em todos os comandos em espera da visualização.
+     *
+     * @param  {Function} callback
+     */
+    var eachWaitingCommand = function (callback) {
+        var waitingCommands = Queue.getWaitingCommandsObject()
+
+        $sections.queue.find('.command').forEach(function ($command) {
+            var command = waitingCommands[$command.dataset.id]
+
+            if (command) {
+                callback($command, command)
+            }
+        })
+    }
+
+    /**
+     * Aplica um filtro nos comandos em espera.
+     *
+     * @param  {Array=} _options - Valores a serem passados para os filtros.
+     */
+    var applyCommandFilters = function (_options) {
+        var filteredCommands = Queue.getWaitingCommands()
+
+        filterOrder.forEach(function (filterId) {
+            if (activeFilters[filterId]) {
+                filteredCommands = Queue.filterCommands(filterId, filtersData, filteredCommands)
+            }
+        })
+
+
+
+        var filteredCommandIds = filteredCommands.map(function (command) {
+            return command.id
+        })
+
+        eachWaitingCommand(function ($command, command) {
+            $command.style.display = filteredCommandIds.includes(command.id) ? '' : 'none'
+        })
     }
 
     /**
@@ -617,6 +710,44 @@ define('TWOverflow/Queue/interface', [
 
         $officers.on('change', function () {
             populateTravelTimes()
+        })
+
+        $filters.find('.selectedVillage').on('click', function () {
+            if (activeFilters.selectedVillage) {
+                this.classList.remove('active')
+            } else {
+                this.classList.add('active')
+            }
+
+            activeFilters.selectedVillage = !activeFilters.selectedVillage
+
+            applyCommandFilters()
+        })
+
+        $filters.find('.allowedTypes').on('click', function () {
+            var commandType = this.dataset.filter
+            var activated = activeFilters[commandType]
+
+            if (activated) {
+                this.classList.remove('active')
+            } else {
+                this.classList.add('active')
+            }
+
+            activeFilters[commandType] = !activated
+            filtersData.allowedTypes[commandType] = !activated
+
+            applyCommandFilters()
+        })
+
+        $filters.find('.text input').on('input', function (event) {
+            clearTimeout(timeoutInputDelayId)
+
+            filtersData[this.dataset.filter] = this.value
+
+            timeoutInputDelayId = setTimeout(function () {
+                applyCommandFilters()
+            }, 250)
         })
 
         $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
@@ -753,6 +884,7 @@ define('TWOverflow/Queue/interface', [
         $officers = $window.find('.officers input')
         $travelTimes = $window.find('table.travelTimes')
         $dateType = $window.find('.dateType')
+        $filters = $window.find('.filters')
         $sections = {
             queue: $window.find('div.queue'),
             sended: $window.find('div.sended'),
@@ -793,6 +925,7 @@ define('TWOverflow/Queue/interface', [
         // Adiciona o comando da lista de espera.
         Queue.bind('add', function (command) {
             resetWaitingCommands()
+            applyCommandFilters()
             emitNotif('success', genNotifText(command.type, 'added', 'general'))
         })
 

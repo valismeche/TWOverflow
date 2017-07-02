@@ -59,6 +59,7 @@
         "queue.expired": "Comandos expirados",
         "queue.noneExpired": "Nenhum comando expirado.",
         "queue.remove": "Remover comando da lista",
+        "queue.filters": "Filtro de comandos",
 
         "command.out": "Saída",
         "command.timeLeft": "Tempo restante",

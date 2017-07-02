@@ -71,6 +71,66 @@ define('TWOverflow/Queue', [
     var $player
 
     /**
+     * Tipos de comandos usados pelo jogo (tipo que usam tropas apenas).
+     *
+     * @type {Array}
+     */
+    var commandTypes = ['attack', 'support', 'relocate']
+
+    /**
+     * Lista de filtros para comandos.
+     *
+     * @type {Object}
+     */
+    var commandFilters = {
+        selectedVillage: function (command) {
+            return command.origin.id === $model.getSelectedVillage().getId()
+        },
+        barbarianTarget: function (command) {
+            return !command.target.character_id
+        },
+        allowedTypes: function (command, options) {
+            return options.allowedTypes[command.type]
+        },
+        attack: function (command) {
+            return command.type !== 'attack'
+        },
+        support: function (command) {
+            return command.type !== 'support'
+        },
+        relocate: function (command) {
+            return command.type !== 'relocate'
+        },
+        textMatch: function (command, options) {
+            var show = true
+            var keywords = options.textMatch.toLowerCase().split(/\W/)
+
+            var searchString = [
+                command.origin.name,
+                command.originCoords,
+                command.originCoords,
+                command.origin.character_name || '',
+                command.target.name,
+                command.targetCoords,
+                command.target.character_name || '',
+                command.target.tribe_name || '',
+                command.target.tribe_tag || ''
+            ]
+
+            searchString = searchString.join('').toLowerCase()
+
+            keywords.some(function (keyword) {
+                if (keyword.length && !searchString.includes(keyword)) {
+                    show = false
+                    return true
+                }
+            })
+
+            return show
+        }
+    }
+
+    /**
      * Gera um prefix com o mundo atual para que
      * cada mundo tenha sua própria lista de comandos.
      * 
@@ -124,7 +184,7 @@ define('TWOverflow/Queue', [
     /**
      * Ordenada a lista de comandos em espera por tempo de saída.
      */
-    var orderWaitingQueue = function () {
+    var sortWaitingQueue = function () {
         waitingCommands = waitingCommands.sort(function (a, b) {
             return a.sendTime - b.sendTime
         })
@@ -479,7 +539,7 @@ define('TWOverflow/Queue', [
 
             pushWaitingCommand(command)
             pushCommandObject(command)
-            orderWaitingQueue()
+            sortWaitingQueue()
             storeWaitingQueue()
 
             Queue.trigger('add', [command])
@@ -707,6 +767,24 @@ define('TWOverflow/Queue', [
         }
 
         callback(village ? village : false)
+    }
+
+    /**
+     * Filtra os comandos de acordo com o filtro especificado.
+     *
+     * @param  {String} filterId - Identificação do filtro.
+     * @param {Array=} _options - Valores a serem passados para os filtros.
+     * @param {Array=} _commandsDeepFilter - Usa os comandos passados pelo parâmetro
+     *   ao invés da lista de comandos completa.
+     * @return {Array} Comandos filtrados.
+     */
+    Queue.filterCommands = function (filterId, _options, _commandsDeepFilter) {
+        var filterHandler = commandFilters[filterId]
+        var commands = _commandsDeepFilter || waitingCommands
+
+        return commands.filter(function (command) {
+            return filterHandler(command, _options)
+        })
     }
 
     return Queue

@@ -224,6 +224,34 @@
 
         <!-- LISTA DE COMANDOS -->
         <div class="box-paper footer has-footer-upper rich-text twOverflow-content-queue">
+            <h5 class="twx-section collapse"><#= locale("queue", "queue.filters") #></h5>
+            <div class="filters">
+                <table class="tbl-border-light">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div data-filter="selectedVillage" class="box-border-dark icon selectedVillage" tooltip="Mostrar apenas comandos com origem da aldeia selecionada">
+                                    <span class="icon-34x34-village-info icon-bg-black"></span>
+                                </div>
+
+                                <div data-filter="attack" class="box-border-dark icon allowedTypes active" tooltip="Ocultar ataques">
+                                    <span class="icon-34x34-attack icon-bg-black"></span>
+                                </div>
+                                <div data-filter="support" class="box-border-dark icon allowedTypes active" tooltip="Ocultar apoios">
+                                    <span class="icon-34x34-support icon-bg-black"></span>
+                                </div>
+                                <div data-filter="relocate" class="box-border-dark icon allowedTypes active" tooltip="Ocultar transferências">
+                                    <span class="icon-34x34-relocate icon-bg-black"></span>
+                                </div>
+                                <div class="text">
+                                    <input data-filter="textMatch" type="text" class="box-border-dark textMatch" placeholder="Filtrar por texto...">
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <h5 class="twx-section collapse"><#= locale("queue", "queue.waiting") #></h5>
             <div class="queue">
                 <p class="center nothing"><#= locale("queue", "queue.noneAdded") #></p>
