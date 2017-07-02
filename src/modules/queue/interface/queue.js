@@ -435,7 +435,8 @@ define('TWOverflow/Queue/interface', [
         })
 
         $($command).remove()
-        
+
+        removeCommandCountdown(command.id)
         toggleEmptyMessage(section)
 
         if (ui.isVisible('queue')) {
