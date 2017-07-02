@@ -75,7 +75,8 @@ define('TWOverflow/Interface', [
             $select.dataset.name = data.name
             $select.dataset.value = data.value
 
-            $eventQueue.trigger('custom_select_selected', data, $select)
+            $($select).trigger('selectSelected')
+
             hideSelect()
         }
 

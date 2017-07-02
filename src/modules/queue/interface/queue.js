@@ -25,9 +25,10 @@ define('TWOverflow/Queue/interface', [
     var $addForm
     var $origin
     var $target
-    var $arrive
+    var $date
     var $officers
     var $sections
+    var $dateType
 
     /**
      * Elementos da previsão dos tempos de viagem de todas unidades.
@@ -58,7 +59,7 @@ define('TWOverflow/Queue/interface', [
      * 
      * @type {String}
      */
-    var dateFormat = 'dd/MM/yyyy hh:mm:ss'
+    var dateFormat = 'HH:mm:ss dd/MM/yyyy'
     
     /**
      * Armazena se as entradas das coordenadas e data de chegada são validas.
@@ -68,7 +69,7 @@ define('TWOverflow/Queue/interface', [
     var validInput = {
         origin: false,
         target: false,
-        arrive: false
+        date: false
     }
     
     /**
@@ -102,19 +103,19 @@ define('TWOverflow/Queue/interface', [
     ]
 
     /**
-     * Nome de todos inputs usados para adicionar os coamndos na lista de espera.
-     * 
-     * @type {Array}
-     */
-    var inputsMap = ['origin', 'target', 'arrive'].concat(unitNames, officerNames)
-
-    /**
      * Tipo de comando que será adicionado a lista de espera,
      * setado quando um dos botões de adição é pressionado.
      * 
      * @type {String}
      */
     var commandType
+
+    /**
+     * Tipo de data usada para configurar o comando (arrive|out)
+     * 
+     * @type {String}
+     */
+    var dateType = 'arrive'
 
     /**
      * Aldeia atualmente selecionada no mapa.
@@ -154,7 +155,7 @@ define('TWOverflow/Queue/interface', [
      * @return {Boolean}
      */
     var availableTravelTimes = function () {
-        return ui.isVisible('add') && validInput.origin && validInput.target && validInput.arrive
+        return ui.isVisible('add') && validInput.origin && validInput.target && validInput.date
     }
 
     /**
@@ -224,9 +225,9 @@ define('TWOverflow/Queue/interface', [
         var officers = getOfficers()
         var travelTime = {}
 
-        if (validInput.arrive) {
-            var arrive = fixDate($arrive.val())
-            var arriveTime = new Date(arrive).getTime()
+        if (validInput.date) {
+            var date = fixDate($date.val())
+            var arriveTime = new Date(date).getTime()
         }
 
         ;['attack', 'support'].forEach(function (type) {
@@ -237,14 +238,16 @@ define('TWOverflow/Queue/interface', [
                 var travelTime = Queue.getTravelTime(origin, targetVillage, units, type, officers)
                 var readable = readableMillisecondsFilter(travelTime)
 
-                if (validInput.arrive) {
-                    var sendTime = arriveTime - travelTime
+                if (dateType === 'arrive') {
+                    if (validInput.date) {
+                        var sendTime = arriveTime - travelTime
 
-                    if (!isValidSendTime(sendTime)) {
+                        if (!isValidSendTime(sendTime)) {
+                            readable = genRedSpan(readable)
+                        }
+                    } else {
                         readable = genRedSpan(readable)
                     }
-                } else {
-                    readable = genRedSpan(readable)
                 }
 
                 $unitTravelTimes[type][unit].innerHTML = readable
@@ -280,6 +283,19 @@ define('TWOverflow/Queue/interface', [
     }
 
     /**
+     * Loop em todas entradas de valores para adicionar um comadno.
+     * 
+     * @param  {Function} callback
+     */
+    var eachInput = function (callback) {
+        $window.find('[data-setting]').forEach(function ($input) {
+            var settingId = $input.dataset.setting
+
+            callback($input, settingId)
+        })
+    }
+
+    /**
      * Adiciona um comando de acordo com os dados informados.
      * 
      * @param {String} type Tipo de comando (attack, support ou relocate)
@@ -291,31 +307,22 @@ define('TWOverflow/Queue/interface', [
             type: type
         }
 
-        inputsMap.forEach(function (name) {
-            var $input = $addForm.find('[name="' + name + '"]')
-            var value = $input.val()
+        eachInput(function ($input, id) {
+            var value = $input.value
 
-            if ($input[0].className === 'unit') {
-                if (isNaN(value) && value !== '*') {
-                    return false
-                }
-
-                value = isNaN(value) ? value : parseInt(value, 10)
-            }
-
-            if (!value) {
+            if (id === 'dateType') {
+                command.dateType = $input.dataset.value
+            } else if (!value) {
                 return false
+            } else if (isUnit(id)) {
+                command.units[id] = isNaN(value) ? value : parseInt(value, 10)
+            } else if (isOfficer(id)) {
+                if ($input.checked) {
+                    command.officers[id] = 1
+                }
+            } else if (value) {
+                command[id] = value
             }
-
-            if (isUnit(name)) {
-                return command.units[name] = value
-            }
-
-            if (isOfficer(name)) {
-                return command.officers[name] = value
-            }
-
-            command[name] = value
         })
 
         Queue.addCommand(command)
@@ -336,14 +343,14 @@ define('TWOverflow/Queue/interface', [
         var target = buttonLink('village', villageLabel(command.target), command.target.id)
 
         var typeClass = fixCommandTypeClass(command.type)
-        var arrive = readableDateFilter(command.sendTime + command.travelTime, null, null, null, dateFormat)
+        var arriveTime = readableDateFilter(command.arriveTime, null, null, null, dateFormat)
         var sendTime = readableDateFilter(command.sendTime, null, null, null, dateFormat)
         var hasOfficers = !!Object.keys(command.officers).length
 
         $command.innerHTML = ejs.render('___htmlQueueCommand', {
             sendTime: sendTime,
             typeClass: typeClass,
-            arrive: arrive,
+            arriveTime: arriveTime,
             units: command.units,
             hasOfficers: hasOfficers,
             officers: command.officers,
@@ -409,6 +416,12 @@ define('TWOverflow/Queue/interface', [
      * Configura todos eventos dos elementos da interface.
      */
     var bindEvents = function () {
+        $dateType.on('selectSelected', function () {
+            dateType = $dateType[0].dataset.value
+
+            populateTravelTimes()
+        })
+
         $switch.on('click', function (event) {
             if (Queue.isRunning()) {
                 Queue.stop()
@@ -442,8 +455,8 @@ define('TWOverflow/Queue/interface', [
         })
 
         $window.find('a.addCurrentDate').on('click', function () {
-            $arrive.val(gameDateFormated())
-            $arrive.trigger('input')
+            $date.val(gameDateFormated())
+            $date.trigger('input')
         })
 
         $origin.on('input', function () {
@@ -490,13 +503,13 @@ define('TWOverflow/Queue/interface', [
             })
         })
 
-        $arrive.on('input', function () {
-            validInput.arrive = isValidDateTime($arrive.val())
+        $date.on('input', function () {
+            validInput.date = isValidDateTime($date.val())
 
-            if (validInput.arrive) {
-                colorNeutral($arrive)
+            if (validInput.date) {
+                colorNeutral($date)
             } else {
-                colorRed($arrive)
+                colorRed($date)
             }
 
             populateTravelTimes()
@@ -634,9 +647,10 @@ define('TWOverflow/Queue/interface', [
         $addForm = $window.find('form.addForm')
         $origin = $window.find('input.origin')
         $target = $window.find('input.target')
-        $arrive = $window.find('input.arrive')
+        $date = $window.find('input.date')
         $officers = $window.find('.officers input')
         $travelTimes = $window.find('table.travelTimes')
+        $dateType = $window.find('.dateType')
         $sections = {
             queue: $window.find('div.queue'),
             sended: $window.find('div.sended'),

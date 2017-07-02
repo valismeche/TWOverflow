@@ -91,7 +91,7 @@ define('TWOverflow/Farm/interface', [
      * 
      * @type {String}
      */
-    var dateFormat = 'dd/MM/yyyy hh:mm:ss'
+    var dateFormat = 'HH:mm:ss dd/MM/yyyy'
 
     /**
      * Tradução de "desativado" para a linguagem selecionada.

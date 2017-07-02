@@ -358,7 +358,7 @@ define('TWOverflow/Queue', [
      * @param {Object} command - Dados do comando que será adicionado.
      * @param {String} command.origin - Coordenadas da aldeia de origem.
      * @param {String} command.target - Coordenadas da aldeia alvo.
-     * @param {String} command.arrive - Data e hora que o comando deve chegar.
+     * @param {String} command.date - Data e hora que o comando deve chegar.
      * @param {Object} command.units - Unidades que serão enviados pelo comando.
      * @param {Object} command.officers - Oficiais que serão enviados pelo comando.
      * @param {String} command.type - Tipo de comando.
@@ -372,7 +372,7 @@ define('TWOverflow/Queue', [
             return Queue.trigger('error', [Locale('queue', 'error.target')])
         }
 
-        if (!isValidDateTime(command.arrive)) {
+        if (!isValidDateTime(command.date)) {
             return Queue.trigger('error', [Locale('queue', 'error.invalidDate')])
         }
 
@@ -412,15 +412,22 @@ define('TWOverflow/Queue', [
             command.origin = villages[0]
             command.target = villages[1]
             command.units = cleanZeroUnits(command.units)
-            command.arrive = fixDate(command.arrive)
+            command.date = fixDate(command.date)
+            command.travelTime = Queue.getTravelTime(command.origin, command.target, command.units, command.type, command.officers)
 
-            var arriveTime = new Date(command.arrive).getTime()
-            var travelTime = Queue.getTravelTime(command.origin, command.target, command.units, command.type, command.officers)
-            var sendTime = arriveTime - travelTime
+            var inputTime = new Date(command.date).getTime()
 
-            if (isTimeToSend(sendTime)) {
+            if (command.dateType === 'arrive') {
+                command.sendTime = inputTime - command.travelTime
+                command.arriveTime = inputTime
+            } else {
+                command.sendTime = inputTime
+                command.arriveTime = inputTime + command.travelTime
+            }
+
+            if (isTimeToSend(command.sendTime)) {
                 return Queue.trigger('error', [Locale('queue', 'error.alreadySent', {
-                    date: readableDateFilter(sendTime),
+                    date: readableDateFilter(command.sendTime),
                     type: Locale('queue', command.type)
                 })])
             }
@@ -436,8 +443,6 @@ define('TWOverflow/Queue', [
             }
 
             command.id = guid()
-            command.sendTime = sendTime
-            command.travelTime = travelTime
 
             pushWaitingCommand(command)
             orderWaitingQueue()
