@@ -168,18 +168,53 @@ define('TWOverflow/Queue/interface', [
     /**
      * Popula as abas "Em espera" e "Registros" com os comandos armazenados.
      */
-    var appendStoredCommands = function () {
-        Queue.getWaitingCommands().forEach(function (cmd) {
-            appendCommand(cmd, 'queue')
-        })
+    var appendStoredCommands = function (sectionOnly) {
+        appendWaitingCommands()
+        appendSendedCommands()
+        appendExpiredCommands()
+    }
 
+    /**
+     * Popula a lista de comandos enviados.
+     */
+    var appendSendedCommands = function () {
         Queue.getSendedCommands().forEach(function (cmd) {
             appendCommand(cmd, 'sended')
         })
+    }
 
+    /**
+     * Popula a lista de comandos expirados.
+     */
+    var appendExpiredCommands = function () {
         Queue.getExpiredCommands().forEach(function (cmd) {
             appendCommand(cmd, 'expired')
         })
+    }
+
+    /**
+     * Popula a lista de comandos em espera.
+     */
+    var appendWaitingCommands = function () {
+        Queue.getWaitingCommands().forEach(function (cmd) {
+            appendCommand(cmd, 'queue')
+        })
+    }
+
+    /**
+     * Limpa a lista de comandos em espera.
+     */
+    var clearWaitingCommands = function () {
+        $sections.queue.find('.command').remove()
+        countDownElements = {}
+    }
+
+    /**
+     * Repopula a lista de comandos em espera.
+     */
+    var resetWaitingCommands = function () {
+        clearWaitingCommands()
+        appendWaitingCommands()
     }
 
     /**
@@ -755,7 +790,7 @@ define('TWOverflow/Queue/interface', [
 
         // Adiciona o comando da lista de espera.
         Queue.bind('add', function (command) {
-            appendCommand(command, 'queue')
+            resetWaitingCommands()
             emitNotif('success', genNotifText(command.type, 'added', 'general'))
         })
 
