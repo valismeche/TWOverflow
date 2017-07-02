@@ -577,8 +577,6 @@ define('TWOverflow/Queue/interface', [
             }
         })
 
-
-
         var filteredCommandIds = filteredCommands.map(function (command) {
             return command.id
         })
@@ -586,6 +584,8 @@ define('TWOverflow/Queue/interface', [
         eachWaitingCommand(function ($command, command) {
             $command.style.display = filteredCommandIds.includes(command.id) ? '' : 'none'
         })
+
+        ui.recalcScrollbar()
     }
 
     /**
