@@ -39,6 +39,13 @@ define('TWOverflow/Queue/interface', [
         attack: {},
         support: {}
     }
+
+    /**
+     * Armazena o elemento com a contagem regressiva de todos os comandos em espera.
+     * 
+     * @type {Object}
+     */
+    var countDownElements = {}
     
     /**
      * Dados do jogador
@@ -329,6 +336,26 @@ define('TWOverflow/Queue/interface', [
     }
 
     /**
+     * Remove um comando da seção especificada.
+     * 
+     * @param  {Object} command - Comando que será removido.
+     * @param  {String} section - Sessão em que o comando se encontra.
+     */
+    var removeCommand = function (command, section) {
+        var $command = document.getElementById(section + '-' + command.id)
+
+        if ($command) {
+            $command.remove()
+        }
+
+        toggleEmptyMessage(section)
+        
+        if (ui.isVisible('queue')) {
+            ui.recalcScrollbar()
+        }
+    }
+
+    /**
      * Adiciona um comando na seção.
      * 
      * @param {Object} command - Dados do comando que será adicionado na interface.
@@ -363,10 +390,13 @@ define('TWOverflow/Queue/interface', [
 
         if (section === 'queue') {
             var $remove = $command.querySelector('.remove-command')
+            var $timeLeft = $command.querySelector('.timeLeft')
 
             $remove.addEventListener('click', function (event) {
                 Queue.removeCommand(command, 'removed')
             })
+
+            addCommandCountdown($timeLeft, command.id)
         }
 
         $sections[section].append($command)
@@ -376,23 +406,56 @@ define('TWOverflow/Queue/interface', [
     }
 
     /**
-     * Remove um comando da seção especificada.
-     * 
-     * @param  {Object} command - Comando que será removido.
-     * @param  {String} section - Sessão em que o comando se encontra.
+     * Inicia a contagem regressiva de todos comandos em espera.
      */
-    var removeCommand = function (command, section) {
-        var $command = document.getElementById(section + '-' + command.id)
+    var listenCommandCountdown = function () {
+        var waitingCommands = Queue.getWaitingCommandsObject()
 
-        if ($command) {
-            $command.remove()
-        }
+        setInterval(function () {
+            var now = $timeHelper.gameTime()
 
-        toggleEmptyMessage(section)
-        
-        if (ui.isVisible('queue')) {
-            ui.recalcScrollbar()
-        }
+            // Só processa os comandos se a aba dos comandos em esperera
+            // estiver aberta.
+            if (!ui.isVisible('queue')) {
+                return false
+            }
+
+            for (var commandId in countDownElements) {
+                var command = waitingCommands[commandId]
+
+                // TODO
+                // remover quando não houver mais erros
+                if (!command) {
+                    console.error('COMANDO NÃO EXISTE MAIS!', commandId)
+                    continue
+                }
+
+                var timeLeft = command.sendTime - now
+
+                if (timeLeft > 0) {
+                    countDownElements[commandId].innerHTML = readableMillisecondsFilter(timeLeft)
+                }
+            }
+        }, 1000)
+    }
+
+    /**
+     * Armazena o elemento da contagem regressiva de um comando.
+     * 
+     * @param {Element} $container - Elemento da contagem regressiva.
+     * @param {String} commandId - Identificação unica do comando.
+     */
+    var addCommandCountdown = function ($container, commandId) {
+        countDownElements[commandId] = $container
+    }
+
+    /**
+     * Remove um elemento de contagem regressiva armazenado.
+     *
+     * @param  {String} commandId - Identificação unica do comando.
+     */
+    var removeCommandCountdown = function (commandId) {
+        delete countDownElements[commandId]
     }
 
     /**
@@ -726,6 +789,7 @@ define('TWOverflow/Queue/interface', [
 
         bindEvents()
         appendStoredCommands()
+        listenCommandCountdown()
     }
 
     return QueueInterface

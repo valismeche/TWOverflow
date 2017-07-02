@@ -14,6 +14,13 @@ define('TWOverflow/Queue', [
     Lockr
 ) {
     /**
+     * Taxa de verificação se há comandos a serem enviados por segundo.
+     *
+     * @type {Number}
+     */
+    var CHECKS_PER_SECOND = 5
+
+    /**
      * Armazena todos os eventos adicionados para serem
      * chamados pelo .trigger()
      * 
@@ -22,11 +29,18 @@ define('TWOverflow/Queue', [
     var eventListeners = {}
 
     /**
-     * Lista de comandos em espera.
+     * Lista de comandos em espera (ordenado por tempo restante).
      * 
      * @type {Array}
      */
     var waitingCommands = []
+
+    /**
+     * Lista de comandos em espera.
+     * 
+     * @type {Object}
+     */
+    var waitingCommandsObject = {}
 
     /**
      * Lista de comandos que já foram enviados.
@@ -117,12 +131,21 @@ define('TWOverflow/Queue', [
     }
 
     /**
-     * Adiciona um comando a lista de comandos em espera.
+     * Adiciona um comando a lista ordenada de comandos em espera.
      * 
      * @param  {Object} command - Comando a ser adicionado
      */
     var pushWaitingCommand = function (command) {
         waitingCommands.push(command)
+    }
+
+    /**
+     * Adiciona um comando a lista de comandos em espera.
+     * 
+     * @param  {Object} command - Comando a ser adicionado
+     */
+    var pushCommandObject = function (command) {
+        waitingCommandsObject[command.id] = command
     }
 
     /**
@@ -181,6 +204,7 @@ define('TWOverflow/Queue', [
                     Queue.expireCommand(command)
                 } else {
                     pushWaitingCommand(command)
+                    pushCommandObject(command)
                 }
             }
         }
@@ -229,40 +253,10 @@ define('TWOverflow/Queue', [
         return parsedUnits
     }
 
-    var Queue = {
-        /**
-         * Versão atual do CommandQueue
-         * 
-         * @type {String}
-         */
-        version: '___queueVersion',
-
-        /**
-         * Indica se o CommandQueue já foi inicializado.
-         * 
-         * @type {Boolean}
-         */
-        initialized: false
-    }
-
     /**
-     * Inicializa o CommandQueue.
-     * Adiciona/expira comandos salvos em execuções anteriores.
+     * Inicia a verificação de comandos a serem enviados.
      */
-    Queue.init = function () {
-        Locale.create('queue', ___langQueue, 'en')
-        
-        $player = $model.getSelectedCharacter()
-
-        // Inicializado!
-        Queue.initialized = true
-
-        // Carrega os dados previamente adicionados.
-        loadStoredCommands()
-
-        sendedCommands = Lockr.get(worldPrefix('queue-sended'), [], true)
-        expiredCommands = Lockr.get(worldPrefix('queue-expired'), [], true)
-
+    var listenCommands = function () {
         setInterval(function () {
             waitingCommands.some(function (command) {
                 if (isTimeToSend(command.sendTime)) {
@@ -275,7 +269,46 @@ define('TWOverflow/Queue', [
                     return true
                 }
             })
-        }, 200)
+        }, CHECKS_PER_SECOND / 1000)
+    }
+
+    /**
+     * Métodos e propriedades publicas do CommandQueue.
+     *
+     * @type {Object}
+     */
+    var Queue = {}
+
+    /**
+     * Indica se o CommandQueue já foi inicializado.
+     * 
+     * @type {Boolean}
+     */
+    Queue.initialized = false
+
+    /**
+     * Versão atual do CommandQueue
+     * 
+     * @type {String}
+     */
+    Queue.version = '___queueVersion'
+
+    /**
+     * Inicializa o CommandQueue.
+     * Adiciona/expira comandos salvos em execuções anteriores.
+     */
+    Queue.init = function () {
+        Locale.create('queue', ___langQueue, 'en')
+        
+        $player = $model.getSelectedCharacter()
+
+        Queue.initialized = true
+
+        sendedCommands = Lockr.get(worldPrefix('queue-sended'), [], true)
+        expiredCommands = Lockr.get(worldPrefix('queue-expired'), [], true)
+
+        loadStoredCommands()
+        listenCommands()
 
         window.addEventListener('beforeunload', function (event) {
             if (running && waitingCommands.length) {
@@ -445,6 +478,7 @@ define('TWOverflow/Queue', [
             command.id = guid()
 
             pushWaitingCommand(command)
+            pushCommandObject(command)
             orderWaitingQueue()
             storeWaitingQueue()
 
@@ -463,6 +497,8 @@ define('TWOverflow/Queue', [
      * @param  {String} reason - Razão do comando ter sido removido. (expired/removed)
      */
     Queue.removeCommand = function (command, reason) {
+        delete waitingCommandsObject[command.id]
+
         for (var i = 0; i < waitingCommands.length; i++) {
             if (waitingCommands[i].id == command.id) {
                 waitingCommands.splice(i, 1)
@@ -517,12 +553,21 @@ define('TWOverflow/Queue', [
     }
 
     /**
-     * Obtem lista de comandos em espera;
+     * Obtem lista de comandos ordenados na lista de espera.
      * 
      * @return {Array}
      */
     Queue.getWaitingCommands = function () {
         return waitingCommands
+    }
+
+    /**
+     * Obtem lista de comandos em espera.
+     * 
+     * @return {Object}
+     */
+    Queue.getWaitingCommandsObject = function () {
+        return waitingCommandsObject
     }
 
     /**
