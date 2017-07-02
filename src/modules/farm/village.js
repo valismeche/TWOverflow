@@ -77,44 +77,27 @@ define('TWOverflow/Farm/Village', [
     }
 
     Village.prototype.loaded = function () {
+        if (!this.original.isReady()) {
+            return false
+        }
+
         if (!this.original.isInitialized()) {
-            $villageService.initializeVillage(this.original)
+            return false
         }
 
         return this.commandsLoaded() && this.unitsLoaded()
     }
 
     Village.prototype.load = function (callback) {
-        if (this.loaded()) {
-            return callback()
-        }
+        var self = this
 
-        var queue = 0
-        var loaded = 0
+        return $villageService.ensureVillageDataLoaded(this.id, function () {
+            if (!self.original.isInitialized()) {
+                $villageService.initializeVillage(self.original)
+            }
 
-        if (!this.commandsLoaded()) {
-            queue++
-
-            $socket.emit($route.GET_OWN_COMMANDS, {
-                village_id: this.id
-            }, function () {
-                if (++loaded === queue) {
-                    callback()
-                }
-            })
-        }
-
-        if (!this.unitsLoaded()) {
-            queue++
-
-            $socket.emit($route.VILLAGE_UNIT_INFO, {
-                village_id: this.id
-            }, function () {
-                if (++loaded === queue) {
-                    callback()
-                }
-            })
-        }
+            callback()
+        })
     }
 
     return Village

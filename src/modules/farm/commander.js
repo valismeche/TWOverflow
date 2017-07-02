@@ -56,7 +56,7 @@ define('TWOverflow/Farm/Commander', [
 
         if (!Farm.village.loaded()) {
             Farm.village.load(function () {
-                Farm.analyse()
+                self.analyse()
             })
 
             return
