@@ -430,14 +430,14 @@ define('TWOverflow/Queue/interface', [
      * @param  {String} section - Sessão em que o comando se encontra.
      */
     var removeCommand = function (command, section) {
-        var $command = document.getElementById(section + '-' + command.id)
+        var $command = $sections[section].find('.command').filter(function ($command) {
+            return $command.dataset.id === command.id
+        })
 
-        if ($command) {
-            $command.remove()
-        }
-
-        toggleEmptyMessage(section)
+        $($command).remove()
         
+        toggleEmptyMessage(section)
+
         if (ui.isVisible('queue')) {
             ui.recalcScrollbar()
         }
