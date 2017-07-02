@@ -63,9 +63,9 @@
 
         "filters.selectedVillage": "Mostrar apenas comandos com origem da aldeia selecionada",
         "filters.barbarianTarget": "Mostrar apenas comandos com aldeias bárbaras de como alvo",
-        "filters.hideAttacks": "Ocultar ataques",
-        "filters.hideSupports": "Ocultar apoios",
-        "filters.hideRelocates": "Ocultar transferências",
+        "filters.attack": "Mostrar ataques",
+        "filters.support": "Mostrar apoios",
+        "filters.relocate": "Mostrar transferências",
         "filters.textMatch": "Filtrar por texto...",
 
         "command.out": "Saída",
