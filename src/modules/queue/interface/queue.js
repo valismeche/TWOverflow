@@ -712,6 +712,19 @@ define('TWOverflow/Queue/interface', [
             populateTravelTimes()
         })
 
+        $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
+            mapSelectedVillage = [menu.data.x, menu.data.y]
+        })
+
+        $root.$on($eventType.DESTROY_CONTEXT_MENU, function () {
+            mapSelectedVillage = false
+        })
+    }
+
+    /**
+     * Configura eventos dos filtros dos comandos em espera.
+     */
+    var bindCommandFilters = function () {
         $filters.find('.selectedVillage').on('click', function () {
             if (activeFilters.selectedVillage) {
                 this.classList.remove('active')
@@ -720,6 +733,18 @@ define('TWOverflow/Queue/interface', [
             }
 
             activeFilters.selectedVillage = !activeFilters.selectedVillage
+
+            applyCommandFilters()
+        })
+
+        $filters.find('.barbarianTarget').on('click', function () {
+            if (activeFilters.barbarianTarget) {
+                this.classList.remove('active')
+            } else {
+                this.classList.add('active')
+            }
+
+            activeFilters.barbarianTarget = !activeFilters.barbarianTarget
 
             applyCommandFilters()
         })
@@ -740,7 +765,7 @@ define('TWOverflow/Queue/interface', [
             applyCommandFilters()
         })
 
-        $filters.find('.text input').on('input', function (event) {
+        $filters.find('.textMatch').on('input', function (event) {
             clearTimeout(timeoutInputDelayId)
 
             filtersData[this.dataset.filter] = this.value
@@ -748,14 +773,6 @@ define('TWOverflow/Queue/interface', [
             timeoutInputDelayId = setTimeout(function () {
                 applyCommandFilters()
             }, 250)
-        })
-
-        $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
-            mapSelectedVillage = [menu.data.x, menu.data.y]
-        })
-
-        $root.$on($eventType.DESTROY_CONTEXT_MENU, function () {
-            mapSelectedVillage = false
         })
     }
 
@@ -960,6 +977,7 @@ define('TWOverflow/Queue/interface', [
         }, 1000)
 
         bindEvents()
+        bindCommandFilters()
         appendStoredCommands()
         listenCommandCountdown()
     }
