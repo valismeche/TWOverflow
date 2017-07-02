@@ -145,6 +145,8 @@ define('TWOverflow/Queue/interface', [
         $travelTimes.css('display', '')
     }
 
+    // TODO
+    // remove this, use Locale() instead
     var i18nUnit = function (unit) {
         return $filter('i18n')(unit, $root.loc.ale, 'unit_names')
     }
@@ -468,7 +470,7 @@ define('TWOverflow/Queue/interface', [
                 var timeLeft = command.sendTime - now
 
                 if (timeLeft > 0) {
-                    countDownElements[commandId].innerHTML = readableMillisecondsFilter(timeLeft)
+                    countDownElements[commandId].innerHTML = readableMillisecondsFilter(timeLeft, false, true)
                 }
             }
         }, 1000)
