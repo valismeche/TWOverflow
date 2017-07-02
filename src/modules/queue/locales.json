@@ -42,10 +42,10 @@
         "info.date1": "Data de chegada",
         "info.date2": "É possível especificar os milésimos no horário de chegada para uma maior precisão.",
 
-        "add.villages": "Aldeias",
-        "add.origin": "Origem",
+        "add.basics": "Informações básicas",
+        "add.origin": "Coordenadas da origem",
         "add.addSelected": "Aldeia ativa",
-        "add.target": "Alvo",
+        "add.target": "Coordenadas do alvo",
         "add.addMapSelected": "Aldeia selecionada no mapa",
         "add.arrive": "Data de chegada",
         "add.out": "Data de saída",
@@ -62,7 +62,7 @@
 
         "command.out": "Saída",
         "command.timeLeft": "Tempo restante",
-        "command.village": "Aldeia",
+        "command.villages": "Aldeias",
         "command.arrive": "Chegada",
 
         "error.noUnitsEnough": "Sem unidades o sulficientes para enviar o comando!",
