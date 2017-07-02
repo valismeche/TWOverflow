@@ -1,13 +1,12 @@
 <table class="tbl-border-light">
     <colgroup>
-        <col width="70px">
-        <col width="285px">
-        <col width="26px">
-        <col width="285px">
+        <col width="100px">
     </colgroup>
     <tbody>
         <tr>
             <th colspan="2">
+                <span class="icon-bg-red icon-26x26-<#= type #>"></span>
+
                 <# if (section === "queue") { #>
                     <span class="size-26x26 icon-bg-black icon-26x26-time-duration" tooltip="<#= locale("queue", "command.timeLeft") #>"></span>
                     <span class="time-left">00:00:00</span>
@@ -27,7 +26,7 @@
             <td><#= locale("queue", "command.villages") #></td>
             <td>
                 <a class="origin"></a>
-                <span class="icon-bg-red icon-26x26-<#= typeClass #> command-type"></span>
+                <span class="size-20x20 icon-26x26-<#= type #>"></span>
                 <a class="target"></a>
             </td>
         </tr>

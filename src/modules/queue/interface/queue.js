@@ -458,14 +458,13 @@ define('TWOverflow/Queue/interface', [
         var origin = buttonLink('village', villageLabel(command.origin), command.origin.id)
         var target = buttonLink('village', villageLabel(command.target), command.target.id)
 
-        var typeClass = fixCommandTypeClass(command.type)
         var arriveTime = readableDateFilter(command.arriveTime, null, null, null, dateFormat)
         var sendTime = readableDateFilter(command.sendTime, null, null, null, dateFormat)
         var hasOfficers = !!Object.keys(command.officers).length
 
         $command.innerHTML = ejs.render('___htmlQueueCommand', {
             sendTime: sendTime,
-            typeClass: typeClass,
+            type: command.type,
             arriveTime: arriveTime,
             units: command.units,
             hasOfficers: hasOfficers,
@@ -839,20 +838,6 @@ define('TWOverflow/Queue/interface', [
         })
 
         return officers
-    }
-
-    /**
-     * Corrige o nome da classe do icone de acordo com o tipo do comando.
-     * 
-     * @param  {String} type - Tipo do comando
-     * @return {String} Classe modificada
-     */
-    var fixCommandTypeClass = function (type) {
-        if (type === 'attack') {
-            type += '-small'
-        }
-
-        return type
     }
 
     function QueueInterface () {
