@@ -694,7 +694,9 @@ define('TWOverflow/Queue/interface', [
         // no botão para um rápida visualização.
         opener.hover(function () {
             var commands = Queue.getWaitingCommands()
-            var sendTime = commands.length ? formatDate(sendTime) : Locale('queue', 'general.none')
+            var sendTime = commands.length
+                ? formatDate(commands[0].sendTime)
+                : Locale('queue', 'general.none')
             var text = Locale('queue', 'general.nextCommand') + ': ' + sendTime
 
             opener.updateQuickview(text)
