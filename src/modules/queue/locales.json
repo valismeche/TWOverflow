@@ -61,6 +61,13 @@
         "queue.remove": "Remover comando da lista",
         "queue.filters": "Filtro de comandos",
 
+        "filters.selectedVillage": "Mostrar apenas comandos com origem da aldeia selecionada",
+        "filters.barbarianTarget": "Mostrar apenas comandos com aldeias bárbaras de como alvo",
+        "filters.hideAttacks": "Ocultar ataques",
+        "filters.hideSupports": "Ocultar apoios",
+        "filters.hideRelocates": "Ocultar transferências",
+        "filters.textMatch": "Filtrar por texto...",
+
         "command.out": "Saída",
         "command.timeLeft": "Tempo restante",
         "command.villages": "Aldeias",

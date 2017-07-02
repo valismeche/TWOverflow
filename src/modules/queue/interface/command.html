@@ -5,7 +5,7 @@
     <tbody>
         <tr>
             <th colspan="2">
-                <span class="icon-bg-red icon-26x26-<#= type #>"></span>
+                <span class="icon-bg-red icon-26x26-<#= type #>" tooltip="<#= locale("queue", "general." + type) #>"></span>
 
                 <# if (section === "queue") { #>
                     <span class="size-26x26 icon-bg-black icon-26x26-time-duration" tooltip="<#= locale("queue", "command.timeLeft") #>"></span>
