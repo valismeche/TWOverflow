@@ -478,7 +478,7 @@ define('TWOverflow/Queue/interface', [
 
         if (section === 'queue') {
             var $remove = $command.querySelector('.remove-command')
-            var $timeLeft = $command.querySelector('.timeLeft')
+            var $timeLeft = $command.querySelector('.time-left')
 
             $remove.addEventListener('click', function (event) {
                 Queue.removeCommand(command, 'removed')
