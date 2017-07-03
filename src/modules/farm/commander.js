@@ -248,15 +248,16 @@ define('TWOverflow/Farm/Commander', [
      * @param {Object} preset - Preset usado no calculo.
      */
     Commander.prototype.checkPresetTime = function (preset) {
+        var selectedTarget = Farm.getSelectedTarget()
         var travelTime = $armyService.calculateTravelTime(preset, {
-            barbarian: !Farm.target.pid,
+            barbarian: !selectedTarget.pid,
             officers: false
         })
 
         var villagePosition = Farm.getSelectedVillage().position
         var targetPosition = {
-            x: Farm.target.x,
-            y: Farm.target.y
+            x: selectedTarget.x,
+            y: selectedTarget.y
         }
 
         var distance = $math.actualDistance(villagePosition, targetPosition)
@@ -328,7 +329,7 @@ define('TWOverflow/Farm/Commander', [
 
         $socket.emit($route.SEND_PRESET, {
             start_village: selectedVillage.id,
-            target_village: Farm.target.id,
+            target_village: Farm.getSelectedTarget().id,
             army_preset_id: preset.id,
             type: 'attack'
         })
@@ -357,7 +358,7 @@ define('TWOverflow/Farm/Commander', [
 
             Farm.trigger('sendCommand', [
                 selectedVillage,
-                Farm.target
+                Farm.getSelectedTarget()
             ])
 
             unbind()
@@ -402,7 +403,7 @@ define('TWOverflow/Farm/Commander', [
     Commander.prototype.simulate = function (callback) {
         var attackingFactor = function () {
             $socket.emit($route.GET_ATTACKING_FACTOR, {
-                target_id: Farm.target.id
+                target_id: Farm.getSelectedTarget().id
             })
         }
 

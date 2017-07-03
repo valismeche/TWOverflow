@@ -146,7 +146,7 @@ define('TWOverflow/Farm', [
      *
      * @type {Object}
      */
-    Farm.target = null
+    var selectedTarget = null
 
     /**
      * Callbacks usados pelos eventos que são disparados no decorrer do script.
@@ -626,7 +626,7 @@ define('TWOverflow/Farm', [
 
                 for (var i = 0; i < villageTargets.length; i++) {
                     if (villageTargets[i].id === priorityId) {
-                        Farm.target = villageTargets[i]
+                        selectedTarget = villageTargets[i]
                         return true
                     }
                 }
@@ -649,7 +649,7 @@ define('TWOverflow/Farm', [
                 continue
             }
 
-            Farm.target = target
+            selectedTarget = target
             changed = true
 
             break
@@ -658,7 +658,7 @@ define('TWOverflow/Farm', [
         if (changed) {
             Farm.indexes[sid] = index
         } else {
-            Farm.target = villageTargets[0]
+            selectedTarget = villageTargets[0]
             Farm.indexes[sid] = 0
         }
 
@@ -1489,6 +1489,10 @@ define('TWOverflow/Farm', [
 
     Farm.isSingleVillage = function () {
         return singleVillage
+    }
+
+    Farm.getSelectedTarget = function () {
+        return selectedTarget
     }
 
     return Farm
