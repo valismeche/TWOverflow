@@ -322,7 +322,7 @@ define('TWOverflow/Queue/interface', [
 
         if (validInput.date) {
             var date = fixDate($date.val())
-            var arriveTime = new Date(date).getTime()
+            var arriveTime = getTimeFromString(date)
         }
 
         ;['attack', 'support'].forEach(function (type) {

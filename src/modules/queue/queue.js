@@ -508,7 +508,7 @@ define('TWOverflow/Queue', [
             command.date = fixDate(command.date)
             command.travelTime = Queue.getTravelTime(command.origin, command.target, command.units, command.type, command.officers)
 
-            var inputTime = new Date(command.date).getTime()
+            var inputTime = getTimeFromString(command.date)
 
             if (command.dateType === 'arrive') {
                 command.sendTime = inputTime - command.travelTime

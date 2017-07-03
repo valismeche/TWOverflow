@@ -89,3 +89,28 @@ function matchesElem (elem, selector) {
 
     return false
 }
+
+/**
+ * Obtem o timestamp de uma data em string.
+ * Formato da data: mês/dia/ano
+ * Exmplo de entrada: 23:59:59:999 12/30/2017
+ *
+ * @param  {String} dateString - Data em formato de string.
+ * @return {Number} Timestamp (milisegundos)
+ */
+function getTimeFromString (dateString) {
+    var dateSplit = dateString.trim().split(' ')
+    var time = dateSplit[0].split(':')
+    var date = dateSplit[1].split('/')
+
+    var hour = time[0]
+    var min = time[1]
+    var sec = time[2]
+    var ms = time[3] || null
+
+    var month = parseInt(date[0], 10) - 1
+    var day = date[1]
+    var year = date[2]
+
+    return new Date(year, month, day, hour, min, sec, ms).getTime()
+}
