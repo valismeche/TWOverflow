@@ -43,14 +43,6 @@ define('TWOverflow/Farm', [
     var PRIORITY_EXPIRE_TIME = 1000 * 60 * 10
 
     /**
-     * Mesangem de retorno quando o farm é iniciado/pausado remotamente
-     * via mensagem.
-     *
-     * @type {String}
-     */
-    var REMOTE_SWITCH_RESPONSE = '[color=0a8028]OK[/color]'
-
-    /**
      * Limpa qualquer text entre (, [, {, " & ' do nome dos presets
      * para serem idetificados com o mesmo nome.
      *
@@ -685,6 +677,7 @@ define('TWOverflow/Farm', [
          */
         var remoteHandler = function (_, data) {
             var id = Farm.settings.remoteId
+            var replayMessage = '[color=0a8028]OK[/color]'
 
             if (data.participants.length !== 1 || data.title !== id) {
                 return false
@@ -699,7 +692,7 @@ define('TWOverflow/Farm', [
                     Farm.start()
                 })
 
-                replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
+                replyMessage(data.message_id, replayMessage)
                 Farm.trigger('remoteCommand', ['on'])
 
                 break
@@ -708,7 +701,7 @@ define('TWOverflow/Farm', [
                     Farm.stop()
                 })
 
-                replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
+                replyMessage(data.message_id, replayMessage)
                 Farm.trigger('remoteCommand', ['off'])
 
                 break
