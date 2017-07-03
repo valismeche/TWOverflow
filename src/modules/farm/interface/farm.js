@@ -153,7 +153,7 @@ define('TWOverflow/Farm/interface', [
 
         Farm.updateSettings(newSettings)
 
-        if (Farm.notifsEnabled) {
+        if (Farm.isNotifsEnabled()) {
             emitNotif('success', Locale('farm', 'settings.saved'))
         }
     }
@@ -190,30 +190,32 @@ define('TWOverflow/Farm/interface', [
      * do FarmOverflow.
      */
     var populateEvents = function () {
+        var lastEvents = Farm.getLastEvents()
+
         // Caso tenha algum evento, remove a linha inicial "Nada aqui ainda"
-        if (Farm.lastEvents.length > 0) {
+        if (lastEvents.length > 0) {
             $events.find('.nothing').remove()
         }
 
-        Farm.lastEvents.some(function (event) {
+        lastEvents.some(function (event) {
             if (eventsCount >= Farm.settings.eventsLimit) {
                 return true
             }
 
             if (!Farm.settings.eventAttack && event.type === 'sendCommand') {
-                return
+                return false
             }
 
             if (!Farm.settings.eventVillageChange && event.type === 'nextVillage') {
-                return
+                return false
             }
 
             if (!Farm.settings.eventPriorityAdd && event.type === 'priorityTargetAdded') {
-                return
+                return false
             }
 
             if (!Farm.settings.eventIgnoredVillage && event.type === 'ignoredVillage') {
-                return
+                return false
             }
 
             addEvent(event, true)
@@ -255,8 +257,10 @@ define('TWOverflow/Farm/interface', [
             $events.find('tr:last-child').remove()
         }
 
-        if (Farm.lastEvents.length >= Farm.settings.eventsLimit) {
-            Farm.lastEvents.pop()
+        var lastEvents = Farm.getLastEvents()
+
+        if (lastEvents.length >= Farm.settings.eventsLimit) {
+            lastEvents.pop()
         }
 
         addRow($events, options, _populate)
@@ -265,8 +269,8 @@ define('TWOverflow/Farm/interface', [
         if (!_populate) {
             options.timestamp = $timeHelper.gameTime()
 
-            Farm.lastEvents.unshift(options)
-            Farm.updateLastEvents()
+            lastEvents.unshift(options)
+            Farm.setLastEvents(lastEvents)
         }
     }
 
@@ -339,7 +343,7 @@ define('TWOverflow/Farm/interface', [
      */
     var updateLastAttack = function (lastAttack) {
         if (!lastAttack) {
-            lastAttack = Farm.lastAttack
+            lastAttack = Farm.getLastAttack()
 
             if (lastAttack === -1) {
                 return false

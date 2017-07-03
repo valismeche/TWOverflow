@@ -9,7 +9,7 @@ require([
     FarmInterface,
     FarmAnalytics
 ) {
-    if (Farm.initialized) {
+    if (Farm.isInitialized()) {
         return false
     }
 

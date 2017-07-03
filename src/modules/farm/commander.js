@@ -43,7 +43,7 @@ define('TWOverflow/Farm/Commander', [
             return
         }
 
-        if (!Farm.presets.length) {
+        if (!Farm.getSelectedPresets().length) {
             Farm.stop()
             Farm.trigger('noPreset')
 
@@ -68,7 +68,7 @@ define('TWOverflow/Farm/Commander', [
             if (Farm.nextVillage()) {
                 self.analyse()
             } else {
-                Farm.trigger(Farm.lastError)
+                Farm.trigger(Farm.getLastError())
             }
 
             return
@@ -85,7 +85,7 @@ define('TWOverflow/Farm/Commander', [
         // Analisa se a aldeia selecionada possui algum alvo disponível
         // e o selecionada. Caso não tenha uma nova aldeia será selecionada.
         if (Farm.hasTarget()) {
-            Farm.selectTarget()
+            Farm.nextTarget(true)
         } else {
             if (Farm.nextVillage()) {
                 self.analyse()
@@ -119,13 +119,13 @@ define('TWOverflow/Farm/Commander', [
      * @param {String} error - Erro a ser processado.
      */
     Commander.prototype.handleError = function (error) {
-        Farm.lastError = error || this.preventNextCommand
+        Farm.setLastError(error || this.preventNextCommand)
         this.preventNextCommand = false
 
         var selectedVillage = Farm.getSelectedVillage()
         var sid = selectedVillage.id
 
-        switch (Farm.lastError) {
+        switch (Farm.getLastError()) {
         case 'timeLimit':
             Farm.nextTarget()
             this.analyse()
@@ -136,28 +136,28 @@ define('TWOverflow/Farm/Commander', [
                 selectedVillage
             ])
             
-            Farm.waiting[sid] = true
+            Farm.setWaitingVillages(sid)
             
             if (Farm.isSingleVillage()) {
                 if (selectedVillage.countCommands() === 0) {
                     return Farm.trigger('noUnitsNoCommands')
                 } else {
-                    Farm.globalWaiting = true
+                    Farm.setGlobalWaiting()
                 }
             } else {
                 if (Farm.nextVillage()) {
                     this.analyse()
                 } else {
-                    Farm.globalWaiting = true
+                    Farm.setGlobalWaiting()
                 }
             }
 
             break
         case 'commandLimit':
-            Farm.waiting[sid] = true
+            Farm.setWaitingVillages(sid)
 
             if (Farm.isSingleVillage()) {
-                Farm.globalWaiting = true
+                Farm.setGlobalWaiting()
 
                 Farm.trigger('commandLimitSingle', [
                     selectedVillage
@@ -168,7 +168,7 @@ define('TWOverflow/Farm/Commander', [
                         selectedVillage
                     ])
 
-                    Farm.globalWaiting = true
+                    Farm.setGlobalWaiting()
 
                     return false
                 }
@@ -193,9 +193,10 @@ define('TWOverflow/Farm/Commander', [
     Commander.prototype.getPreset = function (_units) {
         var timeLimit = false
         var units = _units || Farm.getSelectedVillage().units
+        var selectedPresets = Farm.getSelectedPresets()
 
-        for (var i = 0; i < Farm.presets.length; i++) {
-            var preset = Farm.presets[i]
+        for (var i = 0; i < selectedPresets.length; i++) {
+            var preset = selectedPresets[i]
             var avail = true
 
             for (var unit in preset.units) {

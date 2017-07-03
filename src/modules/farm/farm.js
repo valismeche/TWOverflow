@@ -19,28 +19,13 @@ define('TWOverflow/Farm', [
     gameLocale,
     Lockr
 ) {
-    var createCommander = function () {
-        var Commander = require('TWOverflow/Farm/Commander')
-        
-        return new Commander()
-    }
     /**
-     * Remove todas propriedades que tiverem valor zero.
-     *
-     * @param {Object} units - Unidades do preset a serem filtradas.
+     * Previne do Farm ser executado mais de uma vez.
+     * 
+     * @type {Boolean}
      */
-    var cleanPresetUnits = function (units) {
-        var pure = {}
+    var initialized = false
 
-        for (var unit in units) {
-            if (units[unit] > 0) {
-                pure[unit] = units[unit]
-            }
-        }
-
-        return pure
-    }
-    
     /**
      * Tempo de validade dos índices dos alvos, é resetado quando o
      * Farm está pausado por mais de 30 minutos.
@@ -78,40 +63,7 @@ define('TWOverflow/Farm', [
      * 
      * @type {Object}
      */
-    var DEFAULTS = {
-        maxDistance: 10,
-        minDistance: 0,
-        maxTravelTime: '01:00:00',
-        randomBase: 3, // segundos
-        presetName: '',
-        groupIgnore: 0,
-        groupInclude: 0,
-        groupOnly: 0,
-        minPoints: 0,
-        maxPoints: 12500,
-        eventsLimit: 20,
-        ignoreOnLoss: true,
-        language: gameLocale.LANGUAGE.split('_')[0],
-        priorityTargets: true,
-        eventAttack: true,
-        eventVillageChange: true,
-        eventPriorityAdd: true,
-        eventIgnoredVillage: true,
-        remoteId: 'remote',
-        hotkeySwitch: 'shift+z',
-        hotkeyWindow: 'z'
-    }
-
-    // publics
-
-    var Farm = {}
-
-    /**
-     * Versão do script.
-     *
-     * @type {String}
-     */
-    Farm.version = '___farmVersion'
+    var DEFAULTS
 
     /**
      * Aldeias que prontas para serem usadas nos ataques.
@@ -153,42 +105,42 @@ define('TWOverflow/Farm', [
      *
      * @type {Object}
      */
-    Farm.eventListeners = {}
+    var eventListeners = {}
 
     /**
      * Propriedade usada para permitir ou não o disparo de eventos.
      *
      * @type {Boolean}
      */
-    Farm.eventsEnabled = true
+    var eventsEnabled = true
 
     /**
      * Propriedade usada para permitir ou não a exibição de notificações.
      *
      * @type {Boolean}
      */
-    Farm.notifsEnabled = true
+    var notifsEnabled = true
 
     /**
      * Preset usado como referência para enviar os comandos
      *
      * @type {Array}
      */
-    Farm.presets = []
+    var selectedPresets = []
 
     /**
      * Objeto do group de referência para ignorar aldeias/alvos.
      *
      * @type {Object}
      */
-    Farm.groupIgnore = null
+    var groupIgnore = null
 
     /**
      * Objeto do group de referência para incluir alvos.
      *
      * @type {Object}
      */
-    Farm.groupInclude = null
+    var groupInclude = null
 
     /**
      * Objeto do group de referência para filtrar aldeias usadas
@@ -196,14 +148,14 @@ define('TWOverflow/Farm', [
      *
      * @type {Object}
      */
-    Farm.groupOnly = null
+    var groupOnly = null
 
     /**
      * Lista de aldeias ignoradas
      *
      * @type {Array}
      */
-    Farm.ignoredVillages = []
+    var ignoredVillages = []
 
     /**
      * Lista de aldeias que serão permitidas atacar, independente de outros
@@ -211,21 +163,21 @@ define('TWOverflow/Farm', [
      *
      * @type {Array}
      */
-    Farm.includedVillages = []
+    var includedVillages = []
 
     /**
      * Armazena todas aldeias que não estão em confições de enviar comandos.
      *
      * @type {Object}
      */
-    Farm.waiting = {}
+    var waitingVillages = {}
 
     /**
      * Indica se não há nenhuma aldeia disponível (todas aguardando tropas).
      *
      * @type {Boolean}
      */
-    Farm.globalWaiting = false
+    var globalWaiting = false
 
     /**
      * Armazena o último evento que fez o farm entrar em modo de espera.
@@ -234,7 +186,7 @@ define('TWOverflow/Farm', [
      *
      * @type {String}
      */
-    Farm.lastError = ''
+    var lastError = ''
 
     /**
      * Lista de alvos com prioridade no envio dos ataques.
@@ -242,19 +194,58 @@ define('TWOverflow/Farm', [
      *
      * @type {Object.<array>}
      */
-    Farm.priorityTargets = {}
+    var priorityTargets = {}
 
     /**
      * Status do Farm.
      *
      * @type {String}
      */
-    Farm.status = 'events.paused'
+    var currentStatus = 'paused'
+
+    /**
+     * Armazena todos os últimos eventos ocorridos no Farm.
+     *
+     * @type {Array}
+     */
+    var lastEvents
+
+    /**
+     * Timestamp da última atividade do Farm como atques e
+     * trocas de aldeias.
+     *
+     * @type {Number}
+     */
+    var lastActivity
+
+    /**
+     * Timestamp da última atividade do Farm como atques e
+     * trocas de aldeias.
+     *
+     * @type {Number}
+     */
+    var lastAttack
+
+    /**
+     * Armazena os índices dos alvos de cada aldeia disponível.
+     *
+     * @type {Object}
+     */
+    var targetIndexes
+
+    /**
+     * Objeto com dados do jogador.
+     *
+     * @type {Object}
+     */
+    var $player
 
     /**
      * Lista de filtros chamados no momendo do carregamento de alvos do mapa.
+     *
+     * @type {Array}
      */
-    Farm.mapFilters = [
+    var mapFilters = [
         // IDs negativos são localizações reservadas para os jogadores como
         // segunda aldeia em construção, convidar um amigo e deposito de recursos.
         function (target) {
@@ -265,7 +256,7 @@ define('TWOverflow/Farm', [
 
         // Aldeia do próprio jogador
         function (target) {
-            if (target.character_id === Farm.player.getId()) {
+            if (target.character_id === $player.getId()) {
                 return true
             }
         },
@@ -281,7 +272,7 @@ define('TWOverflow/Farm', [
         // no grupo de incluidas.
         function (target) {
             if (target.character_id) {
-                var included = Farm.includedVillages.includes(target.id)
+                var included = includedVillages.includes(target.id)
 
                 if (!included) {
                     return true
@@ -315,15 +306,610 @@ define('TWOverflow/Farm', [
         }
     ]
 
+    /**
+     * Cria um novo controlador de comandos para o FarmOverflow.
+     *
+     * @return {Commander}
+     */
+    var createCommander = function () {
+        var Commander = require('TWOverflow/Farm/Commander')
+        
+        return new Commander()
+    }
+
+    /**
+     * Remove todas propriedades que tiverem valor zero.
+     *
+     * @param {Object} units - Unidades do preset a serem filtradas.
+     */
+    var cleanPresetUnits = function (units) {
+        var pure = {}
+
+        for (var unit in units) {
+            if (units[unit] > 0) {
+                pure[unit] = units[unit]
+            }
+        }
+
+        return pure
+    }
+
+    /**
+     * Salva no localStorage a lista dos últimos eventos ocorridos no Farm.
+     */
+    var updateLastEvents = function () {
+        Lockr.set('farm-lastEvents', lastEvents)
+    }
+
+    /**
+     * Atualiza o grupo de referência para ignorar aldeias e incluir alvos
+     */
+    var updateExceptionGroups = function () {
+        var types = ['groupIgnore', 'groupInclude', 'groupOnly']
+        var groups = $model.getGroupList().getGroups()
+
+        types.forEach(function (type) {
+            Farm[type] = null
+
+            for (var id in groups) {
+                if (id == Farm.settings[type]) {
+                    Farm[type] = {
+                        name: groups[id].name,
+                        id: id
+                    }
+
+                    break
+                }
+            }
+        })
+    }
+
+    /**
+     * Atualiza a lista de aldeias ignoradas e incluidas
+     */
+    var updateExceptionVillages = function () {
+        var groupList = $model.getGroupList()
+
+        ignoredVillages = []
+        includedVillages = []
+
+        if (groupIgnore) {
+            ignoredVillages =
+                groupList.getGroupVillageIds(groupIgnore.id)
+        }
+
+        if (groupInclude) {
+            includedVillages =
+                groupList.getGroupVillageIds(groupInclude.id)
+        }
+    }
+
+    /**
+     * Atualiza a lista de aldeias do jogador e filtra com base nos grupos (caso
+     * estaja configurado...).
+     */
+    var updatePlayerVillages = function () {
+        var villages = $player.getVillageList()
+
+        villages = villages.map(function (village) {
+            return new Village(village)
+        })
+
+        villages = villages.filter(function (village) {
+            return !ignoredVillages.includes(village.id)
+        })
+
+        if (groupOnly) {
+            var groupList = $model.getGroupList()
+            var groupVillages = groupList.getGroupVillageIds(groupOnly.id)
+
+            villages = villages.filter(function (village) {
+                return groupVillages.includes(village.id)
+            })
+        }
+
+        playerVillages = villages
+        singleVillage = playerVillages.length === 1
+        selectedVillage = playerVillages[0]
+
+        // Reinicia comandos imediatamente se liberar alguma aldeia
+        // que nao esteja na lista de espera.
+        if (Farm.commander && Farm.commander.running && globalWaiting) {
+            for (var i = 0; i < villages.length; i++) {
+                var village = villages[i]
+
+                if (!waitingVillages[village.id]) {
+                    globalWaiting = false
+                    Farm.commander.analyse()
+
+                    break
+                }
+            }
+        }
+
+        Farm.trigger('villagesUpdate')
+    }
+
+    /**
+     * Obtem preset apropriado para o script
+     *
+     * @param {Function} callback
+     */
+    var updatePresets = function (callback) {
+        var update = function (rawPresets) {
+            selectedPresets = []
+
+            if (!Farm.settings.presetName) {
+                if (callback) {
+                    callback()
+                }
+
+                return
+            }
+
+            for (var id in rawPresets) {
+                if (!rawPresets.hasOwnProperty(id)) {
+                    continue
+                }
+
+                var name = rawPresets[id].name
+                var cleanName = name.replace(rpreset, '').trim()
+
+                if (cleanName === Farm.settings.presetName) {
+                    rawPresets[id].cleanName = cleanName
+                    rawPresets[id].units = cleanPresetUnits(rawPresets[id].units)
+
+                    selectedPresets.push(rawPresets[id])
+                }
+            }
+
+            if (callback) {
+                callback()
+            }
+        }
+
+        if ($presetList.isLoaded()) {
+            update($presetList.presets)
+        } else {
+            $socket.emit($route.GET_PRESETS, {}, function (data) {
+                Farm.trigger('presetsLoaded')
+                update(data.presets)
+            })
+        }
+    }
+
+    /**
+     * Detecta todas atualizações de dados do jogo que são importantes
+     * para o funcionamento do Farm.
+     *
+     * TODO
+     * Encontrar um nome melhor para essa função
+     */
+    var listeners = function () {
+        /**
+         * Envia um mensagem resposta para a mensagem indicada
+         *
+         * @param  {Number} message_id - Identificação da mensagem.
+         * @param  {String} message - Corpo da mensagem.
+         */
+        var replyMessage = function (message_id, message) {
+            setTimeout(function () {
+                $socket.emit($route.MESSAGE_REPLY, {
+                    message_id: message_id,
+                    message: message
+                })
+            }, 300)
+        }
+
+        /**
+         * Remove aldeias da lista de espera e detecta se todas as aldeias
+         * estavam na lista de espera, reiniciando o ciclo de ataques.
+         *
+         * @param  {Object} data - Dados do comando.
+         */
+        var commandBackHandler = function (_, data) {
+            var vid = data.origin.id
+            
+            if (waitingVillages[vid]) {
+                delete waitingVillages[vid]
+
+                if (globalWaiting) {
+                    globalWaiting = false
+
+                    if (Farm.commander && Farm.commander.running) {
+                        selectVillage(vid)
+
+                        setTimeout(function () {
+                            Farm.commander.analyse()
+                        }, 10000)
+                    }
+                }
+
+                return false
+            }
+        }
+
+        /**
+         * Detecta alterações e atualiza lista de predefinições
+         * configuradas no script.
+         */
+        var updatePresetsHandler = function () {
+            updatePresets()
+            Farm.trigger('presetsChange')
+
+            if (!selectedPresets.length) {
+                if (Farm.commander && Farm.commander.running) {
+                    Farm.trigger('noPreset')
+                    Farm.stop()
+                }
+            }
+        }
+
+        /**
+         * Atualiza lista de grupos configurados no script.
+         * Atualiza a lista de aldeias incluidas/ignoradas com base
+         * nos grupos.
+         */
+        var updateGroups = function () {
+            updateExceptionGroups()
+            updateExceptionVillages()
+
+            Farm.trigger('groupsChanged')
+        }
+
+        /**
+         * Detecta grupos que foram adicionados nas aldeias.
+         * Atualiza a lista de alvos e aldeias do jogador.
+         *
+         * @param  {Object} data - Dados do grupo retirado/adicionado.
+         */
+        var updateGroupVillages = function (_, data) {
+            updatePlayerVillages()
+
+            if (!groupInclude) {
+                return false
+            }
+            
+            if (groupInclude.id === data.group_id) {
+                villagesTargets = {}
+            }
+        }
+
+        /**
+         * Adiciona o grupo de "ignorados" no alvo caso o relatório do
+         * ataque tenha causado alguma baixa nas tropas.
+         *
+         * @param  {Object} report - Dados do relatório recebido.
+         */
+        var ignoreOnLoss = function (report) {
+            var target = targetExists(report.target_village_id)
+
+            if (!target) {
+                return false
+            }
+
+            ignoreVillage(target)
+
+            return true
+        }
+
+        /**
+         * Adiciona alvos na lista de prioridades caso o relatório
+         * do farm seja lotado.
+         *
+         * @param  {Object} report - Dados do relatório recebido.
+         */
+        var pushPriorityTarget = function (report) {
+            var vid = report.attVillageId
+            var tid = report.defVillageId
+
+            priorityTargets[vid] = priorityTargets[vid] || []
+
+            if (priorityTargets[vid].includes(tid)) {
+                return false
+            }
+
+            priorityTargets[vid].push(tid)
+
+            Farm.trigger('priorityTargetAdded', [{
+                id: tid,
+                name: report.defVillageName,
+                x: report.defVillageX,
+                y: report.defVillageY
+            }])
+        }
+
+        /**
+         * Analisa todos relatórios de ataques causados pelo Farm.
+         *
+         * @param  {Object} data - Dados do relatório recebido.
+         */
+        var reportHandler = function (_, data) {
+            if (data.type !== 'attack') {
+                return false
+            }
+
+            var queue = []
+
+            // BATTLE_RESULTS = {
+            //     '1'         : 'nocasualties',
+            //     '2'         : 'casualties',
+            //     '3'         : 'defeat'
+            // }
+            if (Farm.settings.ignoreOnLoss && data.result !== 1) {
+                ignoreOnLoss(data)
+            }
+
+            // HAUL_TYPES = {
+            //     'FULL'      : 'full',
+            //     'PARTIAL'   : 'partial',
+            //     'NONE'      : 'none'
+            // }
+            if (Farm.settings.priorityTargets && data.haul === 'full') {
+                queue.push(pushPriorityTarget)
+            }
+
+            if (!queue.length) {
+                return false
+            }
+
+            $socket.emit($route.REPORT_GET, {
+                id: data.id
+            }, function (data) {
+                // Manter o relatório marcado como "Novo"
+                $socket.emit($route.REPORT_MARK_UNREAD, {
+                    reports: [data.id]
+                }, function () {})
+
+                var report = data.ReportAttack
+
+                queue.every(function (handler) {
+                    handler(report)
+                })
+            })
+        }
+
+        /**
+         * Detecta quando a conexão é reestabelecida, podendo
+         * reiniciar o script.
+         */
+        var reconnectHandler = function () {
+            if (Farm.commander && Farm.commander.running) {
+                setTimeout(function () {
+                    disableNotifs(function () {
+                        Farm.stop()
+                        Farm.start()
+                    })
+                }, 3000)
+            }
+        }
+
+        /**
+         * Detecta mensagens do jogador enviadas para sí mesmo, afim de iniciar
+         * e pausar o farm remotamente.
+         *
+         * @param  {[type]} data - Dados da mensagem recebida.
+         */
+        var remoteHandler = function (_, data) {
+            var id = Farm.settings.remoteId
+
+            if (data.participants.length !== 1 || data.title !== id) {
+                return false
+            }
+
+            var userMessage = data.message.content.trim().toLowerCase()
+
+            switch (userMessage) {
+            case 'on':
+                disableNotifs(function () {
+                    Farm.stop()
+                    Farm.start()
+                })
+
+                replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
+                Farm.trigger('remoteCommand', ['on'])
+
+                break
+            case 'off':
+                disableNotifs(function () {
+                    Farm.stop()
+                })
+
+                replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
+                Farm.trigger('remoteCommand', ['off'])
+
+                break
+            case 'status':
+                var villageLabel = selectedVillage.name + ' (' + selectedVillage.x + '|' + selectedVillage.y + ')'
+                var readableLastAttack = readableDateFilter(lastAttack)
+
+                var bbcodeMessage = [
+                    '[b]' + Locale('farm', 'events.status') + ':[/b] ',
+                    Locale('farm', 'events.' + currentStatus) + '[br]',
+                    '[b]' + Locale('farm', 'events.selectedVillage') + ':[/b] ',
+                    '[village=' + selectedVillage.id + ']' + villageLabel + '[/village][br]',
+                    '[b]' + Locale('farm', 'events.lastAttack') + ':[/b] ' + readableLastAttack
+                ].join('')
+
+                replyMessage(data.message_id, bbcodeMessage)
+                Farm.trigger('remoteCommand', ['status'])
+
+                break
+            }
+
+            return false
+        }
+
+        $root.$on($eventType.COMMAND_RETURNED, commandBackHandler)
+        $root.$on($eventType.ARMY_PRESET_UPDATE, updatePresetsHandler)
+        $root.$on($eventType.ARMY_PRESET_DELETED, updatePresetsHandler)
+        $root.$on($eventType.GROUPS_UPDATED, updateGroups)
+        $root.$on($eventType.GROUPS_CREATED, updateGroups)
+        $root.$on($eventType.GROUPS_DESTROYED, updateGroups)
+        $root.$on($eventType.GROUPS_VILLAGE_LINKED, updateGroupVillages)
+        $root.$on($eventType.GROUPS_VILLAGE_UNLINKED, updateGroupVillages)
+        $root.$on($eventType.REPORT_NEW, reportHandler)
+        $root.$on($eventType.RECONNECT, reconnectHandler)        
+        $root.$on($eventType.MESSAGE_SENT, remoteHandler)
+
+        // Carrega pedaços da mapa quando chamado.
+        // É disparado através do método .getTargets()
+        $mapData.setRequestFn(function (args) {
+            $socket.emit($route.MAP_GETVILLAGES, args)
+        })
+
+        // Lista de eventos para atualizar o último status do Farm.
+        Farm.bind('sendCommand', function () {
+            updateLastAttack()
+            currentStatus = 'attacking'
+        })
+
+        Farm.bind('noPreset', function () {
+            currentStatus = 'paused'
+        })
+
+        Farm.bind('noUnits', function () {
+            currentStatus = 'noUnits'
+        })
+
+        Farm.bind('noUnitsNoCommands', function () {
+            currentStatus = 'noUnitsNoCommands'
+        })
+
+        Farm.bind('start', function () {
+            currentStatus = 'attacking'
+        })
+
+        Farm.bind('pause', function () {
+            currentStatus = 'paused'
+        })
+
+        Farm.bind('startLoadingTargers', function () {
+            currentStatus = 'loadingTargets'
+        })
+
+        Farm.bind('endLoadingTargers', function () {
+            currentStatus = 'analyseTargets'
+        })
+
+        Farm.bind('commandLimitSingle', function () {
+            currentStatus = 'commandLimit'
+        })
+
+        Farm.bind('commandLimitMulti', function () {
+            currentStatus = 'noVillages'
+        })
+    }
+
+    /**
+     * Atualiza o timestamp do último ataque enviado com o Farm.
+     */
+    var updateLastAttack = function () {
+        lastAttack = $timeHelper.gameTime()
+        Lockr.set('farm-lastAttack', lastAttack)
+    }
+
+    /**
+     * Desativa o disparo de eventos temporariamente.
+     */
+    var disableEvents = function (callback) {
+        eventsEnabled = false
+        callback()
+        eventsEnabled = true
+    }
+
+    /**
+     * Desativa o disparo de eventos temporariamente.
+     */
+    var disableNotifs = function (callback) {
+        notifsEnabled = false
+        callback()
+        notifsEnabled = true
+    }
+
+    /**
+     * Seleciona uma aldeia específica do jogador.
+     *
+     * @param {Number} vid - ID da aldeia à ser selecionada.
+     * @return {Boolean}
+     */
+    var selectVillage = function (vid) {
+        var i = playerVillages.indexOf(vid)
+
+        if (i !== -1) {
+            selectedVillage = playerVillages[i]
+
+            return true
+        }
+
+        return false
+    }
+
+    /**
+     * Ativa um lista de presets na aldeia selecionada.
+     *
+     * @param {Array} presetIds - Lista com os IDs dos presets
+     * @param {Function} callback
+     */
+    var assignPresets = function (presetIds, callback) {
+        $socket.emit($route.ASSIGN_PRESETS, {
+            village_id: selectedVillage.id,
+            preset_ids: presetIds
+        }, callback)
+    }
+
+    /**
+     * Adiciona a aldeia especificada no grupo de aldeias ignoradas
+     *
+     * @param {Object} target - Dados da aldeia a ser ignorada.
+     */
+    var ignoreVillage = function (target) {
+        if (!groupIgnore) {
+            return false
+        }
+
+        $socket.emit($route.GROUPS_LINK_VILLAGE, {
+            group_id: groupIgnore.id,
+            village_id: target.id
+        }, function () {
+            Farm.trigger('ignoredVillage', [target])
+        })
+    }
+
+    /**
+     * Verifica se o alvo está relacionado a alguma aldeia do jogador.
+     *
+     * @param {Number} targetId - ID da aldeia
+     */
+    var targetExists = function (targetId) {
+        for (var vid in villagesTargets) {
+            var villageTargets = villagesTargets[vid]
+
+            for (var i = 0; i < villageTargets.length; i++) {
+                var target = villageTargets[i]
+
+                if (target.id === targetId) {
+                    return target
+                }
+            }
+        }
+
+        return false
+    }
+
+    var Farm = {}
+
+    /**
+     * Versão do script.
+     *
+     * @type {String}
+     */
+    Farm.version = '___farmVersion'
+
     Farm.init = function () {
         Locale.create('farm', ___langFarm, 'en')
 
-        /**
-         * Previne do Farm ser executado mais de uma vez.
-         * 
-         * @type {Boolean}
-         */
-        Farm.initialized = true
+        initialized = true
 
         /**
          * Configurações salvas localmente
@@ -333,59 +919,46 @@ define('TWOverflow/Farm', [
         var localSettings = Lockr.get('farm-settings', {}, true)
 
         /**
-         * Obtem configurações locais x defaults.
+         * Configurações do jogador + configurações padrões
          *
          * @type {Object}
          */
-        Farm.settings = angular.merge({}, DEFAULTS, localSettings)
+        Farm.settings = angular.merge({}, {
+            maxDistance: 10,
+            minDistance: 0,
+            maxTravelTime: '01:00:00',
+            randomBase: 3, // segundos
+            presetName: '',
+            groupIgnore: 0,
+            groupInclude: 0,
+            groupOnly: 0,
+            minPoints: 0,
+            maxPoints: 12500,
+            eventsLimit: 20,
+            ignoreOnLoss: true,
+            language: gameLocale.LANGUAGE.split('_')[0],
+            priorityTargets: true,
+            eventAttack: true,
+            eventVillageChange: true,
+            eventPriorityAdd: true,
+            eventIgnoredVillage: true,
+            remoteId: 'remote',
+            hotkeySwitch: 'shift+z',
+            hotkeyWindow: 'z'
+        }, localSettings)
 
-        /**
-         * Armazena todos os últimos eventos ocorridos no Farm.
-         *
-         * @type {Array}
-         */
-        Farm.lastEvents = Lockr.get('farm-lastEvents', [], true)
+        lastEvents = Lockr.get('farm-lastEvents', [], true)
+        lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
+        lastAttack = Lockr.get('farm-lastAttack', -1, true)
+        targetIndexes = Lockr.get('farm-indexes', {}, true)
 
-        /**
-         * Timestamp da última atividade do Farm como atques e
-         * trocas de aldeias.
-         *
-         * @type {Number}
-         */
-        Farm.lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
+        $player = $model.getSelectedCharacter()
 
-        /**
-         * Timestamp da última atividade do Farm como atques e
-         * trocas de aldeias.
-         *
-         * @type {Number}
-         */
-        Farm.lastAttack = Lockr.get('farm-lastAttack', -1, true)
-
-        /**
-         * Armazena os índices dos alvos de cada aldeia disponível.
-         *
-         * @type {Object}
-         */
-        Farm.indexes = Lockr.get('farm-indexes', {}, true)
-
-        /**
-         * Objeto com dados do jogador.
-         *
-         * @type {Object}
-         */
-        Farm.player = $model.getSelectedCharacter()
-
-        /**
-         * Classe que controla os ciclos de ataques.
-         */
-        Farm.commander = createCommander()
-
-        Farm.updateExceptionGroups()
-        Farm.updateExceptionVillages()
-        Farm.updatePlayerVillages()
-        Farm.updatePresets()
-        Farm.listeners()
+        updateExceptionGroups()
+        updateExceptionVillages()
+        updatePlayerVillages()
+        updatePresets()
+        listeners()
 
         Locale.change('farm', Farm.settings.language)
     }
@@ -396,8 +969,8 @@ define('TWOverflow/Farm', [
      * @return {Boolean}
      */
     Farm.start = function () {
-        if (!Farm.presets.length) {
-            if (Farm.notifsEnabled) {
+        if (!selectedPresets.length) {
+            if (notifsEnabled) {
                 emitNotif('error', Locale('farm', 'events.presetFirst'))
             }
 
@@ -405,7 +978,7 @@ define('TWOverflow/Farm', [
         }
 
         if (!selectedVillage) {
-            if (Farm.notifsEnabled) {
+            if (notifsEnabled) {
                 emitNotif('error', Locale('farm', 'events.noSelectedVillage'))
             }
             
@@ -416,19 +989,19 @@ define('TWOverflow/Farm', [
 
         // Reseta a lista prioridades caso tenha expirado
         if (now > Farm.lastActivity + PRIORITY_EXPIRE_TIME) {
-            Farm.priorityTargets = {}
+            priorityTargets = {}
         }
 
         // Reseta a lista índices caso tenha expirado
         if (now > Farm.lastActivity + INDEX_EXPIRE_TIME) {
-            Farm.indexes = {}
+            targetIndexes = {}
             Lockr.set('farm-indexes', {})
         }
 
         Farm.commander = createCommander()
         Farm.commander.start()
 
-        if (Farm.notifsEnabled) {
+        if (notifsEnabled) {
             emitNotif('success', Locale('farm', 'general.started'))
         }
 
@@ -445,7 +1018,7 @@ define('TWOverflow/Farm', [
     Farm.stop = function () {
         Farm.commander.stop()
         
-        if (Farm.notifsEnabled) {
+        if (notifsEnabled) {
             emitNotif('success', Locale('farm', 'general.paused'))
         }
 
@@ -471,28 +1044,6 @@ define('TWOverflow/Farm', [
     Farm.updateActivity = function () {
         Farm.lastActivity = $timeHelper.gameTime()
         Lockr.set('farm-lastActivity', Farm.lastActivity)
-    }
-
-    /**
-     * Atualiza o timestamp do último ataque enviado com o Farm.
-     */
-    Farm.updateLastAttack = function () {
-        Farm.lastAttack = $timeHelper.gameTime()
-        Lockr.set('farm-lastAttack', Farm.lastAttack)
-    }
-
-    /**
-     * Salva no localStorage a lista dos últimos eventos ocorridos no Farm.
-     */
-    Farm.updateLastEvents = function () {
-        Lockr.set('farm-lastEvents', Farm.lastEvents)
-    }
-
-    /**
-     * Atualiza o timestamp do último ataque enviado com o Farm.
-     */
-    Farm.updateLastStatus = function (status) {
-        Farm.status = Locale('farm', status)
     }
 
     /**
@@ -545,16 +1096,16 @@ define('TWOverflow/Farm', [
         }
 
         if (modify.groups) {
-            Farm.updateExceptionGroups()
-            Farm.updateExceptionVillages()
+            updateExceptionGroups()
+            updateExceptionVillages()
         }
 
         if (modify.villages) {
-            Farm.updatePlayerVillages()
+            updatePlayerVillages()
         }
 
         if (modify.preset) {
-            Farm.updatePresets()
+            updatePresets()
         }
 
         if (modify.targets) {
@@ -566,37 +1117,19 @@ define('TWOverflow/Farm', [
         }
 
         if (modify.language) {
-            if (Farm.eventsEnabled) {
+            if (eventsEnabled) {
                 emitNotif('success', Locale('farm', 'settings.events.restartScript'))
             }
         }
 
-        if (Farm.commander.running && Farm.globalWaiting) {
-            Farm.disableEvents(function () {
+        if (Farm.commander && Farm.commander.running && globalWaiting) {
+            disableEvents(function () {
                 Farm.stop()
                 Farm.start()
             })
         }
 
         Farm.trigger('settingsChange', [modify])
-    }
-
-    /**
-     * Desativa o disparo de eventos temporariamente.
-     */
-    Farm.disableEvents = function (callback) {
-        Farm.eventsEnabled = false
-        callback()
-        Farm.eventsEnabled = true
-    }
-
-    /**
-     * Desativa o disparo de eventos temporariamente.
-     */
-    Farm.disableNotifs = function (callback) {
-        Farm.notifsEnabled = false
-        callback()
-        Farm.notifsEnabled = true
     }
 
     /** 
@@ -616,11 +1149,11 @@ define('TWOverflow/Farm', [
 
         var villageTargets = villagesTargets[sid]
 
-        if (Farm.settings.priorityTargets && Farm.priorityTargets[sid]) {
+        if (Farm.settings.priorityTargets && priorityTargets[sid]) {
             var priorityId
 
-            while (priorityId = Farm.priorityTargets[sid].shift()) {
-                if (Farm.ignoredVillages.includes(priorityId)) {
+            while (priorityId = priorityTargets[sid].shift()) {
+                if (ignoredVillages.includes(priorityId)) {
                     continue
                 }
 
@@ -633,17 +1166,17 @@ define('TWOverflow/Farm', [
             }
         }
 
-        var index = Farm.indexes[sid]
+        var index = targetIndexes[sid]
         var changed = false
 
         if (!_selectOnly) {
-            index = ++Farm.indexes[sid]
+            index = ++targetIndexes[sid]
         }
 
         for (; index < villageTargets.length; index++) {
             var target = villageTargets[index]
 
-            if (Farm.ignoredVillages.includes(target.id)) {
+            if (ignoredVillages.includes(target.id)) {
                 Farm.trigger('ignoredTarget', [target])
 
                 continue
@@ -656,22 +1189,15 @@ define('TWOverflow/Farm', [
         }
 
         if (changed) {
-            Farm.indexes[sid] = index
+            targetIndexes[sid] = index
         } else {
             selectedTarget = villageTargets[0]
-            Farm.indexes[sid] = 0
+            targetIndexes[sid] = 0
         }
 
-        Lockr.set('farm-indexes', Farm.indexes)
+        Lockr.set('farm-indexes', targetIndexes)
 
         return true
-    }
-
-    /** 
-     * Atalho para selecionar alvo sem pular para o próximo.
-     */
-    Farm.selectTarget = function () {
-        return Farm.nextTarget(true)
     }
 
     /**
@@ -680,7 +1206,7 @@ define('TWOverflow/Farm', [
      */
     Farm.hasTarget = function () {
         var sid = selectedVillage.id
-        var index = Farm.indexes[sid]
+        var index = targetIndexes[sid]
         var targets = villagesTargets[sid]
 
         if (!targets.length) {
@@ -691,7 +1217,7 @@ define('TWOverflow/Farm', [
         // Pode acontecer quando o numero de alvos é reduzido em um
         // momento em que o Farm não esteja ativado.
         if (index > targets.length) {
-            Farm.indexes[sid] = index = 0
+            targetIndexes[sid] = index = 0
         }
 
         return !!targets[index]
@@ -768,7 +1294,7 @@ define('TWOverflow/Farm', [
         }
 
         var filter = function (target) {
-            var pass = Farm.mapFilters.every(function (fn) {
+            var pass = mapFilters.every(function (fn) {
                 return !fn(target)
             })
 
@@ -803,16 +1329,16 @@ define('TWOverflow/Farm', [
                 return a.distance - b.distance
             })
 
-            if (Farm.indexes.hasOwnProperty(sid)) {
-                if (Farm.indexes[sid] > villagesTargets[sid].length) {
-                    Farm.indexes[sid] = 0
+            if (targetIndexes.hasOwnProperty(sid)) {
+                if (targetIndexes[sid] > villagesTargets[sid].length) {
+                    targetIndexes[sid] = 0
 
-                    Lockr.set('farm-indexes', Farm.indexes)
+                    Lockr.set('farm-indexes', targetIndexes)
                 }
             } else {
-                Farm.indexes[sid] = 0
+                targetIndexes[sid] = 0
 
-                Lockr.set('farm-indexes', Farm.indexes)
+                Lockr.set('farm-indexes', targetIndexes)
             }
 
             callback()
@@ -832,7 +1358,7 @@ define('TWOverflow/Farm', [
         }
 
         var free = playerVillages.filter(function (village) {
-            return !Farm.waiting[village.id]
+            return !waitingVillages[village.id]
         })
 
         if (!free.length) {
@@ -854,36 +1380,17 @@ define('TWOverflow/Farm', [
     }
 
     /**
-     * Seleciona uma aldeia específica do jogador.
-     *
-     * @param {Number} vid - ID da aldeia à ser selecionada.
-     *
-     * @return {Boolean}
-     */
-    Farm.selectVillage = function (vid) {
-        var i = playerVillages.indexOf(vid)
-
-        if (i !== -1) {
-            selectedVillage = playerVillages[i]
-
-            return true
-        }
-
-        return false
-    }
-
-    /**
      * Registra um evento.
      *
      * @param {String} event - Nome do evento.
      * @param {Function} handler - Função chamada quando o evento for disparado.
      */
     Farm.bind = function (event, handler) {
-        if (!Farm.eventListeners.hasOwnProperty(event)) {
-            Farm.eventListeners[event] = []
+        if (!eventListeners.hasOwnProperty(event)) {
+            eventListeners[event] = []
         }
 
-        Farm.eventListeners[event].push(handler)
+        eventListeners[event].push(handler)
     }
 
     /**
@@ -893,76 +1400,15 @@ define('TWOverflow/Farm', [
      * @param {Array} args - Argumentos que serão passados no callback.
      */
     Farm.trigger = function (event, args) {
-        if (!Farm.eventsEnabled) {
+        if (!eventsEnabled) {
             return
         }
 
-        if (Farm.eventListeners.hasOwnProperty(event)) {
-            Farm.eventListeners[event].forEach(function (handler) {
+        if (eventListeners.hasOwnProperty(event)) {
+            eventListeners[event].forEach(function (handler) {
                 handler.apply(Farm, args)
             })
         }
-    }
-
-    /**
-     * Obtem preset apropriado para o script
-     *
-     * @param {Function} callback
-     */
-    Farm.updatePresets = function (callback) {
-        var updatePresets = function (presets) {
-            Farm.presets = []
-
-            if (!Farm.settings.presetName) {
-                if (callback) {
-                    callback()
-                }
-
-                return
-            }
-
-            for (var id in presets) {
-                if (!presets.hasOwnProperty(id)) {
-                    continue
-                }
-
-                var name = presets[id].name
-                var cleanName = name.replace(rpreset, '').trim()
-
-                if (cleanName === Farm.settings.presetName) {
-                    presets[id].cleanName = cleanName
-                    presets[id].units = cleanPresetUnits(presets[id].units)
-
-                    Farm.presets.push(presets[id])
-                }
-            }
-
-            if (callback) {
-                callback()
-            }
-        }
-
-        if ($presetList.isLoaded()) {
-            updatePresets($presetList.presets)
-        } else {
-            $socket.emit($route.GET_PRESETS, {}, function (data) {
-                Farm.trigger('presetsLoaded')
-                updatePresets(data.presets)
-            })
-        }
-    }
-
-    /**
-     * Ativa um lista de presets na aldeia selecionada.
-     *
-     * @param {Array} presetIds - Lista com os IDs dos presets
-     * @param {Function} callback
-     */
-    Farm.assignPresets = function (presetIds, callback) {
-        $socket.emit($route.ASSIGN_PRESETS, {
-            village_id: selectedVillage.id,
-            preset_ids: presetIds
-        }, callback)
     }
 
     /**
@@ -973,7 +1419,7 @@ define('TWOverflow/Farm', [
      * @param {Function} callback
      */
     Farm.checkPresets = function (callback) {
-        if (!Farm.presets.length) {
+        if (!selectedPresets.length) {
             Farm.stop()
             Farm.trigger('noPreset')
 
@@ -985,7 +1431,7 @@ define('TWOverflow/Farm', [
         var needAssign = false
         var which = []
 
-        Farm.presets.forEach(function (preset) {
+        selectedPresets.forEach(function (preset) {
             if (!villagePresets.hasOwnProperty(preset.id)) {
                 needAssign = true
                 which.push(preset.id)
@@ -997,481 +1443,58 @@ define('TWOverflow/Farm', [
                 which.push(id)
             }
 
-            Farm.assignPresets(which, callback)
+            assignPresets(which, callback)
         } else {
             callback()
         }
     }
 
     /**
-     * Atualiza o grupo de referência para ignorar aldeias e incluir alvos
-     */
-    Farm.updateExceptionGroups = function () {
-        var types = ['groupIgnore', 'groupInclude', 'groupOnly']
-        var groups = $model.getGroupList().getGroups()
-
-        types.forEach(function (type) {
-            Farm[type] = null
-
-            for (var id in groups) {
-                if (id == Farm.settings[type]) {
-                    Farm[type] = {
-                        name: groups[id].name,
-                        id: id
-                    }
-
-                    break
-                }
-            }
-        })
-    }
-
-    /**
-     * Atualiza a lista de aldeias ignoradas e incluidas
-     */
-    Farm.updateExceptionVillages = function () {
-        var groupList = $model.getGroupList()
-
-        Farm.ignoredVillages = []
-        Farm.includedVillages = []
-
-        if (Farm.groupIgnore) {
-            Farm.ignoredVillages =
-                groupList.getGroupVillageIds(Farm.groupIgnore.id)
-        }
-
-        if (Farm.groupInclude) {
-            Farm.includedVillages =
-                groupList.getGroupVillageIds(Farm.groupInclude.id)
-        }
-    }
-
-    /**
-     * Atualiza a lista de aldeias do jogador e filtra com base nos grupos (caso
-     * estaja configurado...).
-     */
-    Farm.updatePlayerVillages = function () {
-        var villages = Farm.player.getVillageList()
-
-        villages = villages.map(function (village) {
-            return new Village(village)
-        })
-
-        villages = villages.filter(function (village) {
-            return !Farm.ignoredVillages.includes(village.id)
-        })
-
-        if (Farm.groupOnly) {
-            var groupList = $model.getGroupList()
-            var groupVillages = groupList.getGroupVillageIds(Farm.groupOnly.id)
-
-            villages = villages.filter(function (village) {
-                return groupVillages.includes(village.id)
-            })
-        }
-
-        playerVillages = villages
-        singleVillage = playerVillages.length === 1
-        selectedVillage = playerVillages[0]
-
-        // Reinicia comandos imediatamente se liberar alguma aldeia
-        // que nao esteja na lista de espera.
-        if (Farm.commander.running && Farm.globalWaiting) {
-            for (var i = 0; i < villages.length; i++) {
-                var village = villages[i]
-
-                if (!Farm.waiting[village.id]) {
-                    Farm.globalWaiting = false
-                    Farm.commander.analyse()
-
-                    break
-                }
-            }
-        }
-
-        Farm.trigger('villagesUpdate')
-    }
-
-    /**
-     * Adiciona a aldeia especificada no grupo de aldeias ignoradas
+     * Verifica se a aldeia atualmente selecionada tem os alvos carregados.
      *
-     * @param {Object} target - Dados da aldeia a ser ignorada.
+     * @return {Boolean}
      */
-    Farm.ignoreVillage = function (target) {
-        if (!Farm.groupIgnore) {
-            return false
-        }
-
-        $socket.emit($route.GROUPS_LINK_VILLAGE, {
-            group_id: Farm.groupIgnore.id,
-            village_id: target.id
-        }, function () {
-            Farm.trigger('ignoredVillage', [target])
-        })
-    }
-
-    /**
-     * Verifica se o alvo está relacionado a alguma aldeia do jogador.
-     *
-     * @param {Number} targetId - ID da aldeia
-     */
-    Farm.targetExists = function (targetId) {
-        for (var vid in villagesTargets) {
-            var villageTargets = villagesTargets[vid]
-
-            for (var i = 0; i < villageTargets.length; i++) {
-                var target = villageTargets[i]
-
-                if (target.id === targetId) {
-                    return target
-                }
-            }
-        }
-
-        return false
-    }
-
-    /**
-     * Detecta todas atualizações de dados do jogo que são importantes
-     * para o funcionamento do Farm.
-     */
-    Farm.listeners = function () {
-        /**
-         * Envia um mensagem resposta para a mensagem indicada
-         *
-         * @param  {Number} message_id - Identificação da mensagem.
-         * @param  {String} message - Corpo da mensagem.
-         */
-        var replyMessage = function (message_id, message) {
-            setTimeout(function () {
-                $socket.emit($route.MESSAGE_REPLY, {
-                    message_id: message_id,
-                    message: message
-                })
-            }, 300)
-        }
-
-        /**
-         * Remove aldeias da lista de espera e detecta se todas as aldeias
-         * estavam na lista de espera, reiniciando o ciclo de ataques.
-         *
-         * @param  {Object} data - Dados do comando.
-         */
-        var commandBackHandler = function (_, data) {
-            var vid = data.origin.id
-            
-            if (Farm.waiting[vid]) {
-                delete Farm.waiting[vid]
-
-                if (Farm.globalWaiting) {
-                    Farm.globalWaiting = false
-
-                    if (Farm.commander.running) {
-                        Farm.selectVillage(vid)
-
-                        setTimeout(function () {
-                            Farm.commander.analyse()
-                        }, 10000)
-                    }
-                }
-
-                return false
-            }
-        }
-
-        /**
-         * Detecta alterações e atualiza lista de predefinições
-         * configuradas no script.
-         */
-        var updatePresets = function () {
-            Farm.updatePresets()
-            Farm.trigger('presetsChange')
-
-            if (!Farm.presets.length) {
-                if (Farm.commander.running) {
-                    Farm.trigger('noPreset')
-                    Farm.stop()
-                }
-            }
-        }
-
-        /**
-         * Atualiza lista de grupos configurados no script.
-         * Atualiza a lista de aldeias incluidas/ignoradas com base
-         * nos grupos.
-         */
-        var updateGroups = function () {
-            Farm.updateExceptionGroups()
-            Farm.updateExceptionVillages()
-
-            Farm.trigger('groupsChanged')
-        }
-
-        /**
-         * Detecta grupos que foram adicionados nas aldeias.
-         * Atualiza a lista de alvos e aldeias do jogador.
-         *
-         * @param  {Object} data - Dados do grupo retirado/adicionado.
-         */
-        var updateGroupVillages = function (_, data) {
-            Farm.updatePlayerVillages()
-
-            if (!Farm.groupInclude) {
-                return false
-            }
-            
-            if (Farm.groupInclude.id === data.group_id) {
-                villagesTargets = {}
-            }
-        }
-
-        /**
-         * Adiciona o grupo de "ignorados" no alvo caso o relatório do
-         * ataque tenha causado alguma baixa nas tropas.
-         *
-         * @param  {Object} report - Dados do relatório recebido.
-         */
-        var ignoreOnLoss = function (report) {
-            var target = Farm.targetExists(report.target_village_id)
-
-            if (!target) {
-                return false
-            }
-
-            Farm.ignoreVillage(target)
-
-            return true
-        }
-
-        /**
-         * Adiciona alvos na lista de prioridades caso o relatório
-         * do farm seja lotado.
-         *
-         * @param  {Object} report - Dados do relatório recebido.
-         */
-        var priorityTargets = function (report) {
-            var vid = report.attVillageId
-            var tid = report.defVillageId
-
-            Farm.priorityTargets[vid] = Farm.priorityTargets[vid] || []
-
-            if (Farm.priorityTargets[vid].includes(tid)) {
-                return false
-            }
-
-            Farm.priorityTargets[vid].push(tid)
-
-            Farm.trigger('priorityTargetAdded', [{
-                id: tid,
-                name: report.defVillageName,
-                x: report.defVillageX,
-                y: report.defVillageY
-            }])
-        }
-
-        /**
-         * Analisa todos relatórios de ataques causados pelo Farm.
-         *
-         * @param  {Object} data - Dados do relatório recebido.
-         */
-        var reportHandler = function (_, data) {
-            if (data.type !== 'attack') {
-                return false
-            }
-
-            var queue = []
-
-            // BATTLE_RESULTS = {
-            //     '1'         : 'nocasualties',
-            //     '2'         : 'casualties',
-            //     '3'         : 'defeat'
-            // }
-            if (Farm.settings.ignoreOnLoss && data.result !== 1) {
-                ignoreOnLoss(data)
-            }
-
-            // HAUL_TYPES = {
-            //     'FULL'      : 'full',
-            //     'PARTIAL'   : 'partial',
-            //     'NONE'      : 'none'
-            // }
-            if (Farm.settings.priorityTargets && data.haul === 'full') {
-                queue.push(priorityTargets)
-            }
-
-            if (!queue.length) {
-                return false
-            }
-
-            $socket.emit($route.REPORT_GET, {
-                id: data.id
-            }, function (data) {
-                // Manter o relatório marcado como "Novo"
-                $socket.emit($route.REPORT_MARK_UNREAD, {
-                    reports: [data.id]
-                }, function () {})
-
-                var report = data.ReportAttack
-
-                queue.every(function (handler) {
-                    handler(report)
-                })
-            })
-        }
-
-        /**
-         * Detecta quando a conexão é reestabelecida, podendo
-         * reiniciar o script.
-         */
-        var reconnectHandler = function () {
-            if (Farm.commander.running) {
-                setTimeout(function () {
-                    Farm.disableNotifs(function () {
-                        Farm.stop()
-                        Farm.start()
-                    })
-                }, 3000)
-            }
-        }
-
-        /**
-         * Detecta mensagens do jogador enviadas para sí mesmo, afim de iniciar
-         * e pausar o farm remotamente.
-         *
-         * @param  {[type]} data - Dados da mensagem recebida.
-         */
-        var remoteHandler = function (_, data) {
-            var id = Farm.settings.remoteId
-
-            if (data.participants.length !== 1 || data.title !== id) {
-                return false
-            }
-
-            var userMessage = data.message.content.trim().toLowerCase()
-
-            switch (userMessage) {
-            case 'on':
-                Farm.disableNotifs(function () {
-                    Farm.stop()
-                    Farm.start()
-                })
-
-                replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                Farm.trigger('remoteCommand', ['on'])
-
-                break
-            case 'off':
-                Farm.disableNotifs(function () {
-                    Farm.stop()
-                })
-
-                replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                Farm.trigger('remoteCommand', ['off'])
-
-                break
-            case 'status':
-                var villageLabel = selectedVillage.name + ' (' + selectedVillage.x + '|' + selectedVillage.y + ')'
-                var lastAttack = readableDateFilter(Farm.lastAttack)
-
-                var bbcodeMessage = [
-                    '[b]' + Locale('farm', 'events.status') + ':[/b] ',
-                    Locale('farm', 'events.' + Farm.status) + '[br]',
-                    '[b]' + Locale('farm', 'events.selectedVillage') + ':[/b] ',
-                    '[village=' + selectedVillage.id + ']' + villageLabel + '[/village][br]',
-                    '[b]' + Locale('farm', 'events.lastAttack') + ':[/b] ' + lastAttack
-                ].join('')
-
-                replyMessage(data.message_id, bbcodeMessage)
-                Farm.trigger('remoteCommand', ['status'])
-
-                break
-            }
-
-            return false
-        }
-
-        $root.$on($eventType.COMMAND_RETURNED, commandBackHandler)
-        $root.$on($eventType.ARMY_PRESET_UPDATE, updatePresets)
-        $root.$on($eventType.ARMY_PRESET_DELETED, updatePresets)
-        $root.$on($eventType.GROUPS_UPDATED, updateGroups)
-        $root.$on($eventType.GROUPS_CREATED, updateGroups)
-        $root.$on($eventType.GROUPS_DESTROYED, updateGroups)
-        $root.$on($eventType.GROUPS_VILLAGE_LINKED, updateGroupVillages)
-        $root.$on($eventType.GROUPS_VILLAGE_UNLINKED, updateGroupVillages)
-        $root.$on($eventType.REPORT_NEW, reportHandler)
-        $root.$on($eventType.RECONNECT, reconnectHandler)        
-        $root.$on($eventType.MESSAGE_SENT, remoteHandler)
-
-        // Carrega pedaços da mapa quando chamado.
-        // É disparado através do método .getTargets()
-        $mapData.setRequestFn(function (args) {
-            $socket.emit($route.MAP_GETVILLAGES, args)
-        })
-
-        // Lista de eventos para atualizar o último status do Farm.
-        Farm.bind('sendCommand', function () {
-            Farm.updateLastAttack()
-            Farm.updateLastStatus('events.attacking')
-        })
-
-        Farm.bind('noPreset', function () {
-            Farm.updateLastStatus('events.paused')
-        })
-
-        Farm.bind('noUnits', function () {
-            Farm.updateLastStatus('events.noUnits')
-        })
-
-        Farm.bind('noUnitsNoCommands', function () {
-            Farm.updateLastStatus('events.noUnitsNoCommands')
-        })
-
-        Farm.bind('start', function () {
-            Farm.updateLastStatus('events.attacking')
-        })
-
-        Farm.bind('pause', function () {
-            Farm.updateLastStatus('events.paused')
-        })
-
-        Farm.bind('startLoadingTargers', function () {
-            Farm.updateLastStatus('events.loadingTargets')
-        })
-
-        Farm.bind('endLoadingTargers', function () {
-            Farm.updateLastStatus('events.analyseTargets')
-        })
-
-        Farm.bind('commandLimitSingle', function () {
-            Farm.updateLastStatus('events.commandLimit')
-        })
-
-        Farm.bind('commandLimitMulti', function () {
-            Farm.updateLastStatus('events.noVillages')
-        })
-    }
-
     Farm.targetsLoaded = function () {
         return villagesTargets.hasOwnProperty(selectedVillage.id)
     }
 
+    /**
+     * Verifica se há alguma aldeia selecionada pelo FarmOverflow.
+     *
+     * @return {Boolean}
+     */
     Farm.hasVillage = function () {
         return !!selectedVillage
     }
 
+    /**
+     * Verifica se a aldeia atualmente selecionada está em modo de espera.
+     *
+     * @return {Boolean}
+     */
     Farm.isWaiting = function () {
-        return Farm.waiting.hasOwnProperty(selectedVillage.id)
+        return waitingVillages.hasOwnProperty(selectedVillage.id)
     }
 
+    /**
+     * Verifica se a aldeia atualmente selecionada está ignorada.
+     *
+     * @return {Boolean}
+     */
     Farm.isIgnored = function () {
-        return Farm.ignoredVillages.includes(selectedVillage.id)
+        return ignoredVillages.includes(selectedVillage.id)
     }
 
+    /**
+     * Verifica se todas aldeias estão em modo de espera.
+     *
+     * @return {Boolean}
+     */
     Farm.isAllWaiting = function () {
         for (var i = 0; i < playerVillages.length; i++) {
             var vid = playerVillages[i].id
 
-            if (!Farm.waiting.hasOwnProperty(vid)) {
+            if (!waitingVillages.hasOwnProperty(vid)) {
                 return false
             }
         }
@@ -1479,20 +1502,122 @@ define('TWOverflow/Farm', [
         return true
     }
 
+    /**
+     * Atualiza o último status do FarmOverflow.
+     *
+     * @param {String} newLastEvents - Novo status
+     */
+    Farm.setLastEvents = function (newLastEvents) {
+        lastEvents = newLastEvents
+
+        updateLastEvents()
+    }
+
+    /**
+     * Obtem o último status do FarmOverflow.
+     *
+     * @return {String}
+     */
     Farm.getLastEvents = function () {
         return lastEvents
     }
 
+    /**
+     * Obtem a aldeia atualmente selecionada.
+     *
+     * @return {Object}
+     */
     Farm.getSelectedVillage = function () {
         return selectedVillage
     }
 
+    /**
+     * Retorna se há apenas uma aldeia sendo utilizada pelo FarmOverflow.
+     *
+     * @return {Boolean}
+     */
     Farm.isSingleVillage = function () {
         return singleVillage
     }
 
+    /**
+     * Obtem o alvo atualmente selecionado pelo FarmOverflow.
+     *
+     * @return {Object}
+     */
     Farm.getSelectedTarget = function () {
         return selectedTarget
+    }
+
+    /**
+     * Retorna se as notificações do FarmOverflow estão ativadas.
+     *
+     * @return {Boolean}
+     */
+    Farm.isNotifsEnabled = function () {
+        return notifsEnabled
+    }
+
+    /**
+     * Obtem o preset atualmente selecionado pelo FarmOverflow.
+     *
+     * @return {Array} Lista de presets que possuem a mesma identificação.
+     */
+    Farm.getSelectedPresets = function () {
+        return selectedPresets
+    }
+
+    /**
+     * Coloca uma aldeia em modo de espera.
+     *
+     * @param {Number} id - ID da aldeia.
+     */
+    Farm.setWaitingVillages = function (id) {
+        waitingVillages[id] = true
+    }
+
+    /**
+     * Coloca o FarmOverflow em modo de espera global, ou seja, todas aldeias
+     * estão em modo de espera.
+     */
+    Farm.setGlobalWaiting = function () {
+        globalWaiting = true
+    }
+
+    /**
+     * Obtem o último erro ocorrido no FarmOveflow.
+     *
+     * @return {String}
+     */
+    Farm.getLastError = function () {
+        return lastError
+    }
+
+    /**
+     * Altera a string do último erro ocorrigo no FarmOverflow.
+     *
+     * @param {String} error
+     */
+    Farm.setLastError = function (error) {
+        lastError = error
+    }
+
+    /**
+     * Retorna se o FarmOverflow já foi inicializado.
+     *
+     * @return {Boolean}
+     */
+    Farm.isInitialized = function () {
+        return initialized
+    }
+
+    /**
+     * Obtem o timestamp do último ataque realizado pelo FarmOverflow.
+     *
+     * @return {Number} Timestamp do último ataque.
+     */
+    Farm.getLastAttack = function () {
+        return lastAttack
     }
 
     return Farm
