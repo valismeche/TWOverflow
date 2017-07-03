@@ -29,7 +29,7 @@ define('TWOverflow/Farm', [
      *
      * @param {Object} units - Unidades do preset a serem filtradas.
      */
-    function cleanPresetUnits (units) {
+    var cleanPresetUnits = function (units) {
         var pure = {}
 
         for (var unit in units) {
@@ -250,6 +250,70 @@ define('TWOverflow/Farm', [
      * @type {String}
      */
     FarmOverflow.status = 'events.paused'
+
+    /**
+     * Lista de filtros chamados no momendo do carregamento de alvos do mapa.
+     */
+    FarmOverflow.mapFilters = [
+        // IDs negativos são localizações reservadas para os jogadores como
+        // segunda aldeia em construção, convidar um amigo e deposito de recursos.
+        function (target) {
+            if (target.id < 0) {
+                return true
+            }
+        },
+
+        // Aldeia do próprio jogador
+        function (target) {
+            if (target.character_id === FarmOverflow.player.getId()) {
+                return true
+            }
+        },
+
+        // Impossivel atacar alvos protegidos
+        function (target) {
+            if (target.attack_protection) {
+                return true
+            }
+        },
+
+        // Aldeias de jogadores são permitidas caso estejam
+        // no grupo de incluidas.
+        function (target) {
+            if (target.character_id) {
+                var included = FarmOverflow.includedVillages.includes(target.id)
+
+                if (!included) {
+                    return true
+                }   
+            }
+        },
+
+        // Filtra aldeias pela pontuação
+        function (target) {
+            if (target.points < FarmOverflow.settings.minPoints) {
+                return true
+            }
+
+            if (target.points > FarmOverflow.settings.maxPoints) {
+                return true
+            }
+        },
+
+        // Filtra aldeias pela distância
+        function (target) {
+            var coords = FarmOverflow.village.position
+            var distance = $math.actualDistance(coords, target)
+
+            if (distance < FarmOverflow.settings.minDistance) {
+                return true
+            }
+
+            if (distance > FarmOverflow.settings.maxDistance) {
+                return true
+            }
+        }
+    ]
 
     FarmOverflow.init = function () {
         Locale.create('farm', ___langFarm, 'en')
@@ -634,70 +698,6 @@ define('TWOverflow/Farm', [
     }
 
     /**
-     * Lista de filtros chamados no momendo do carregamento de alvos do mapa.
-     */
-    FarmOverflow.mapFilters = [
-        // IDs negativos são localizações reservadas para os jogadores como
-        // segunda aldeia em construção, convidar um amigo e deposito de recursos.
-        function (target) {
-            if (target.id < 0) {
-                return true
-            }
-        },
-
-        // Aldeia do próprio jogador
-        function (target) {
-            if (target.character_id === FarmOverflow.player.getId()) {
-                return true
-            }
-        },
-
-        // Impossivel atacar alvos protegidos
-        function (target) {
-            if (target.attack_protection) {
-                return true
-            }
-        },
-
-        // Aldeias de jogadores são permitidas caso estejam
-        // no grupo de incluidas.
-        function (target) {
-            if (target.character_id) {
-                var included = FarmOverflow.includedVillages.includes(target.id)
-
-                if (!included) {
-                    return true
-                }   
-            }
-        },
-
-        // Filtra aldeias pela pontuação
-        function (target) {
-            if (target.points < FarmOverflow.settings.minPoints) {
-                return true
-            }
-
-            if (target.points > FarmOverflow.settings.maxPoints) {
-                return true
-            }
-        },
-
-        // Filtra aldeias pela distância
-        function (target) {
-            var coords = FarmOverflow.village.position
-            var distance = $math.actualDistance(coords, target)
-
-            if (distance < FarmOverflow.settings.minDistance) {
-                return true
-            }
-
-            if (distance > FarmOverflow.settings.maxDistance) {
-                return true
-            }
-        }
-    ]
-
-    /**
      * Obtem a lista de alvos para a aldeia selecionada.
      */
     FarmOverflow.getTargets = function (callback) {
@@ -873,6 +873,20 @@ define('TWOverflow/Farm', [
     }
 
     /**
+     * Registra um evento.
+     *
+     * @param {String} event - Nome do evento.
+     * @param {Function} handler - Função chamada quando o evento for disparado.
+     */
+    FarmOverflow.bind = function (event, handler) {
+        if (!FarmOverflow.eventListeners.hasOwnProperty(event)) {
+            FarmOverflow.eventListeners[event] = []
+        }
+
+        FarmOverflow.eventListeners[event].push(handler)
+    }
+
+    /**
      * Chama os eventos.
      *
      * @param {String} event - Nome do evento.
@@ -888,20 +902,6 @@ define('TWOverflow/Farm', [
                 handler.apply(FarmOverflow, args)
             })
         }
-    }
-
-    /**
-     * Registra um evento.
-     *
-     * @param {String} event - Nome do evento.
-     * @param {Function} handler - Função chamada quando o evento for disparado.
-     */
-    FarmOverflow.bind = function (event, handler) {
-        if (!FarmOverflow.eventListeners.hasOwnProperty(event)) {
-            FarmOverflow.eventListeners[event] = []
-        }
-
-        FarmOverflow.eventListeners[event].push(handler)
     }
 
     /**
@@ -1136,7 +1136,13 @@ define('TWOverflow/Farm', [
      * para o funcionamento do FarmOverflow.
      */
     FarmOverflow.listeners = function () {
-        function replyMessage (message_id, message) {
+        /**
+         * Envia um mensagem resposta para a mensagem indicada
+         *
+         * @param  {Number} message_id - Identificação da mensagem.
+         * @param  {String} message - Corpo da mensagem.
+         */
+        var replyMessage = function (message_id, message) {
             setTimeout(function () {
                 $socket.emit($route.MESSAGE_REPLY, {
                     message_id: message_id,
@@ -1145,9 +1151,13 @@ define('TWOverflow/Farm', [
             }, 300)
         }
 
-        // Remove aldeias da lista de espera e detecta se todas as aldeias
-        // estavam na lista de espera, reiniciando o ciclo de ataques.
-        var commandBackHandler = function (event, data) {
+        /**
+         * Remove aldeias da lista de espera e detecta se todas as aldeias
+         * estavam na lista de espera, reiniciando o ciclo de ataques.
+         *
+         * @param  {Object} data - Dados do comando.
+         */
+        var commandBackHandler = function (_, data) {
             var vid = data.origin.id
             
             if (FarmOverflow.waiting[vid]) {
@@ -1169,8 +1179,10 @@ define('TWOverflow/Farm', [
             }
         }
 
-        // Detecta alterações e atualiza lista de predefinições configuradas
-        // no script.
+        /**
+         * Detecta alterações e atualiza lista de predefinições
+         * configuradas no script.
+         */
         var updatePresets = function () {
             FarmOverflow.updatePresets()
             FarmOverflow.trigger('presetsChange')
@@ -1183,19 +1195,25 @@ define('TWOverflow/Farm', [
             }
         }
 
-        // Atualiza lista de grupos configurados no script.
-        // Atualiza a lista de aldeias incluidas/ignoradas com base
-        // nos grupos.
-        var updateGroups = function (event, data) {
+        /**
+         * Atualiza lista de grupos configurados no script.
+         * Atualiza a lista de aldeias incluidas/ignoradas com base
+         * nos grupos.
+         */
+        var updateGroups = function () {
             FarmOverflow.updateExceptionGroups()
             FarmOverflow.updateExceptionVillages()
 
             FarmOverflow.trigger('groupsChanged')
         }
 
-        // Detecta grupos que foram adicionados nas aldeias.
-        // Atualiza a lista de alvos e aldeias do jogador.
-        var updateGroupVillages = function (event, data) {
+        /**
+         * Detecta grupos que foram adicionados nas aldeias.
+         * Atualiza a lista de alvos e aldeias do jogador.
+         *
+         * @param  {Object} data - Dados do grupo retirado/adicionado.
+         */
+        var updateGroupVillages = function (_, data) {
             FarmOverflow.updatePlayerVillages()
 
             if (!FarmOverflow.groupInclude) {
@@ -1207,8 +1225,12 @@ define('TWOverflow/Farm', [
             }
         }
 
-        // Adiciona o grupo de "ignorados" no alvo caso o relatório do
-        // ataque tenha causado alguma baixa nas tropas.
+        /**
+         * Adiciona o grupo de "ignorados" no alvo caso o relatório do
+         * ataque tenha causado alguma baixa nas tropas.
+         *
+         * @param  {Object} report - Dados do relatório recebido.
+         */
         var ignoreOnLoss = function (report) {
             var target = FarmOverflow.targetExists(report.target_village_id)
 
@@ -1221,8 +1243,12 @@ define('TWOverflow/Farm', [
             return true
         }
 
-        // Adiciona alvos na lista de prioridades caso o relatório
-        // do farm seja lotado.
+        /**
+         * Adiciona alvos na lista de prioridades caso o relatório
+         * do farm seja lotado.
+         *
+         * @param  {Object} report - Dados do relatório recebido.
+         */
         var priorityTargets = function (report) {
             var vid = report.attVillageId
             var tid = report.defVillageId
@@ -1243,8 +1269,12 @@ define('TWOverflow/Farm', [
             }])
         }
 
-        // Analisa todos relatórios de ataques causados pelo FarmOverflow
-        var reportHandler = function (event, data) {
+        /**
+         * Analisa todos relatórios de ataques causados pelo FarmOverflow.
+         *
+         * @param  {Object} data - Dados do relatório recebido.
+         */
+        var reportHandler = function (_, data) {
             if (data.type !== 'attack') {
                 return false
             }
@@ -1289,9 +1319,11 @@ define('TWOverflow/Farm', [
             })
         }
 
-        // Detecta quando a conexão é reestabelecida, podendo
-        // reiniciar o script.
-        var reconnectHandler = function (event, data) {
+        /**
+         * Detecta quando a conexão é reestabelecida, podendo
+         * reiniciar o script.
+         */
+        var reconnectHandler = function () {
             if (FarmOverflow.commander.running) {
                 setTimeout(function () {
                     FarmOverflow.disableNotifs(function () {
@@ -1302,9 +1334,13 @@ define('TWOverflow/Farm', [
             }
         }
 
-        // Detecta mensagens do jogador enviadas para sí mesmo, afim de iniciar
-        // e pausar o farm remotamente.
-        var remoteHandler = function (event, data) {
+        /**
+         * Detecta mensagens do jogador enviadas para sí mesmo, afim de iniciar
+         * e pausar o farm remotamente.
+         *
+         * @param  {[type]} data - Dados da mensagem recebida.
+         */
+        var remoteHandler = function (_, data) {
             var id = FarmOverflow.settings.remoteId
 
             if (data.participants.length !== 1 || data.title !== id) {
