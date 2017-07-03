@@ -319,12 +319,13 @@ define('TWOverflow/Farm/interface', [
      */
     var updateSelectedVillage = function () {
         var $selected = $window.find('.selected')
+        var selectedVillage = Farm.getSelectedVillage()
 
-        if (!Farm.village) {
+        if (!selectedVillage) {
             return $selected.html(Locale('farm', 'general.none'))
         }
 
-        var village = buttonLink('village', villageLabel(Farm.village), Farm.village.id)
+        var village = buttonLink('village', villageLabel(selectedVillage), selectedVillage.id)
 
         $selected.html('')
         $selected.append(village.elem)

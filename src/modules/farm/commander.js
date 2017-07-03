@@ -54,8 +54,10 @@ define('TWOverflow/Farm/Commander', [
             return Farm.trigger('noVillageSelected')
         }
 
-        if (!Farm.village.loaded()) {
-            Farm.village.load(function () {
+        var selectedVillage = Farm.getSelectedVillage()
+
+        if (!selectedVillage.loaded()) {
+            selectedVillage.load(function () {
                 self.analyse()
             })
 
@@ -95,7 +97,7 @@ define('TWOverflow/Farm/Commander', [
         }
 
         Farm.checkPresets(function () {
-            if (Farm.village.countCommands() >= 48) {
+            if (selectedVillage.countCommands() >= 48) {
                 return self.handleError('commandLimit')
             }
 
@@ -120,7 +122,8 @@ define('TWOverflow/Farm/Commander', [
         Farm.lastError = error || this.preventNextCommand
         this.preventNextCommand = false
 
-        var sid = Farm.village.id
+        var selectedVillage = Farm.getSelectedVillage()
+        var sid = selectedVillage.id
 
         switch (Farm.lastError) {
         case 'timeLimit':
@@ -130,13 +133,13 @@ define('TWOverflow/Farm/Commander', [
             break
         case 'noUnits':
             Farm.trigger('noUnits', [
-                Farm.village
+                selectedVillage
             ])
             
             Farm.waiting[sid] = true
             
             if (Farm.singleVillage) {
-                if (Farm.village.countCommands() === 0) {
+                if (selectedVillage.countCommands() === 0) {
                     return Farm.trigger('noUnitsNoCommands')
                 } else {
                     Farm.globalWaiting = true
@@ -157,12 +160,12 @@ define('TWOverflow/Farm/Commander', [
                 Farm.globalWaiting = true
 
                 Farm.trigger('commandLimitSingle', [
-                    Farm.village
+                    selectedVillage
                 ])
             } else {
                 if (Farm.isAllWaiting()) {
                     Farm.trigger('commandLimitMulti', [
-                        Farm.village
+                        selectedVillage
                     ])
 
                     Farm.globalWaiting = true
@@ -189,7 +192,7 @@ define('TWOverflow/Farm/Commander', [
      */
     Commander.prototype.getPreset = function (_units) {
         var timeLimit = false
-        var units = _units || Farm.village.units
+        var units = _units || Farm.getSelectedVillage().units
 
         for (var i = 0; i < Farm.presets.length; i++) {
             var preset = Farm.presets[i]
@@ -224,7 +227,7 @@ define('TWOverflow/Farm/Commander', [
      * a redução de tropas para o proximo comando.
      */
     Commander.prototype.getPresetNext = function (presetUsed) {
-        var unitsCopy = angular.copy(Farm.village.units)
+        var unitsCopy = angular.copy(Farm.getSelectedVillage().units)
         var unitsUsed = presetUsed.units
 
         for (var unit in unitsUsed) {
@@ -250,7 +253,7 @@ define('TWOverflow/Farm/Commander', [
             officers: false
         })
 
-        var villagePosition = Farm.village.position
+        var villagePosition = Farm.getSelectedVillage().position
         var targetPosition = {
             x: Farm.target.x,
             y: Farm.target.y
@@ -285,6 +288,7 @@ define('TWOverflow/Farm/Commander', [
         var self = this        
         var unbindError
         var unbindSend
+        var selectedVillage = Farm.getSelectedVillage()
 
         self.simulate()
 
@@ -295,7 +299,7 @@ define('TWOverflow/Farm/Commander', [
         unbindError = self.onCommandError(function () {
             unbindSend()
 
-            Farm.village.updateCommands(function () {
+            selectedVillage.updateCommands(function () {
                 self.analyse()
             })
         })
@@ -323,7 +327,7 @@ define('TWOverflow/Farm/Commander', [
         })
 
         $socket.emit($route.SEND_PRESET, {
-            start_village: Farm.village.id,
+            start_village: selectedVillage.id,
             target_village: Farm.target.id,
             army_preset_id: preset.id,
             type: 'attack'
@@ -336,14 +340,15 @@ define('TWOverflow/Farm/Commander', [
      * Chamado após a confirmação de alteração das tropas na aldeia.
      */
     Commander.prototype.onCommandSend = function (callback) {
-        var before = angular.copy(Farm.village.units)
+        var selectedVillage = Farm.getSelectedVillage()
+        var before = angular.copy(selectedVillage.units)
         
         var unbind = $root.$on($eventType.VILLAGE_UNIT_INFO, function (event, data) {
-            if (Farm.village.id !== data.village_id) {
+            if (selectedVillage.id !== data.village_id) {
                 return false
             }
 
-            var now = Farm.village.units
+            var now = selectedVillage.units
             var equals = angular.equals(before, now)
 
             if (equals) {
@@ -351,7 +356,7 @@ define('TWOverflow/Farm/Commander', [
             }
 
             Farm.trigger('sendCommand', [
-                Farm.village,
+                selectedVillage,
                 Farm.target
             ])
 

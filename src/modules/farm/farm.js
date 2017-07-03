@@ -43,7 +43,7 @@ define('TWOverflow/Farm', [
     
     /**
      * Tempo de validade dos índices dos alvos, é resetado quando o
-     * FarmOverflow está pausado por mais de 30 minutos.
+     * Farm está pausado por mais de 30 minutos.
      *
      * @type {Number}
      */
@@ -104,106 +104,106 @@ define('TWOverflow/Farm', [
 
     // publics
 
-    var FarmOverflow = {}
+    var Farm = {}
 
     /**
      * Versão do script.
      *
      * @type {String}
      */
-    FarmOverflow.version = '___farmVersion'
+    Farm.version = '___farmVersion'
 
     /**
      * Aldeias que prontas para serem usadas nos ataques.
      *
      * @type {Array}
      */
-    FarmOverflow.villages = null
+    var playerVillages = null
 
     /**
      * Aldeia atualmente selecionada.
      *
      * @type {Object} VillageModel
      */
-    FarmOverflow.village = null
+    var selectedVillage = null
 
     /**
      * Identifica se o jogador possui apenas uma aldeia disponível para atacar.
      *
      * @type {Boolean}
      */
-    FarmOverflow.singleVillage = null
+    Farm.singleVillage = null
 
     /**
      * Lista de todos aldeias alvos possíveis para cada aldeia do jogador.
      *
      * @type {Object}
      */
-    FarmOverflow.targets = {}
+    Farm.targets = {}
 
     /**
      * Aldeias alvo atualmente selecionada.
      *
      * @type {Object}
      */
-    FarmOverflow.target = null
+    Farm.target = null
 
     /**
      * Callbacks usados pelos eventos que são disparados no decorrer do script.
      *
      * @type {Object}
      */
-    FarmOverflow.eventListeners = {}
+    Farm.eventListeners = {}
 
     /**
      * Propriedade usada para permitir ou não o disparo de eventos.
      *
      * @type {Boolean}
      */
-    FarmOverflow.eventsEnabled = true
+    Farm.eventsEnabled = true
 
     /**
      * Propriedade usada para permitir ou não a exibição de notificações.
      *
      * @type {Boolean}
      */
-    FarmOverflow.notifsEnabled = true
+    Farm.notifsEnabled = true
 
     /**
      * Preset usado como referência para enviar os comandos
      *
      * @type {Array}
      */
-    FarmOverflow.presets = []
+    Farm.presets = []
 
     /**
      * Objeto do group de referência para ignorar aldeias/alvos.
      *
      * @type {Object}
      */
-    FarmOverflow.groupIgnore = null
+    Farm.groupIgnore = null
 
     /**
      * Objeto do group de referência para incluir alvos.
      *
      * @type {Object}
      */
-    FarmOverflow.groupInclude = null
+    Farm.groupInclude = null
 
     /**
      * Objeto do group de referência para filtrar aldeias usadas
-     * pelo FarmOverflow.
+     * pelo Farm.
      *
      * @type {Object}
      */
-    FarmOverflow.groupOnly = null
+    Farm.groupOnly = null
 
     /**
      * Lista de aldeias ignoradas
      *
      * @type {Array}
      */
-    FarmOverflow.ignoredVillages = []
+    Farm.ignoredVillages = []
 
     /**
      * Lista de aldeias que serão permitidas atacar, independente de outros
@@ -211,21 +211,21 @@ define('TWOverflow/Farm', [
      *
      * @type {Array}
      */
-    FarmOverflow.includedVillages = []
+    Farm.includedVillages = []
 
     /**
      * Armazena todas aldeias que não estão em confições de enviar comandos.
      *
      * @type {Object}
      */
-    FarmOverflow.waiting = {}
+    Farm.waiting = {}
 
     /**
      * Indica se não há nenhuma aldeia disponível (todas aguardando tropas).
      *
      * @type {Boolean}
      */
-    FarmOverflow.globalWaiting = false
+    Farm.globalWaiting = false
 
     /**
      * Armazena o último evento que fez o farm entrar em modo de espera.
@@ -234,7 +234,7 @@ define('TWOverflow/Farm', [
      *
      * @type {String}
      */
-    FarmOverflow.lastError = ''
+    Farm.lastError = ''
 
     /**
      * Lista de alvos com prioridade no envio dos ataques.
@@ -242,19 +242,19 @@ define('TWOverflow/Farm', [
      *
      * @type {Object.<array>}
      */
-    FarmOverflow.priorityTargets = {}
+    Farm.priorityTargets = {}
 
     /**
-     * Status do FarmOverflow.
+     * Status do Farm.
      *
      * @type {String}
      */
-    FarmOverflow.status = 'events.paused'
+    Farm.status = 'events.paused'
 
     /**
      * Lista de filtros chamados no momendo do carregamento de alvos do mapa.
      */
-    FarmOverflow.mapFilters = [
+    Farm.mapFilters = [
         // IDs negativos são localizações reservadas para os jogadores como
         // segunda aldeia em construção, convidar um amigo e deposito de recursos.
         function (target) {
@@ -265,7 +265,7 @@ define('TWOverflow/Farm', [
 
         // Aldeia do próprio jogador
         function (target) {
-            if (target.character_id === FarmOverflow.player.getId()) {
+            if (target.character_id === Farm.player.getId()) {
                 return true
             }
         },
@@ -281,7 +281,7 @@ define('TWOverflow/Farm', [
         // no grupo de incluidas.
         function (target) {
             if (target.character_id) {
-                var included = FarmOverflow.includedVillages.includes(target.id)
+                var included = Farm.includedVillages.includes(target.id)
 
                 if (!included) {
                     return true
@@ -291,31 +291,31 @@ define('TWOverflow/Farm', [
 
         // Filtra aldeias pela pontuação
         function (target) {
-            if (target.points < FarmOverflow.settings.minPoints) {
+            if (target.points < Farm.settings.minPoints) {
                 return true
             }
 
-            if (target.points > FarmOverflow.settings.maxPoints) {
+            if (target.points > Farm.settings.maxPoints) {
                 return true
             }
         },
 
         // Filtra aldeias pela distância
         function (target) {
-            var coords = FarmOverflow.village.position
+            var coords = selectedVillage.position
             var distance = $math.actualDistance(coords, target)
 
-            if (distance < FarmOverflow.settings.minDistance) {
+            if (distance < Farm.settings.minDistance) {
                 return true
             }
 
-            if (distance > FarmOverflow.settings.maxDistance) {
+            if (distance > Farm.settings.maxDistance) {
                 return true
             }
         }
     ]
 
-    FarmOverflow.init = function () {
+    Farm.init = function () {
         Locale.create('farm', ___langFarm, 'en')
 
         /**
@@ -323,7 +323,7 @@ define('TWOverflow/Farm', [
          * 
          * @type {Boolean}
          */
-        FarmOverflow.initialized = true
+        Farm.initialized = true
 
         /**
          * Configurações salvas localmente
@@ -337,57 +337,57 @@ define('TWOverflow/Farm', [
          *
          * @type {Object}
          */
-        FarmOverflow.settings = angular.merge({}, DEFAULTS, localSettings)
+        Farm.settings = angular.merge({}, DEFAULTS, localSettings)
 
         /**
-         * Armazena todos os últimos eventos ocorridos no FarmOverflow.
+         * Armazena todos os últimos eventos ocorridos no Farm.
          *
          * @type {Array}
          */
-        FarmOverflow.lastEvents = Lockr.get('farm-lastEvents', [], true)
+        Farm.lastEvents = Lockr.get('farm-lastEvents', [], true)
 
         /**
-         * Timestamp da última atividade do FarmOverflow como atques e
+         * Timestamp da última atividade do Farm como atques e
          * trocas de aldeias.
          *
          * @type {Number}
          */
-        FarmOverflow.lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
+        Farm.lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
 
         /**
-         * Timestamp da última atividade do FarmOverflow como atques e
+         * Timestamp da última atividade do Farm como atques e
          * trocas de aldeias.
          *
          * @type {Number}
          */
-        FarmOverflow.lastAttack = Lockr.get('farm-lastAttack', -1, true)
+        Farm.lastAttack = Lockr.get('farm-lastAttack', -1, true)
 
         /**
          * Armazena os índices dos alvos de cada aldeia disponível.
          *
          * @type {Object}
          */
-        FarmOverflow.indexes = Lockr.get('farm-indexes', {}, true)
+        Farm.indexes = Lockr.get('farm-indexes', {}, true)
 
         /**
          * Objeto com dados do jogador.
          *
          * @type {Object}
          */
-        FarmOverflow.player = $model.getSelectedCharacter()
+        Farm.player = $model.getSelectedCharacter()
 
         /**
          * Classe que controla os ciclos de ataques.
          */
-        FarmOverflow.commander = createCommander()
+        Farm.commander = createCommander()
 
-        FarmOverflow.updateExceptionGroups()
-        FarmOverflow.updateExceptionVillages()
-        FarmOverflow.updatePlayerVillages()
-        FarmOverflow.updatePresets()
-        FarmOverflow.listeners()
+        Farm.updateExceptionGroups()
+        Farm.updateExceptionVillages()
+        Farm.updatePlayerVillages()
+        Farm.updatePresets()
+        Farm.listeners()
 
-        Locale.change('farm', FarmOverflow.settings.language)
+        Locale.change('farm', Farm.settings.language)
     }
 
     /**
@@ -395,17 +395,17 @@ define('TWOverflow/Farm', [
      *
      * @return {Boolean}
      */
-    FarmOverflow.start = function () {
-        if (!FarmOverflow.presets.length) {
-            if (FarmOverflow.notifsEnabled) {
+    Farm.start = function () {
+        if (!Farm.presets.length) {
+            if (Farm.notifsEnabled) {
                 emitNotif('error', Locale('farm', 'events.presetFirst'))
             }
 
             return false
         }
 
-        if (!FarmOverflow.village) {
-            if (FarmOverflow.notifsEnabled) {
+        if (!selectedVillage) {
+            if (Farm.notifsEnabled) {
                 emitNotif('error', Locale('farm', 'events.noSelectedVillage'))
             }
             
@@ -415,24 +415,24 @@ define('TWOverflow/Farm', [
         var now = $timeHelper.gameTime()
 
         // Reseta a lista prioridades caso tenha expirado
-        if (now > FarmOverflow.lastActivity + PRIORITY_EXPIRE_TIME) {
-            FarmOverflow.priorityTargets = {}
+        if (now > Farm.lastActivity + PRIORITY_EXPIRE_TIME) {
+            Farm.priorityTargets = {}
         }
 
         // Reseta a lista índices caso tenha expirado
-        if (now > FarmOverflow.lastActivity + INDEX_EXPIRE_TIME) {
-            FarmOverflow.indexes = {}
+        if (now > Farm.lastActivity + INDEX_EXPIRE_TIME) {
+            Farm.indexes = {}
             Lockr.set('farm-indexes', {})
         }
 
-        FarmOverflow.commander = createCommander()
-        FarmOverflow.commander.start()
+        Farm.commander = createCommander()
+        Farm.commander.start()
 
-        if (FarmOverflow.notifsEnabled) {
+        if (Farm.notifsEnabled) {
             emitNotif('success', Locale('farm', 'general.started'))
         }
 
-        FarmOverflow.trigger('start')
+        Farm.trigger('start')
 
         return true
     }
@@ -442,14 +442,14 @@ define('TWOverflow/Farm', [
      *
      * @return {Boolean}
      */
-    FarmOverflow.stop = function () {
-        FarmOverflow.commander.stop()
+    Farm.stop = function () {
+        Farm.commander.stop()
         
-        if (FarmOverflow.notifsEnabled) {
+        if (Farm.notifsEnabled) {
             emitNotif('success', Locale('farm', 'general.paused'))
         }
 
-        FarmOverflow.trigger('pause')
+        Farm.trigger('pause')
 
         return true
     }
@@ -457,42 +457,42 @@ define('TWOverflow/Farm', [
     /**
      * Alterna entre iniciar e pausar o script.
      */
-    FarmOverflow.switch = function () {
-        if (FarmOverflow.commander && FarmOverflow.commander.running) {
-            FarmOverflow.stop()
+    Farm.switch = function () {
+        if (Farm.commander && Farm.commander.running) {
+            Farm.stop()
         } else {
-            FarmOverflow.start()
+            Farm.start()
         }
     }
 
     /**
-     * Atualiza o timestamp da última atividade do FarmOverflow.
+     * Atualiza o timestamp da última atividade do Farm.
      */
-    FarmOverflow.updateActivity = function () {
-        FarmOverflow.lastActivity = $timeHelper.gameTime()
-        Lockr.set('farm-lastActivity', FarmOverflow.lastActivity)
+    Farm.updateActivity = function () {
+        Farm.lastActivity = $timeHelper.gameTime()
+        Lockr.set('farm-lastActivity', Farm.lastActivity)
     }
 
     /**
-     * Atualiza o timestamp do último ataque enviado com o FarmOverflow.
+     * Atualiza o timestamp do último ataque enviado com o Farm.
      */
-    FarmOverflow.updateLastAttack = function () {
-        FarmOverflow.lastAttack = $timeHelper.gameTime()
-        Lockr.set('farm-lastAttack', FarmOverflow.lastAttack)
+    Farm.updateLastAttack = function () {
+        Farm.lastAttack = $timeHelper.gameTime()
+        Lockr.set('farm-lastAttack', Farm.lastAttack)
     }
 
     /**
-     * Salva no localStorage a lista dos últimos eventos ocorridos no FarmOverflow.
+     * Salva no localStorage a lista dos últimos eventos ocorridos no Farm.
      */
-    FarmOverflow.updateLastEvents = function () {
-        Lockr.set('farm-lastEvents', FarmOverflow.lastEvents)
+    Farm.updateLastEvents = function () {
+        Lockr.set('farm-lastEvents', Farm.lastEvents)
     }
 
     /**
-     * Atualiza o timestamp do último ataque enviado com o FarmOverflow.
+     * Atualiza o timestamp do último ataque enviado com o Farm.
      */
-    FarmOverflow.updateLastStatus = function (status) {
-        FarmOverflow.status = Locale('farm', status)
+    Farm.updateLastStatus = function (status) {
+        Farm.status = Locale('farm', status)
     }
 
     /**
@@ -501,7 +501,7 @@ define('TWOverflow/Farm', [
      *
      * @param {Object} changes - Novas configurações.
      */
-    FarmOverflow.updateSettings = function (changes) {
+    Farm.updateSettings = function (changes) {
         var modify = {}
 
         // Valores que precisam ser resetados/modificados quando
@@ -524,7 +524,7 @@ define('TWOverflow/Farm', [
         }
 
         for (var key in changes) {
-            if (changes[key] !== FarmOverflow.settings[key]) {
+            if (changes[key] !== Farm.settings[key]) {
                 var modifyKeys = updates[key]
 
                 if (updates.hasOwnProperty(key)) {
@@ -534,10 +534,10 @@ define('TWOverflow/Farm', [
                 }
             }
 
-            FarmOverflow.settings[key] = changes[key]
+            Farm.settings[key] = changes[key]
         }
 
-        Lockr.set('farm-settings', FarmOverflow.settings)
+        Lockr.set('farm-settings', Farm.settings)
 
         // Nenhuma alteração nas configurações
         if (angular.equals(modify, {})) {
@@ -545,58 +545,58 @@ define('TWOverflow/Farm', [
         }
 
         if (modify.groups) {
-            FarmOverflow.updateExceptionGroups()
-            FarmOverflow.updateExceptionVillages()
+            Farm.updateExceptionGroups()
+            Farm.updateExceptionVillages()
         }
 
         if (modify.villages) {
-            FarmOverflow.updatePlayerVillages()
+            Farm.updatePlayerVillages()
         }
 
         if (modify.preset) {
-            FarmOverflow.updatePresets()
+            Farm.updatePresets()
         }
 
         if (modify.targets) {
-            FarmOverflow.targets = {}
+            Farm.targets = {}
         }
 
         if (modify.events) {
-            FarmOverflow.trigger('resetEvents')
+            Farm.trigger('resetEvents')
         }
 
         if (modify.language) {
-            if (FarmOverflow.eventsEnabled) {
+            if (Farm.eventsEnabled) {
                 emitNotif('success', Locale('farm', 'settings.events.restartScript'))
             }
         }
 
-        if (FarmOverflow.commander.running && FarmOverflow.globalWaiting) {
-            FarmOverflow.disableEvents(function () {
-                FarmOverflow.stop()
-                FarmOverflow.start()
+        if (Farm.commander.running && Farm.globalWaiting) {
+            Farm.disableEvents(function () {
+                Farm.stop()
+                Farm.start()
             })
         }
 
-        FarmOverflow.trigger('settingsChange', [modify])
+        Farm.trigger('settingsChange', [modify])
     }
 
     /**
      * Desativa o disparo de eventos temporariamente.
      */
-    FarmOverflow.disableEvents = function (callback) {
-        FarmOverflow.eventsEnabled = false
+    Farm.disableEvents = function (callback) {
+        Farm.eventsEnabled = false
         callback()
-        FarmOverflow.eventsEnabled = true
+        Farm.eventsEnabled = true
     }
 
     /**
      * Desativa o disparo de eventos temporariamente.
      */
-    FarmOverflow.disableNotifs = function (callback) {
-        FarmOverflow.notifsEnabled = false
+    Farm.disableNotifs = function (callback) {
+        Farm.notifsEnabled = false
         callback()
-        FarmOverflow.notifsEnabled = true
+        Farm.notifsEnabled = true
     }
 
     /** 
@@ -604,65 +604,65 @@ define('TWOverflow/Farm', [
      *
      * @param [_selectOnly] Apenas seleciona o alvo sem pular para o próximo.
      */
-    FarmOverflow.nextTarget = function (_selectOnly) {
-        var sid = FarmOverflow.village.id
+    Farm.nextTarget = function (_selectOnly) {
+        var sid = selectedVillage.id
 
         // Caso a lista de alvos seja resetada no meio da execução.
-        if (!FarmOverflow.targets[sid]) {
-            FarmOverflow.commander.analyse()
+        if (!Farm.targets[sid]) {
+            Farm.commander.analyse()
 
             return false
         }
 
-        var villageTargets = FarmOverflow.targets[sid]
+        var villageTargets = Farm.targets[sid]
 
-        if (FarmOverflow.settings.priorityTargets && FarmOverflow.priorityTargets[sid]) {
+        if (Farm.settings.priorityTargets && Farm.priorityTargets[sid]) {
             var priorityId
 
-            while (priorityId = FarmOverflow.priorityTargets[sid].shift()) {
-                if (FarmOverflow.ignoredVillages.includes(priorityId)) {
+            while (priorityId = Farm.priorityTargets[sid].shift()) {
+                if (Farm.ignoredVillages.includes(priorityId)) {
                     continue
                 }
 
                 for (var i = 0; i < villageTargets.length; i++) {
                     if (villageTargets[i].id === priorityId) {
-                        FarmOverflow.target = villageTargets[i]
+                        Farm.target = villageTargets[i]
                         return true
                     }
                 }
             }
         }
 
-        var index = FarmOverflow.indexes[sid]
+        var index = Farm.indexes[sid]
         var changed = false
 
         if (!_selectOnly) {
-            index = ++FarmOverflow.indexes[sid]
+            index = ++Farm.indexes[sid]
         }
 
         for (; index < villageTargets.length; index++) {
             var target = villageTargets[index]
 
-            if (FarmOverflow.ignoredVillages.includes(target.id)) {
-                FarmOverflow.trigger('ignoredTarget', [target])
+            if (Farm.ignoredVillages.includes(target.id)) {
+                Farm.trigger('ignoredTarget', [target])
 
                 continue
             }
 
-            FarmOverflow.target = target
+            Farm.target = target
             changed = true
 
             break
         }
 
         if (changed) {
-            FarmOverflow.indexes[sid] = index
+            Farm.indexes[sid] = index
         } else {
-            FarmOverflow.target = villageTargets[0]
-            FarmOverflow.indexes[sid] = 0
+            Farm.target = villageTargets[0]
+            Farm.indexes[sid] = 0
         }
 
-        Lockr.set('farm-indexes', FarmOverflow.indexes)
+        Lockr.set('farm-indexes', Farm.indexes)
 
         return true
     }
@@ -670,18 +670,18 @@ define('TWOverflow/Farm', [
     /** 
      * Atalho para selecionar alvo sem pular para o próximo.
      */
-    FarmOverflow.selectTarget = function () {
-        return FarmOverflow.nextTarget(true)
+    Farm.selectTarget = function () {
+        return Farm.nextTarget(true)
     }
 
     /**
      * Verifica se a aldeia selecionada possui alvos e se tiver, atualiza
      * o objecto do alvo e o índice.
      */
-    FarmOverflow.hasTarget = function () {
-        var sid = FarmOverflow.village.id
-        var index = FarmOverflow.indexes[sid]
-        var targets = FarmOverflow.targets[sid]
+    Farm.hasTarget = function () {
+        var sid = selectedVillage.id
+        var index = Farm.indexes[sid]
+        var targets = Farm.targets[sid]
 
         if (!targets.length) {
             return false
@@ -689,9 +689,9 @@ define('TWOverflow/Farm', [
 
         // Verifica se tem alvos e se o índice selecionado possui alvo.
         // Pode acontecer quando o numero de alvos é reduzido em um
-        // momento em que o FarmOverflow não esteja ativado.
+        // momento em que o Farm não esteja ativado.
         if (index > targets.length) {
-            FarmOverflow.indexes[sid] = index = 0
+            Farm.indexes[sid] = index = 0
         }
 
         return !!targets[index]
@@ -700,11 +700,11 @@ define('TWOverflow/Farm', [
     /**
      * Obtem a lista de alvos para a aldeia selecionada.
      */
-    FarmOverflow.getTargets = function (callback) {
-        var coords = FarmOverflow.village.position
-        var sid = FarmOverflow.village.id
+    Farm.getTargets = function (callback) {
+        var coords = selectedVillage.position
+        var sid = selectedVillage.id
 
-        if (sid in FarmOverflow.targets) {
+        if (sid in Farm.targets) {
             return callback()
         }
 
@@ -724,7 +724,7 @@ define('TWOverflow/Farm', [
             if (loaded) {
                 loop()
             } else {
-                FarmOverflow.trigger('startLoadingTargers')
+                Farm.trigger('startLoadingTargers')
 
                 var loads = $convert.scaledGridCoordinates(x, y, w, h, chunk)
                 var length = loads.length
@@ -732,7 +732,7 @@ define('TWOverflow/Farm', [
 
                 $mapData.loadTownDataAsync(x, y, w, h, function () {
                     if (++index === length) {
-                        FarmOverflow.trigger('endLoadingTargers')
+                        Farm.trigger('endLoadingTargers')
 
                         loop()
                     }
@@ -768,7 +768,7 @@ define('TWOverflow/Farm', [
         }
 
         var filter = function (target) {
-            var pass = FarmOverflow.mapFilters.every(function (fn) {
+            var pass = Farm.mapFilters.every(function (fn) {
                 return !fn(target)
             })
 
@@ -788,31 +788,31 @@ define('TWOverflow/Farm', [
 
         var done = function () {
             if (filteredTargets.length === 0) {
-                var hasVillages = FarmOverflow.nextVillage()
+                var hasVillages = Farm.nextVillage()
 
                 if (hasVillages) {
-                    FarmOverflow.getTargets(callback)
+                    Farm.getTargets(callback)
                 } else {
-                    FarmOverflow.trigger('noTargets')
+                    Farm.trigger('noTargets')
                 }
 
                 return false
             }
 
-            FarmOverflow.targets[sid] = filteredTargets.sort(function (a, b) {
+            Farm.targets[sid] = filteredTargets.sort(function (a, b) {
                 return a.distance - b.distance
             })
 
-            if (FarmOverflow.indexes.hasOwnProperty(sid)) {
-                if (FarmOverflow.indexes[sid] > FarmOverflow.targets[sid].length) {
-                    FarmOverflow.indexes[sid] = 0
+            if (Farm.indexes.hasOwnProperty(sid)) {
+                if (Farm.indexes[sid] > Farm.targets[sid].length) {
+                    Farm.indexes[sid] = 0
 
-                    Lockr.set('farm-indexes', FarmOverflow.indexes)
+                    Lockr.set('farm-indexes', Farm.indexes)
                 }
             } else {
-                FarmOverflow.indexes[sid] = 0
+                Farm.indexes[sid] = 0
 
-                Lockr.set('farm-indexes', FarmOverflow.indexes)
+                Lockr.set('farm-indexes', Farm.indexes)
             }
 
             callback()
@@ -826,29 +826,29 @@ define('TWOverflow/Farm', [
      *
      * @return {Boolean}
      */
-    FarmOverflow.nextVillage = function () {
-        if (FarmOverflow.singleVillage) {
+    Farm.nextVillage = function () {
+        if (Farm.singleVillage) {
             return false
         }
 
-        var free = FarmOverflow.villages.filter(function (village) {
-            return !FarmOverflow.waiting[village.id]
+        var free = playerVillages.filter(function (village) {
+            return !Farm.waiting[village.id]
         })
 
         if (!free.length) {
-            FarmOverflow.trigger('noVillages')
+            Farm.trigger('noVillages')
             return false
         } else if (free.length === 1) {
-            FarmOverflow.village = free[0]
-            FarmOverflow.trigger('nextVillage', [FarmOverflow.village])
+            selectedVillage = free[0]
+            Farm.trigger('nextVillage', [selectedVillage])
             return true
         }
 
-        var index = free.indexOf(FarmOverflow.village) + 1
-        FarmOverflow.village = free[index] ? free[index] : free[0]
+        var index = free.indexOf(selectedVillage) + 1
+        selectedVillage = free[index] ? free[index] : free[0]
         
-        FarmOverflow.trigger('nextVillage', [FarmOverflow.village])
-        FarmOverflow.updateActivity()
+        Farm.trigger('nextVillage', [selectedVillage])
+        Farm.updateActivity()
 
         return true
     }
@@ -860,11 +860,11 @@ define('TWOverflow/Farm', [
      *
      * @return {Boolean}
      */
-    FarmOverflow.selectVillage = function (vid) {
-        var i = FarmOverflow.villages.indexOf(vid)
+    Farm.selectVillage = function (vid) {
+        var i = playerVillages.indexOf(vid)
 
         if (i !== -1) {
-            FarmOverflow.village = FarmOverflow.villages[i]
+            selectedVillage = playerVillages[i]
 
             return true
         }
@@ -878,12 +878,12 @@ define('TWOverflow/Farm', [
      * @param {String} event - Nome do evento.
      * @param {Function} handler - Função chamada quando o evento for disparado.
      */
-    FarmOverflow.bind = function (event, handler) {
-        if (!FarmOverflow.eventListeners.hasOwnProperty(event)) {
-            FarmOverflow.eventListeners[event] = []
+    Farm.bind = function (event, handler) {
+        if (!Farm.eventListeners.hasOwnProperty(event)) {
+            Farm.eventListeners[event] = []
         }
 
-        FarmOverflow.eventListeners[event].push(handler)
+        Farm.eventListeners[event].push(handler)
     }
 
     /**
@@ -892,14 +892,14 @@ define('TWOverflow/Farm', [
      * @param {String} event - Nome do evento.
      * @param {Array} args - Argumentos que serão passados no callback.
      */
-    FarmOverflow.trigger = function (event, args) {
-        if (!FarmOverflow.eventsEnabled) {
+    Farm.trigger = function (event, args) {
+        if (!Farm.eventsEnabled) {
             return
         }
 
-        if (FarmOverflow.eventListeners.hasOwnProperty(event)) {
-            FarmOverflow.eventListeners[event].forEach(function (handler) {
-                handler.apply(FarmOverflow, args)
+        if (Farm.eventListeners.hasOwnProperty(event)) {
+            Farm.eventListeners[event].forEach(function (handler) {
+                handler.apply(Farm, args)
             })
         }
     }
@@ -909,11 +909,11 @@ define('TWOverflow/Farm', [
      *
      * @param {Function} callback
      */
-    FarmOverflow.updatePresets = function (callback) {
+    Farm.updatePresets = function (callback) {
         var updatePresets = function (presets) {
-            FarmOverflow.presets = []
+            Farm.presets = []
 
-            if (!FarmOverflow.settings.presetName) {
+            if (!Farm.settings.presetName) {
                 if (callback) {
                     callback()
                 }
@@ -929,11 +929,11 @@ define('TWOverflow/Farm', [
                 var name = presets[id].name
                 var cleanName = name.replace(rpreset, '').trim()
 
-                if (cleanName === FarmOverflow.settings.presetName) {
+                if (cleanName === Farm.settings.presetName) {
                     presets[id].cleanName = cleanName
                     presets[id].units = cleanPresetUnits(presets[id].units)
 
-                    FarmOverflow.presets.push(presets[id])
+                    Farm.presets.push(presets[id])
                 }
             }
 
@@ -946,7 +946,7 @@ define('TWOverflow/Farm', [
             updatePresets($presetList.presets)
         } else {
             $socket.emit($route.GET_PRESETS, {}, function (data) {
-                FarmOverflow.trigger('presetsLoaded')
+                Farm.trigger('presetsLoaded')
                 updatePresets(data.presets)
             })
         }
@@ -958,9 +958,9 @@ define('TWOverflow/Farm', [
      * @param {Array} presetIds - Lista com os IDs dos presets
      * @param {Function} callback
      */
-    FarmOverflow.assignPresets = function (presetIds, callback) {
+    Farm.assignPresets = function (presetIds, callback) {
         $socket.emit($route.ASSIGN_PRESETS, {
-            village_id: FarmOverflow.village.id,
+            village_id: selectedVillage.id,
             preset_ids: presetIds
         }, callback)
     }
@@ -972,20 +972,20 @@ define('TWOverflow/Farm', [
      * @param {Array} presetIds - Lista com os IDs dos presets
      * @param {Function} callback
      */
-    FarmOverflow.checkPresets = function (callback) {
-        if (!FarmOverflow.presets.length) {
-            FarmOverflow.stop()
-            FarmOverflow.trigger('noPreset')
+    Farm.checkPresets = function (callback) {
+        if (!Farm.presets.length) {
+            Farm.stop()
+            Farm.trigger('noPreset')
 
             return false
         }
         
-        var vid = FarmOverflow.village.id
+        var vid = selectedVillage.id
         var villagePresets = $presetList.getPresetsByVillageId(vid)
         var needAssign = false
         var which = []
 
-        FarmOverflow.presets.forEach(function (preset) {
+        Farm.presets.forEach(function (preset) {
             if (!villagePresets.hasOwnProperty(preset.id)) {
                 needAssign = true
                 which.push(preset.id)
@@ -997,7 +997,7 @@ define('TWOverflow/Farm', [
                 which.push(id)
             }
 
-            FarmOverflow.assignPresets(which, callback)
+            Farm.assignPresets(which, callback)
         } else {
             callback()
         }
@@ -1006,16 +1006,16 @@ define('TWOverflow/Farm', [
     /**
      * Atualiza o grupo de referência para ignorar aldeias e incluir alvos
      */
-    FarmOverflow.updateExceptionGroups = function () {
+    Farm.updateExceptionGroups = function () {
         var types = ['groupIgnore', 'groupInclude', 'groupOnly']
         var groups = $model.getGroupList().getGroups()
 
         types.forEach(function (type) {
-            FarmOverflow[type] = null
+            Farm[type] = null
 
             for (var id in groups) {
-                if (id == FarmOverflow.settings[type]) {
-                    FarmOverflow[type] = {
+                if (id == Farm.settings[type]) {
+                    Farm[type] = {
                         name: groups[id].name,
                         id: id
                     }
@@ -1029,20 +1029,20 @@ define('TWOverflow/Farm', [
     /**
      * Atualiza a lista de aldeias ignoradas e incluidas
      */
-    FarmOverflow.updateExceptionVillages = function () {
+    Farm.updateExceptionVillages = function () {
         var groupList = $model.getGroupList()
 
-        FarmOverflow.ignoredVillages = []
-        FarmOverflow.includedVillages = []
+        Farm.ignoredVillages = []
+        Farm.includedVillages = []
 
-        if (FarmOverflow.groupIgnore) {
-            FarmOverflow.ignoredVillages =
-                groupList.getGroupVillageIds(FarmOverflow.groupIgnore.id)
+        if (Farm.groupIgnore) {
+            Farm.ignoredVillages =
+                groupList.getGroupVillageIds(Farm.groupIgnore.id)
         }
 
-        if (FarmOverflow.groupInclude) {
-            FarmOverflow.includedVillages =
-                groupList.getGroupVillageIds(FarmOverflow.groupInclude.id)
+        if (Farm.groupInclude) {
+            Farm.includedVillages =
+                groupList.getGroupVillageIds(Farm.groupInclude.id)
         }
     }
 
@@ -1050,46 +1050,46 @@ define('TWOverflow/Farm', [
      * Atualiza a lista de aldeias do jogador e filtra com base nos grupos (caso
      * estaja configurado...).
      */
-    FarmOverflow.updatePlayerVillages = function () {
-        var villages = FarmOverflow.player.getVillageList()
+    Farm.updatePlayerVillages = function () {
+        var villages = Farm.player.getVillageList()
 
         villages = villages.map(function (village) {
             return new Village(village)
         })
 
         villages = villages.filter(function (village) {
-            return !FarmOverflow.ignoredVillages.includes(village.id)
+            return !Farm.ignoredVillages.includes(village.id)
         })
 
-        if (FarmOverflow.groupOnly) {
+        if (Farm.groupOnly) {
             var groupList = $model.getGroupList()
-            var groupVillages = groupList.getGroupVillageIds(FarmOverflow.groupOnly.id)
+            var groupVillages = groupList.getGroupVillageIds(Farm.groupOnly.id)
 
             villages = villages.filter(function (village) {
                 return groupVillages.includes(village.id)
             })
         }
 
-        FarmOverflow.villages = villages
-        FarmOverflow.singleVillage = FarmOverflow.villages.length === 1
-        FarmOverflow.village = FarmOverflow.villages[0]
+        playerVillages = villages
+        Farm.singleVillage = playerVillages.length === 1
+        selectedVillage = playerVillages[0]
 
         // Reinicia comandos imediatamente se liberar alguma aldeia
         // que nao esteja na lista de espera.
-        if (FarmOverflow.commander.running && FarmOverflow.globalWaiting) {
+        if (Farm.commander.running && Farm.globalWaiting) {
             for (var i = 0; i < villages.length; i++) {
                 var village = villages[i]
 
-                if (!FarmOverflow.waiting[village.id]) {
-                    FarmOverflow.globalWaiting = false
-                    FarmOverflow.commander.analyse()
+                if (!Farm.waiting[village.id]) {
+                    Farm.globalWaiting = false
+                    Farm.commander.analyse()
 
                     break
                 }
             }
         }
 
-        FarmOverflow.trigger('villagesUpdate')
+        Farm.trigger('villagesUpdate')
     }
 
     /**
@@ -1097,16 +1097,16 @@ define('TWOverflow/Farm', [
      *
      * @param {Object} target - Dados da aldeia a ser ignorada.
      */
-    FarmOverflow.ignoreVillage = function (target) {
-        if (!FarmOverflow.groupIgnore) {
+    Farm.ignoreVillage = function (target) {
+        if (!Farm.groupIgnore) {
             return false
         }
 
         $socket.emit($route.GROUPS_LINK_VILLAGE, {
-            group_id: FarmOverflow.groupIgnore.id,
+            group_id: Farm.groupIgnore.id,
             village_id: target.id
         }, function () {
-            FarmOverflow.trigger('ignoredVillage', [target])
+            Farm.trigger('ignoredVillage', [target])
         })
     }
 
@@ -1115,9 +1115,9 @@ define('TWOverflow/Farm', [
      *
      * @param {Number} targetId - ID da aldeia
      */
-    FarmOverflow.targetExists = function (targetId) {
-        for (var vid in FarmOverflow.targets) {
-            var villageTargets = FarmOverflow.targets[vid]
+    Farm.targetExists = function (targetId) {
+        for (var vid in Farm.targets) {
+            var villageTargets = Farm.targets[vid]
 
             for (var i = 0; i < villageTargets.length; i++) {
                 var target = villageTargets[i]
@@ -1133,9 +1133,9 @@ define('TWOverflow/Farm', [
 
     /**
      * Detecta todas atualizações de dados do jogo que são importantes
-     * para o funcionamento do FarmOverflow.
+     * para o funcionamento do Farm.
      */
-    FarmOverflow.listeners = function () {
+    Farm.listeners = function () {
         /**
          * Envia um mensagem resposta para a mensagem indicada
          *
@@ -1160,17 +1160,17 @@ define('TWOverflow/Farm', [
         var commandBackHandler = function (_, data) {
             var vid = data.origin.id
             
-            if (FarmOverflow.waiting[vid]) {
-                delete FarmOverflow.waiting[vid]
+            if (Farm.waiting[vid]) {
+                delete Farm.waiting[vid]
 
-                if (FarmOverflow.globalWaiting) {
-                    FarmOverflow.globalWaiting = false
+                if (Farm.globalWaiting) {
+                    Farm.globalWaiting = false
 
-                    if (FarmOverflow.commander.running) {
-                        FarmOverflow.selectVillage(vid)
+                    if (Farm.commander.running) {
+                        Farm.selectVillage(vid)
 
                         setTimeout(function () {
-                            FarmOverflow.commander.analyse()
+                            Farm.commander.analyse()
                         }, 10000)
                     }
                 }
@@ -1184,13 +1184,13 @@ define('TWOverflow/Farm', [
          * configuradas no script.
          */
         var updatePresets = function () {
-            FarmOverflow.updatePresets()
-            FarmOverflow.trigger('presetsChange')
+            Farm.updatePresets()
+            Farm.trigger('presetsChange')
 
-            if (!FarmOverflow.presets.length) {
-                if (FarmOverflow.commander.running) {
-                    FarmOverflow.trigger('noPreset')
-                    FarmOverflow.stop()
+            if (!Farm.presets.length) {
+                if (Farm.commander.running) {
+                    Farm.trigger('noPreset')
+                    Farm.stop()
                 }
             }
         }
@@ -1201,10 +1201,10 @@ define('TWOverflow/Farm', [
          * nos grupos.
          */
         var updateGroups = function () {
-            FarmOverflow.updateExceptionGroups()
-            FarmOverflow.updateExceptionVillages()
+            Farm.updateExceptionGroups()
+            Farm.updateExceptionVillages()
 
-            FarmOverflow.trigger('groupsChanged')
+            Farm.trigger('groupsChanged')
         }
 
         /**
@@ -1214,14 +1214,14 @@ define('TWOverflow/Farm', [
          * @param  {Object} data - Dados do grupo retirado/adicionado.
          */
         var updateGroupVillages = function (_, data) {
-            FarmOverflow.updatePlayerVillages()
+            Farm.updatePlayerVillages()
 
-            if (!FarmOverflow.groupInclude) {
+            if (!Farm.groupInclude) {
                 return false
             }
             
-            if (FarmOverflow.groupInclude.id === data.group_id) {
-                FarmOverflow.targets = {}
+            if (Farm.groupInclude.id === data.group_id) {
+                Farm.targets = {}
             }
         }
 
@@ -1232,13 +1232,13 @@ define('TWOverflow/Farm', [
          * @param  {Object} report - Dados do relatório recebido.
          */
         var ignoreOnLoss = function (report) {
-            var target = FarmOverflow.targetExists(report.target_village_id)
+            var target = Farm.targetExists(report.target_village_id)
 
             if (!target) {
                 return false
             }
 
-            FarmOverflow.ignoreVillage(target)
+            Farm.ignoreVillage(target)
 
             return true
         }
@@ -1253,15 +1253,15 @@ define('TWOverflow/Farm', [
             var vid = report.attVillageId
             var tid = report.defVillageId
 
-            FarmOverflow.priorityTargets[vid] = FarmOverflow.priorityTargets[vid] || []
+            Farm.priorityTargets[vid] = Farm.priorityTargets[vid] || []
 
-            if (FarmOverflow.priorityTargets[vid].includes(tid)) {
+            if (Farm.priorityTargets[vid].includes(tid)) {
                 return false
             }
 
-            FarmOverflow.priorityTargets[vid].push(tid)
+            Farm.priorityTargets[vid].push(tid)
 
-            FarmOverflow.trigger('priorityTargetAdded', [{
+            Farm.trigger('priorityTargetAdded', [{
                 id: tid,
                 name: report.defVillageName,
                 x: report.defVillageX,
@@ -1270,7 +1270,7 @@ define('TWOverflow/Farm', [
         }
 
         /**
-         * Analisa todos relatórios de ataques causados pelo FarmOverflow.
+         * Analisa todos relatórios de ataques causados pelo Farm.
          *
          * @param  {Object} data - Dados do relatório recebido.
          */
@@ -1286,7 +1286,7 @@ define('TWOverflow/Farm', [
             //     '2'         : 'casualties',
             //     '3'         : 'defeat'
             // }
-            if (FarmOverflow.settings.ignoreOnLoss && data.result !== 1) {
+            if (Farm.settings.ignoreOnLoss && data.result !== 1) {
                 ignoreOnLoss(data)
             }
 
@@ -1295,7 +1295,7 @@ define('TWOverflow/Farm', [
             //     'PARTIAL'   : 'partial',
             //     'NONE'      : 'none'
             // }
-            if (FarmOverflow.settings.priorityTargets && data.haul === 'full') {
+            if (Farm.settings.priorityTargets && data.haul === 'full') {
                 queue.push(priorityTargets)
             }
 
@@ -1324,11 +1324,11 @@ define('TWOverflow/Farm', [
          * reiniciar o script.
          */
         var reconnectHandler = function () {
-            if (FarmOverflow.commander.running) {
+            if (Farm.commander.running) {
                 setTimeout(function () {
-                    FarmOverflow.disableNotifs(function () {
-                        FarmOverflow.stop()
-                        FarmOverflow.start()
+                    Farm.disableNotifs(function () {
+                        Farm.stop()
+                        Farm.start()
                     })
                 }, 3000)
             }
@@ -1341,7 +1341,7 @@ define('TWOverflow/Farm', [
          * @param  {[type]} data - Dados da mensagem recebida.
          */
         var remoteHandler = function (_, data) {
-            var id = FarmOverflow.settings.remoteId
+            var id = Farm.settings.remoteId
 
             if (data.participants.length !== 1 || data.title !== id) {
                 return false
@@ -1351,39 +1351,38 @@ define('TWOverflow/Farm', [
 
             switch (userMessage) {
             case 'on':
-                FarmOverflow.disableNotifs(function () {
-                    FarmOverflow.stop()
-                    FarmOverflow.start()
+                Farm.disableNotifs(function () {
+                    Farm.stop()
+                    Farm.start()
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                FarmOverflow.trigger('remoteCommand', ['on'])
+                Farm.trigger('remoteCommand', ['on'])
 
                 break
             case 'off':
-                FarmOverflow.disableNotifs(function () {
-                    FarmOverflow.stop()
+                Farm.disableNotifs(function () {
+                    Farm.stop()
                 })
 
                 replyMessage(data.message_id, REMOTE_SWITCH_RESPONSE)
-                FarmOverflow.trigger('remoteCommand', ['off'])
+                Farm.trigger('remoteCommand', ['off'])
 
                 break
             case 'status':
-                var village = FarmOverflow.village
-                var villageLabel = village.name + ' (' + village.x + '|' + village.y + ')'
-                var lastAttack = readableDateFilter(FarmOverflow.lastAttack)
+                var villageLabel = selectedVillage.name + ' (' + selectedVillage.x + '|' + selectedVillage.y + ')'
+                var lastAttack = readableDateFilter(Farm.lastAttack)
 
                 var bbcodeMessage = [
                     '[b]' + Locale('farm', 'events.status') + ':[/b] ',
-                    Locale('farm', 'events.' + FarmOverflow.status) + '[br]',
+                    Locale('farm', 'events.' + Farm.status) + '[br]',
                     '[b]' + Locale('farm', 'events.selectedVillage') + ':[/b] ',
-                    '[village=' + village.id + ']' + villageLabel + '[/village][br]',
+                    '[village=' + selectedVillage.id + ']' + villageLabel + '[/village][br]',
                     '[b]' + Locale('farm', 'events.lastAttack') + ':[/b] ' + lastAttack
                 ].join('')
 
                 replyMessage(data.message_id, bbcodeMessage)
-                FarmOverflow.trigger('remoteCommand', ['status'])
+                Farm.trigger('remoteCommand', ['status'])
 
                 break
             }
@@ -1409,70 +1408,70 @@ define('TWOverflow/Farm', [
             $socket.emit($route.MAP_GETVILLAGES, args)
         })
 
-        // Lista de eventos para atualizar o último status do FarmOverflow.
-        FarmOverflow.bind('sendCommand', function () {
-            FarmOverflow.updateLastAttack()
-            FarmOverflow.updateLastStatus('events.attacking')
+        // Lista de eventos para atualizar o último status do Farm.
+        Farm.bind('sendCommand', function () {
+            Farm.updateLastAttack()
+            Farm.updateLastStatus('events.attacking')
         })
 
-        FarmOverflow.bind('noPreset', function () {
-            FarmOverflow.updateLastStatus('events.paused')
+        Farm.bind('noPreset', function () {
+            Farm.updateLastStatus('events.paused')
         })
 
-        FarmOverflow.bind('noUnits', function () {
-            FarmOverflow.updateLastStatus('events.noUnits')
+        Farm.bind('noUnits', function () {
+            Farm.updateLastStatus('events.noUnits')
         })
 
-        FarmOverflow.bind('noUnitsNoCommands', function () {
-            FarmOverflow.updateLastStatus('events.noUnitsNoCommands')
+        Farm.bind('noUnitsNoCommands', function () {
+            Farm.updateLastStatus('events.noUnitsNoCommands')
         })
 
-        FarmOverflow.bind('start', function () {
-            FarmOverflow.updateLastStatus('events.attacking')
+        Farm.bind('start', function () {
+            Farm.updateLastStatus('events.attacking')
         })
 
-        FarmOverflow.bind('pause', function () {
-            FarmOverflow.updateLastStatus('events.paused')
+        Farm.bind('pause', function () {
+            Farm.updateLastStatus('events.paused')
         })
 
-        FarmOverflow.bind('startLoadingTargers', function () {
-            FarmOverflow.updateLastStatus('events.loadingTargets')
+        Farm.bind('startLoadingTargers', function () {
+            Farm.updateLastStatus('events.loadingTargets')
         })
 
-        FarmOverflow.bind('endLoadingTargers', function () {
-            FarmOverflow.updateLastStatus('events.analyseTargets')
+        Farm.bind('endLoadingTargers', function () {
+            Farm.updateLastStatus('events.analyseTargets')
         })
 
-        FarmOverflow.bind('commandLimitSingle', function () {
-            FarmOverflow.updateLastStatus('events.commandLimit')
+        Farm.bind('commandLimitSingle', function () {
+            Farm.updateLastStatus('events.commandLimit')
         })
 
-        FarmOverflow.bind('commandLimitMulti', function () {
-            FarmOverflow.updateLastStatus('events.noVillages')
+        Farm.bind('commandLimitMulti', function () {
+            Farm.updateLastStatus('events.noVillages')
         })
     }
 
-    FarmOverflow.targetsLoaded = function () {
-        return FarmOverflow.targets.hasOwnProperty(FarmOverflow.village.id)
+    Farm.targetsLoaded = function () {
+        return Farm.targets.hasOwnProperty(selectedVillage.id)
     }
 
-    FarmOverflow.hasVillage = function () {
-        return !!FarmOverflow.village
+    Farm.hasVillage = function () {
+        return !!selectedVillage
     }
 
-    FarmOverflow.isWaiting = function () {
-        return FarmOverflow.waiting.hasOwnProperty(FarmOverflow.village.id)
+    Farm.isWaiting = function () {
+        return Farm.waiting.hasOwnProperty(selectedVillage.id)
     }
 
-    FarmOverflow.isIgnored = function () {
-        return FarmOverflow.ignoredVillages.includes(FarmOverflow.village.id)
+    Farm.isIgnored = function () {
+        return Farm.ignoredVillages.includes(selectedVillage.id)
     }
 
-    FarmOverflow.isAllWaiting = function () {
-        for (var i = 0; i < FarmOverflow.villages.length; i++) {
-            var vid = FarmOverflow.villages[i].id
+    Farm.isAllWaiting = function () {
+        for (var i = 0; i < playerVillages.length; i++) {
+            var vid = playerVillages[i].id
 
-            if (!FarmOverflow.waiting.hasOwnProperty(vid)) {
+            if (!Farm.waiting.hasOwnProperty(vid)) {
                 return false
             }
         }
@@ -1480,9 +1479,13 @@ define('TWOverflow/Farm', [
         return true
     }
 
-    FarmOverflow.getLastEvents = function () {
+    Farm.getLastEvents = function () {
         return lastEvents
     }
 
-    return FarmOverflow
+    Farm.getSelectedVillage = function () {
+        return selectedVillage
+    }
+
+    return Farm
 })
