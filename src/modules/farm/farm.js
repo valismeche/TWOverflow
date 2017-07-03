@@ -706,14 +706,14 @@ define('TWOverflow/Farm', [
 
                 break
             case 'status':
-                var villageLabel = selectedVillage.name + ' (' + selectedVillage.x + '|' + selectedVillage.y + ')'
+                var label = villageLabel(selectedVillage)
                 var readableLastAttack = readableDateFilter(lastAttack)
 
                 var bbcodeMessage = [
                     '[b]' + Locale('farm', 'events.status') + ':[/b] ',
                     Locale('farm', 'events.' + currentStatus) + '[br]',
                     '[b]' + Locale('farm', 'events.selectedVillage') + ':[/b] ',
-                    '[village=' + selectedVillage.id + ']' + villageLabel + '[/village][br]',
+                    '[village=' + selectedVillage.id + ']' + label + '[/village][br]',
                     '[b]' + Locale('farm', 'events.lastAttack') + ':[/b] ' + readableLastAttack
                 ].join('')
 
