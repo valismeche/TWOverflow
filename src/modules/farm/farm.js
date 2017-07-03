@@ -139,7 +139,7 @@ define('TWOverflow/Farm', [
      *
      * @type {Object}
      */
-    Farm.targets = {}
+    var villagesTargets = {}
 
     /**
      * Aldeias alvo atualmente selecionada.
@@ -558,7 +558,7 @@ define('TWOverflow/Farm', [
         }
 
         if (modify.targets) {
-            Farm.targets = {}
+            villagesTargets = {}
         }
 
         if (modify.events) {
@@ -608,13 +608,13 @@ define('TWOverflow/Farm', [
         var sid = selectedVillage.id
 
         // Caso a lista de alvos seja resetada no meio da execução.
-        if (!Farm.targets[sid]) {
+        if (!villagesTargets[sid]) {
             Farm.commander.analyse()
 
             return false
         }
 
-        var villageTargets = Farm.targets[sid]
+        var villageTargets = villagesTargets[sid]
 
         if (Farm.settings.priorityTargets && Farm.priorityTargets[sid]) {
             var priorityId
@@ -681,7 +681,7 @@ define('TWOverflow/Farm', [
     Farm.hasTarget = function () {
         var sid = selectedVillage.id
         var index = Farm.indexes[sid]
-        var targets = Farm.targets[sid]
+        var targets = villagesTargets[sid]
 
         if (!targets.length) {
             return false
@@ -704,7 +704,7 @@ define('TWOverflow/Farm', [
         var coords = selectedVillage.position
         var sid = selectedVillage.id
 
-        if (sid in Farm.targets) {
+        if (sid in villagesTargets) {
             return callback()
         }
 
@@ -799,12 +799,12 @@ define('TWOverflow/Farm', [
                 return false
             }
 
-            Farm.targets[sid] = filteredTargets.sort(function (a, b) {
+            villagesTargets[sid] = filteredTargets.sort(function (a, b) {
                 return a.distance - b.distance
             })
 
             if (Farm.indexes.hasOwnProperty(sid)) {
-                if (Farm.indexes[sid] > Farm.targets[sid].length) {
+                if (Farm.indexes[sid] > villagesTargets[sid].length) {
                     Farm.indexes[sid] = 0
 
                     Lockr.set('farm-indexes', Farm.indexes)
@@ -1116,8 +1116,8 @@ define('TWOverflow/Farm', [
      * @param {Number} targetId - ID da aldeia
      */
     Farm.targetExists = function (targetId) {
-        for (var vid in Farm.targets) {
-            var villageTargets = Farm.targets[vid]
+        for (var vid in villagesTargets) {
+            var villageTargets = villagesTargets[vid]
 
             for (var i = 0; i < villageTargets.length; i++) {
                 var target = villageTargets[i]
@@ -1221,7 +1221,7 @@ define('TWOverflow/Farm', [
             }
             
             if (Farm.groupInclude.id === data.group_id) {
-                Farm.targets = {}
+                villagesTargets = {}
             }
         }
 
@@ -1452,7 +1452,7 @@ define('TWOverflow/Farm', [
     }
 
     Farm.targetsLoaded = function () {
-        return Farm.targets.hasOwnProperty(selectedVillage.id)
+        return villagesTargets.hasOwnProperty(selectedVillage.id)
     }
 
     Farm.hasVillage = function () {
