@@ -59,13 +59,6 @@ define('TWOverflow/Farm', [
     var rpreset = /(\(|\{|\[|\"|\')[^\)\}\]\"\']+(\)|\}|\]|\"|\')/
 
     /**
-     * Configurações padrões do Farm
-     * 
-     * @type {Object}
-     */
-    var DEFAULTS
-
-    /**
      * Aldeias que prontas para serem usadas nos ataques.
      *
      * @type {Array}
