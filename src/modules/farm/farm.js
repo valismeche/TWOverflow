@@ -1002,7 +1002,9 @@ define('TWOverflow/Farm', [
      * @return {Boolean}
      */
     Farm.stop = function () {
-        Farm.commander.stop()
+        if (Farm.commander) {
+            Farm.commander.stop()
+        }
         
         if (notifsEnabled) {
             emitNotif('success', Locale('farm', 'general.paused'))
