@@ -138,7 +138,7 @@ define('TWOverflow/Farm/Commander', [
             
             Farm.waiting[sid] = true
             
-            if (Farm.singleVillage) {
+            if (Farm.isSingleVillage()) {
                 if (selectedVillage.countCommands() === 0) {
                     return Farm.trigger('noUnitsNoCommands')
                 } else {
@@ -156,7 +156,7 @@ define('TWOverflow/Farm/Commander', [
         case 'commandLimit':
             Farm.waiting[sid] = true
 
-            if (Farm.singleVillage) {
+            if (Farm.isSingleVillage()) {
                 Farm.globalWaiting = true
 
                 Farm.trigger('commandLimitSingle', [

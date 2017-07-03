@@ -132,7 +132,7 @@ define('TWOverflow/Farm', [
      *
      * @type {Boolean}
      */
-    Farm.singleVillage = null
+    var singleVillage = null
 
     /**
      * Lista de todos aldeias alvos possíveis para cada aldeia do jogador.
@@ -827,7 +827,7 @@ define('TWOverflow/Farm', [
      * @return {Boolean}
      */
     Farm.nextVillage = function () {
-        if (Farm.singleVillage) {
+        if (singleVillage) {
             return false
         }
 
@@ -1071,7 +1071,7 @@ define('TWOverflow/Farm', [
         }
 
         playerVillages = villages
-        Farm.singleVillage = playerVillages.length === 1
+        singleVillage = playerVillages.length === 1
         selectedVillage = playerVillages[0]
 
         // Reinicia comandos imediatamente se liberar alguma aldeia
@@ -1485,6 +1485,10 @@ define('TWOverflow/Farm', [
 
     Farm.getSelectedVillage = function () {
         return selectedVillage
+    }
+
+    Farm.isSingleVillage = function () {
+        return singleVillage
     }
 
     return Farm

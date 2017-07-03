@@ -608,7 +608,7 @@ define('TWOverflow/Farm/interface', [
         })
 
         Farm.bind('noUnits', function () {
-            if (Farm.singleVillage) {
+            if (Farm.isSingleVillage()) {
                 $status.html(Locale('farm', 'events.noUnits'))
             }
         })
