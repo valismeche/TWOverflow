@@ -51,7 +51,7 @@ define('TWOverflow/Interface', [
         var $selectArrow = document.createElement('span')
         var $dataContainer = document.createElement('span')
 
-        var clickHandler = function () {
+        var clickHandler = function (event) {
             var elem = event.srcElement || event.target
 
             if (!matchesElem(elem, '.custom-select')) {
