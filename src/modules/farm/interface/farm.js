@@ -57,7 +57,10 @@ define('TWOverflow/Farm/interface', [
         eventIgnoredVillage: 'checkbox',
         remoteId: 'text',
         hotkeySwitch: 'text',
-        hotkeyWindow: 'text'
+        hotkeyWindow: 'text',
+        singleCycle: 'checkbox',
+        singleCycleNotifs: 'checkbox',
+        singleCycleInterval: 'text'
     }
 
     /**
@@ -631,6 +634,26 @@ define('TWOverflow/Farm/interface', [
 
         Farm.bind('noVillages', function () {
             $status.html(Locale('farm', 'events.noVillages'))
+        })
+
+        Farm.bind('singleCycleEnd', function () {
+            $status.html(Locale('farm', 'events.singleCycleEnd'))
+        })
+
+        Farm.bind('singleCycleNext', function () {
+            var next = $timeHelper.gameTime() + Farm.getCycleIntervalTime()
+
+            $status.html(Locale('farm', 'events.singleCycleNext', {
+                time: readableDateFilter(next, null, null, null, dateFormat)
+            }))
+        })
+
+        Farm.bind('singleCycleNextNoVillages', function () {
+            var next = $timeHelper.gameTime() + Farm.getCycleIntervalTime()
+
+            $status.html(Locale('farm', 'events.singleCycleNextNoVillages', {
+                time: readableDateFilter(next, null, null, null, dateFormat)
+            }))
         })
 
         Farm.bind('villagesUpdate', function () {

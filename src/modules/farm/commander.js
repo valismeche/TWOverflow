@@ -24,18 +24,6 @@ define('TWOverflow/Farm/Commander', [
         return this
     }
 
-    Commander.prototype.start = function () {
-        Farm.trigger('start')
-        this.running = true
-        this.analyse()
-    }
-
-    Commander.prototype.stop = function () {
-        Farm.trigger('pause')
-        this.running = false
-        clearTimeout(this.timeoutId)
-    }
-
     Commander.prototype.analyse = function () {
         var self = this
         

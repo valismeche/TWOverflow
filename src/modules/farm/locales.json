@@ -24,6 +24,11 @@
         "events.ignoredVillage": "Alvo %{target} ignorado! (causou baixas)",
         "events.priorityTargetAdded": "%{target} adicionado as prioridades.",
         "events.analyseTargets": "Analisando alvos.",
+        "events.singleCycleRestart": "Reiniciando o ciclo de comandos..",
+        "events.singleCycleEnd": "A lista de aldeias acabou, esperando próxima execução.",
+        "events.singleCycleEndNoVillages": "Nenhuma aldeia disponível para iniciar o ciclo.",
+        "events.singleCycleNext": "A lista de aldeias acabou, próximo ciclo: %{time}.",
+        "events.singleCycleNextNoVillages": "Nenhuma aldeia disponível para iniciar o ciclo, próximo ciclo: %{time}.",
 
         "general.disabled": "— Desativado —",
         "general.events": "Registros",
@@ -102,6 +107,11 @@
         "settings.hotkeyWindow": "Tecla de atalho para abrir janela (requer reinício)",
         "settings.events.restartScript": "Reinicie o script pra ter efeito.",
 
+        "settings.singleCycleHeader": "Opções de ciclo único",
+        "settings.singleCycle": "Ativar ciclo único de ataques",
+        "settings.singleCycleInterval": "Intervalo entre os ciclos",
+        "settings.singleCycleNotifs": "Ativar notificações dos ciclos",
+
         "tooltip.presets": "Selecione a predefinição que será usada para enviar os ataques.",
         "tooltip.groupIgnore": "Selecione um grupo para que todas aldeias atribuidas a esse grupo sejam ignoradas. Tanto suas aldeias quanto alvos.",
         "tooltip.groupInclude": "Selecione um grupo para incluir alvos que não sejam apenas aldeias bárbaras.",
@@ -109,7 +119,11 @@
         "tooltip.randomBase": "Esse intervalo é usado para gerar um tempo aleatório entre cada ataque evitando o FarmOverflow de ser detectado.",
         "tooltip.priorityTargets": "Quando ativada, todos os alvos que tiverem relatórios com saque no máximo, serão adicionados na lista de prioridades para reenviar o ataque assim que possível.",
         "tooltip.ignoreOnLoss": "Qualquer ataque que tenha causado alguma perca nas suas tropas será ignorado em ataques futuros. (Só funciona quando um grupo de ignorados está selecionado)",
-        "tooltip.remote": "Configure o título da mensagem pela qual você deseja controlar o FarmOverflow remotamente (Veja a aba Informações para saber mais)."
+        "tooltip.remote": "Configure o título da mensagem pela qual você deseja controlar o FarmOverflow remotamente (Veja a aba Informações para saber mais).",
+
+        "tooltip.singleCycle": "Com o ciclo único ativado, o FarmOverflow irá usar apenas uma vez as aldeias para atacar, assim que acabar o FarmOverflow será parado. Você pode configurar o intervalo abaixo se quiser que ele reinicie após o tempo especificado.",
+        "tooltip.singleCycleInterval": "Após o ciclo terminar, um novo ciclo inicirá após o tempo especificado. Deixe o campo vazio (0:00:00) se não quiser que o ciclo se reinicie.",
+        "tooltip.singleCycleNotifs": "Será mostrada uma notificação de aviso sempre que um ciclo terminar ou iniciar."
     },
     "en": {
         "langName": "English",

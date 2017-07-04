@@ -58,6 +58,17 @@ define('TWOverflow/Farm', [
     var playerVillages = null
 
     /**
+     * Formato das datas usadas nos eventos.
+     *
+     * TODO:
+     * Colocar esses valores em um modulo onde possa ser compartilhado
+     * entre os outros modules e evite a repetição do mesmo.
+     * 
+     * @type {String}
+     */
+    var dateFormat = 'HH:mm:ss dd/MM/yyyy'
+
+    /**
      * Aldeia atualmente selecionada.
      *
      * @type {Object} VillageModel
@@ -226,6 +237,22 @@ define('TWOverflow/Farm', [
     var $player
 
     /**
+     * Lista de aldeias restantes no ciclo único
+     *
+     * @type {Array}
+     */
+    var singleCycleVillages = []
+
+    /**
+     * ID do timeout dos intervalos do cíclo unico.
+     * Usado para evitar a continuidade dos ataques depois que o
+     * FarmOverflow for parado manualmente
+     *
+     * @type {Number}
+     */
+    var singleCycleTimeout = null
+
+    /**
      * Lista de filtros chamados no momendo do carregamento de alvos do mapa.
      *
      * @type {Array}
@@ -330,23 +357,19 @@ define('TWOverflow/Farm', [
      * Atualiza o grupo de referência para ignorar aldeias e incluir alvos
      */
     var updateExceptionGroups = function () {
-        var types = ['groupIgnore', 'groupInclude', 'groupOnly']
         var groups = $model.getGroupList().getGroups()
 
-        types.forEach(function (type) {
-            Farm[type] = null
+        if (Farm.settings.groupIgnore in groups) {
+            groupIgnore = groups[Farm.settings.groupIgnore]
+        }
 
-            for (var id in groups) {
-                if (id == Farm.settings[type]) {
-                    Farm[type] = {
-                        name: groups[id].name,
-                        id: id
-                    }
+        if (Farm.settings.groupInclude in groups) {
+            groupInclude = groups[Farm.settings.groupInclude]
+        }
 
-                    break
-                }
-            }
-        })
+        if (Farm.settings.groupOnly in groups) {
+            groupOnly = groups[Farm.settings.groupOnly]
+        }
     }
 
     /**
@@ -379,7 +402,7 @@ define('TWOverflow/Farm', [
         villages = villages.map(function (village) {
             return new Village(village)
         })
-
+        
         villages = villages.filter(function (village) {
             return !ignoredVillages.includes(village.id)
         })
@@ -399,7 +422,7 @@ define('TWOverflow/Farm', [
 
         // Reinicia comandos imediatamente se liberar alguma aldeia
         // que nao esteja na lista de espera.
-        if (Farm.commander && Farm.commander.running && globalWaiting) {
+        if (Farm.commander.running && globalWaiting) {
             for (var i = 0; i < villages.length; i++) {
                 var village = villages[i]
 
@@ -501,7 +524,11 @@ define('TWOverflow/Farm', [
                 if (globalWaiting) {
                     globalWaiting = false
 
-                    if (Farm.commander && Farm.commander.running) {
+                    if (Farm.settings.singleCycle) {
+                        return false
+                    }
+
+                    if (Farm.commander.running) {
                         selectVillage(vid)
 
                         setTimeout(function () {
@@ -523,7 +550,7 @@ define('TWOverflow/Farm', [
             Farm.trigger('presetsChange')
 
             if (!selectedPresets.length) {
-                if (Farm.commander && Farm.commander.running) {
+                if (Farm.commander.running) {
                     Farm.trigger('noPreset')
                     Farm.stop()
                 }
@@ -659,7 +686,7 @@ define('TWOverflow/Farm', [
          * reiniciar o script.
          */
         var reconnectHandler = function () {
-            if (Farm.commander && Farm.commander.running) {
+            if (Farm.commander.running) {
                 setTimeout(function () {
                     disableNotifs(function () {
                         Farm.stop()
@@ -785,6 +812,28 @@ define('TWOverflow/Farm', [
         Farm.bind('commandLimitMulti', function () {
             currentStatus = 'noVillages'
         })
+
+        Farm.bind('singleCycleEnd', function () {
+            if (notifsEnabled && Farm.settings.singleCycleNotifs) {
+                emitNotif('error', Locale('farm', 'events.singleCycleEnd'))
+            }
+        })
+
+        Farm.bind('singleCycleEndNoVillages', function () {
+            if (notifsEnabled && Farm.settings.singleCycleNotifs) {
+                emitNotif('error', Locale('farm', 'events.singleCycleEndNoVillages'))
+            }
+        })
+
+        Farm.bind('singleCycleNext', function () {
+            if (notifsEnabled && Farm.settings.singleCycleNotifs) {
+                var next = $timeHelper.gameTime() + Farm.getCycleIntervalTime()
+
+                emitNotif('success', Locale('farm', 'events.singleCycleNext', {
+                    time: readableDateFilter(next, null, null, null, dateFormat)
+                }))
+            }
+        })
     }
 
     /**
@@ -883,6 +932,83 @@ define('TWOverflow/Farm', [
         return false
     }
 
+    /**
+     * Obtem a lista de aldeias disponíveis para atacar
+     * 
+     * @return {Array} Lista de aldeias disponíveis.
+     */
+    var getFreeVillages = function () {
+        return playerVillages.filter(function (village) {
+            return !waitingVillages[village.id]
+        })
+    }
+
+    /**
+     * Verifica se o intervalo está ativado baseado no especificado
+     * pelo jogador.
+     * 
+     *
+     * @return {Boolean}
+     */
+    var isSingleCycleInterval = function () {
+        return !!getCycleIntervalTime()
+    }
+
+    /**
+     * Inicia um ciclo de ataques utilizando todas aldeias aldeias
+     * disponíveis apenas uma vez.
+     * 
+     * @param  {Boolean} autoInit - Indica que o ciclo foi iniciado
+     *   automaticamente depois do intervalo especificado nas
+     *   configurações.
+     */
+    var initSingleCycle = function (autoInit) {
+        Farm.commander = createCommander()
+        Farm.commander.running = true
+
+        disableNotifs(function () {
+            Farm.trigger('start')
+        })
+
+        if (getFreeVillages().length === 0) {
+            if (isSingleCycleInterval()) {
+                Farm.trigger('singleCycleNextNoVillages')
+                nextSingleCycle()
+            } else {
+                // emit apenas uma notificação de erro
+                Farm.trigger('singleCycleEndNoVillages')
+
+                disableNotifs(function () {
+                    Farm.stop()
+                })
+            }
+
+            return
+        }
+
+        if (autoInit) {
+            Farm.bind('singleCycleRestart')
+        } else if (notifsEnabled) {
+            emitNotif('success', Locale('farm', 'general.started'))
+        }
+
+        singleCycleVillages = getFreeVillages()
+
+        Farm.commander.analyse()
+    }
+
+    /**
+     * Reinicia o ciclo depois do intervalo especificado
+     * nas configurações.
+     */
+    var nextSingleCycle = function () {
+        var interval = getCycleIntervalTime()
+
+        singleCycleTimeout = setTimeout(function () {
+            initSingleCycle(true /*autoInit*/)
+        }, interval)
+    }
+
     var Farm = {}
 
     /**
@@ -930,8 +1056,13 @@ define('TWOverflow/Farm', [
             eventIgnoredVillage: true,
             remoteId: 'remote',
             hotkeySwitch: 'shift+z',
-            hotkeyWindow: 'z'
+            hotkeyWindow: 'z',
+            singleCycle: false,
+            singleCycleNotifs: false,
+            singleCycleInterval: '00:00:00'
         }, localSettings)
+
+        Farm.commander = createCommander()
 
         lastEvents = Lockr.get('farm-lastEvents', [], true)
         lastActivity = Lockr.get('farm-lastActivity', $timeHelper.gameTime(), true)
@@ -984,14 +1115,19 @@ define('TWOverflow/Farm', [
             Lockr.set('farm-indexes', {})
         }
 
-        Farm.commander = createCommander()
-        Farm.commander.start()
+        if (Farm.settings.singleCycle) {
+            initSingleCycle()
+        } else {
+            Farm.commander = createCommander()
+            Farm.commander.running = true
+            Farm.commander.analyse()
 
-        if (notifsEnabled) {
-            emitNotif('success', Locale('farm', 'general.started'))
+            if (notifsEnabled) {
+                emitNotif('success', Locale('farm', 'general.started'))
+            }
+
+            Farm.trigger('start')
         }
-
-        Farm.trigger('start')
 
         return true
     }
@@ -1002,15 +1138,15 @@ define('TWOverflow/Farm', [
      * @return {Boolean}
      */
     Farm.stop = function () {
-        if (Farm.commander) {
-            Farm.commander.stop()
-        }
-        
+        clearTimeout(Farm.commander.timeoutId)
+        clearTimeout(singleCycleTimeout)
+
+        Farm.commander.running = false
+        Farm.trigger('pause')
+
         if (notifsEnabled) {
             emitNotif('success', Locale('farm', 'general.paused'))
         }
-
-        Farm.trigger('pause')
 
         return true
     }
@@ -1019,7 +1155,7 @@ define('TWOverflow/Farm', [
      * Alterna entre iniciar e pausar o script.
      */
     Farm.switch = function () {
-        if (Farm.commander && Farm.commander.running) {
+        if (Farm.commander.running) {
             Farm.stop()
         } else {
             Farm.start()
@@ -1059,7 +1195,8 @@ define('TWOverflow/Farm', [
             eventVillageChange: ['events'],
             eventPriorityAdd: ['events'],
             eventIgnoredVillage: ['events'],
-            language: ['language']
+            language: ['language'],
+            singleCycle: ['villages']
         }
 
         for (var key in changes) {
@@ -1094,6 +1231,7 @@ define('TWOverflow/Farm', [
 
         if (modify.preset) {
             updatePresets()
+            resetWaitingVillages()
         }
 
         if (modify.targets) {
@@ -1110,10 +1248,12 @@ define('TWOverflow/Farm', [
             }
         }
 
-        if (Farm.commander && Farm.commander.running && globalWaiting) {
+        if (Farm.commander.running) {
             disableEvents(function () {
-                Farm.stop()
-                Farm.start()
+                disableNotifs(function () {
+                    Farm.stop()
+                    Farm.start()
+                })
             })
         }
 
@@ -1338,31 +1478,77 @@ define('TWOverflow/Farm', [
     /**
      * Seleciona a próxima aldeia do jogador.
      *
-     * @return {Boolean}
+     * @return {Boolean} Indica se houve troca de aldeia.
      */
     Farm.nextVillage = function () {
         if (singleVillage) {
             return false
         }
 
-        var free = playerVillages.filter(function (village) {
-            return !waitingVillages[village.id]
-        })
+        if (Farm.settings.singleCycle) {
+            return singleCiclyNextVillage()
+        }
 
-        if (!free.length) {
+        var freeVillages = getFreeVillages()
+
+        if (!freeVillages.length) {
             Farm.trigger('noVillages')
+
             return false
-        } else if (free.length === 1) {
-            selectedVillage = free[0]
+        } else if (freeVillages.length === 1) {
+            selectedVillage = freeVillages[0]
             Farm.trigger('nextVillage', [selectedVillage])
             return true
         }
 
-        var index = free.indexOf(selectedVillage) + 1
-        selectedVillage = free[index] ? free[index] : free[0]
+        var index = freeVillages.indexOf(selectedVillage) + 1
+
+        if (!freeVillages[index]) {
+            Farm.trigger('villageCycleEnd')
+        }
+
+        selectedVillage = freeVillages[index] ? freeVillages[index] : freeVillages[0]
         
         Farm.trigger('nextVillage', [selectedVillage])
         Farm.updateActivity()
+
+        return true
+    }
+
+    /**
+     * Seleciona a próxima aldeia do ciclo único.
+     *
+     * @return {Boolean} Indica se houve troca de aldeia.
+     */
+    var singleCiclyNextVillage = function () {
+        var cycleNext = singleCycleVillages.shift()
+
+        if (cycleNext) {
+            var availVillage = getFreeVillages().some(function (freeVillage) {
+                return freeVillage.id === cycleNext.id
+            })
+
+            if (!availVillage) {
+                return singleCiclyNextVillage()
+            }
+        } else {
+            if (isSingleCycleInterval()) {
+                Farm.trigger('singleCycleNext')
+                nextSingleCycle()
+            } else {
+                Farm.trigger('singleCycleEnd')
+                
+                disableNotifs(function () {
+                    Farm.stop()
+                })
+            }
+
+            return false
+        }
+
+        selectedVillage = cycleNext
+
+        Farm.trigger('nextVillage', [selectedVillage])
 
         return true
     }
@@ -1565,6 +1751,13 @@ define('TWOverflow/Farm', [
     }
 
     /**
+     * Reseta a lista de aldeias em espera.
+     */
+    Farm.resetWaitingVillages = function () {
+        waitingVillages = {}
+    }
+
+    /**
      * Coloca o FarmOverflow em modo de espera global, ou seja, todas aldeias
      * estão em modo de espera.
      */
@@ -1606,6 +1799,40 @@ define('TWOverflow/Farm', [
      */
     Farm.getLastAttack = function () {
         return lastAttack
+    }
+
+    /**
+     * Converte o tempo do intervalo entre os ciclos de ataques
+     * de string para number.
+     *
+     * @return {Number|Boolean} Retora o tempo em milisegundos caso
+     *   seja válido, false caso seja uma string inválida.
+     */
+    Farm.getCycleIntervalTime = function getCycleIntervalTime () {
+        var interval = Farm.settings.singleCycleInterval
+        var parseError = false
+
+        if (!interval) {
+            return false
+        }
+
+        interval = interval.split(/\:/g).map(function (time) {
+            if (isNaN(parseError)) {
+                parseError = true
+            }
+
+            return parseInt(time, 10)
+        })
+
+        if (parseError) {
+            return false
+        }
+
+        interval = (interval[0] * 1000 * 60 * 60) // horas
+            + (interval[1] * 1000 * 60) // minutos
+            + (interval[2] * 1000) // segundos
+
+        return interval
     }
 
     return Farm

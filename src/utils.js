@@ -82,6 +82,14 @@ function guid () {
     return Math.floor((Math.random()) * 0x1000000).toString(16)
 }
 
+/**
+ * Verifica se um elemento é pertencente a outro elemento.
+ *
+ * @param  {Element} elem - Elemento referencia
+ * @param  {String} selector - Selector CSS do elemento no qual será
+ *   será verificado se tem relação com o elemento indicado.
+ * @return {Boolean}
+ */
 function matchesElem (elem, selector) {
     if ($(elem).parents(selector).length) {
         return true
