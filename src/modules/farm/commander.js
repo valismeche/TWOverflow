@@ -415,9 +415,5 @@ define('TWOverflow/Farm/Commander', [
         }
     }
 
-    Commander.prototype.persistent = function () {
-        // this.persistentId = 
-    }
-
     return Commander
 })
