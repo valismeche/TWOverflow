@@ -949,6 +949,13 @@ define('TWOverflow/Farm', [
     }
 
     /**
+     * Reseta a lista de aldeias em espera.
+     */
+    var resetWaitingVillages = function () {
+        waitingVillages = {}
+    }
+
+    /**
      * Obtem a lista de aldeias disponíveis para atacar
      * 
      * @return {Array} Lista de aldeias disponíveis.
@@ -1836,13 +1843,6 @@ define('TWOverflow/Farm', [
      */
     Farm.setWaitingVillages = function (id) {
         waitingVillages[id] = true
-    }
-
-    /**
-     * Reseta a lista de aldeias em espera.
-     */
-    Farm.resetWaitingVillages = function () {
-        waitingVillages = {}
     }
 
     /**

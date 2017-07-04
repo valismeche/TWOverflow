@@ -404,6 +404,7 @@ define('TWOverflow/Farm/interface', [
         var loaded = {}
         var presets = $model.getPresetList().presets
 
+        var selectedPresetExists = false
         var selectedPreset = Farm.settings.presetName
         var $selectedOption = $preset.find('.custom-select-handler').html('')
         var $data = $preset.find('.custom-select-data').html('')
@@ -430,6 +431,8 @@ define('TWOverflow/Farm/interface', [
                 $selectedOption.html(presetName)
                 $preset[0].dataset.name = presetName
                 $preset[0].dataset.value = presetName
+
+                selectedPresetExists = true
             }
 
             appendSelectData($data, {
@@ -439,6 +442,12 @@ define('TWOverflow/Farm/interface', [
             })
 
             loaded[presetName] = true
+        }
+
+        if (!selectedPresetExists) {
+            $selectedOption.html(disabled)
+            $preset[0].dataset.name = disabled
+            $preset[0].dataset.value = ''
         }
     }
 
