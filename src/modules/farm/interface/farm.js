@@ -384,7 +384,8 @@ define('TWOverflow/Farm/interface', [
 
                 appendSelectData($data, {
                     name: name,
-                    value: id
+                    value: id,
+                    icon: groups[id].icon
                 })
                 
                 $groups[type].append($data)

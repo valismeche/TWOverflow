@@ -135,7 +135,9 @@ define('TWOverflow/Interface', [
                 }
 
                 if (elem.dataset.icon) {
-                    data.leftIcon = elem.dataset.icon
+                    data.leftIcon = isNaN(elem.dataset.icon)
+                        ? elem.dataset.icon
+                        : parseInt(elem.dataset.icon, 10)
                 }
 
                 if (elem.dataset.name === $selectedOption.innerHTML) {
