@@ -827,7 +827,7 @@ define('TWOverflow/Farm', [
 
         Farm.bind('singleCycleNext', function () {
             if (notifsEnabled && Farm.settings.singleCycleNotifs) {
-                var next = $timeHelper.gameTime() + Farm.getCycleIntervalTime()
+                var next = $timeHelper.gameTime() + getCycleIntervalTime()
 
                 emitNotif('success', Locale('farm', 'events.singleCycleNext', {
                     time: readableDateFilter(next, null, null, null, dateFormat)
@@ -1007,6 +1007,40 @@ define('TWOverflow/Farm', [
         singleCycleTimeout = setTimeout(function () {
             initSingleCycle(true /*autoInit*/)
         }, interval)
+    }
+
+    /**
+     * Converte o tempo do intervalo entre os ciclos de ataques
+     * de string para number.
+     *
+     * @return {Number|Boolean} Retora o tempo em milisegundos caso
+     *   seja válido, false caso seja uma string inválida.
+     */
+    var getCycleIntervalTime = function () {
+        var interval = Farm.settings.singleCycleInterval
+        var parseError = false
+
+        if (!interval) {
+            return false
+        }
+
+        interval = interval.split(/\:/g).map(function (time) {
+            if (isNaN(parseError)) {
+                parseError = true
+            }
+
+            return parseInt(time, 10)
+        })
+
+        if (parseError) {
+            return false
+        }
+
+        interval = (interval[0] * 1000 * 60 * 60) // horas
+            + (interval[1] * 1000 * 60) // minutos
+            + (interval[2] * 1000) // segundos
+
+        return interval
     }
 
     var Farm = {}
@@ -1802,37 +1836,10 @@ define('TWOverflow/Farm', [
     }
 
     /**
-     * Converte o tempo do intervalo entre os ciclos de ataques
-     * de string para number.
-     *
-     * @return {Number|Boolean} Retora o tempo em milisegundos caso
-     *   seja válido, false caso seja uma string inválida.
+     * Public getCycleIntervalTime
      */
-    Farm.getCycleIntervalTime = function getCycleIntervalTime () {
-        var interval = Farm.settings.singleCycleInterval
-        var parseError = false
-
-        if (!interval) {
-            return false
-        }
-
-        interval = interval.split(/\:/g).map(function (time) {
-            if (isNaN(parseError)) {
-                parseError = true
-            }
-
-            return parseInt(time, 10)
-        })
-
-        if (parseError) {
-            return false
-        }
-
-        interval = (interval[0] * 1000 * 60 * 60) // horas
-            + (interval[1] * 1000 * 60) // minutos
-            + (interval[2] * 1000) // segundos
-
-        return interval
+    Farm.getCycleIntervalTime = function () {
+        return getCycleIntervalTime()
     }
 
     return Farm
