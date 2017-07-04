@@ -43,6 +43,22 @@ define('TWOverflow/Farm', [
     var PRIORITY_EXPIRE_TIME = 1000 * 60 * 10
 
     /**
+     * Intervalo entre cada verificação de farm travado.
+     * @see initPersistentRunning
+     *
+     * @type {Number}
+     */
+    var PERSISTENT_INTERVAL = 1000 * 60
+
+    /**
+     * Tempo de tolerância entre um ataque e outro para que possa
+     * reiniciar os comandos automaticamente.
+     *
+     * @type {Number}
+     */
+    var PERSISTENT_TOLERANCE = 1000 * 60 * 5
+
+    /**
      * Limpa qualquer text entre (, [, {, " & ' do nome dos presets
      * para serem idetificados com o mesmo nome.
      *
@@ -1043,6 +1059,43 @@ define('TWOverflow/Farm', [
         return interval
     }
 
+    /**
+     * Verifica se o último ataque efetuado pelo FarmOverflow
+     * já passou do tempo determinado, para que assim tente
+     * reiniciar os ataques novamente.
+     * 
+     * Isso é necessário pois o jogo não responde os .emits
+     * de sockets para enviar os ataques, fazendo com que o
+     * farm fique travado em estado "Iniciado".
+     * Problema de conexão, talvez?
+     */
+    var initPersistentRunning = function () {
+        setInterval(function () {
+            if (Farm.commander.running) {
+                var toleranceTime = PERSISTENT_TOLERANCE
+
+                // Caso o ciclo único de ataques estejam ativo
+                // aumenta a tolerância para o tempo de intervalo
+                // entre os ciclos + 1 minuto para que não tenha
+                // o problema de reiniciar os ataques enquanto
+                // o intervalo ainda não acabou.
+                if (Farm.settings.singleCycle && isSingleCycleInterval()) {
+                    toleranceTime = getCycleIntervalTime() + (1000 * 60)
+                }
+
+                var gameTime = $timeHelper.gameTime()
+                var passedTime = gameTime - lastAttack
+
+                if (passedTime > toleranceTime) {
+                    disableNotifs(function () {
+                        Farm.stop()
+                        Farm.start()
+                    })
+                }
+            }
+        }, PERSISTENT_INTERVAL)
+    }
+
     var Farm = {}
 
     /**
@@ -1110,6 +1163,7 @@ define('TWOverflow/Farm', [
         updatePlayerVillages()
         updatePresets()
         listeners()
+        initPersistentRunning()
 
         Locale.change('farm', Farm.settings.language)
     }
@@ -1139,12 +1193,12 @@ define('TWOverflow/Farm', [
         var now = $timeHelper.gameTime()
 
         // Reseta a lista prioridades caso tenha expirado
-        if (now > Farm.lastActivity + PRIORITY_EXPIRE_TIME) {
+        if (now > lastActivity + PRIORITY_EXPIRE_TIME) {
             priorityTargets = {}
         }
 
         // Reseta a lista índices caso tenha expirado
-        if (now > Farm.lastActivity + INDEX_EXPIRE_TIME) {
+        if (now > lastActivity + INDEX_EXPIRE_TIME) {
             targetIndexes = {}
             Lockr.set('farm-indexes', {})
         }
@@ -1200,8 +1254,8 @@ define('TWOverflow/Farm', [
      * Atualiza o timestamp da última atividade do Farm.
      */
     Farm.updateActivity = function () {
-        Farm.lastActivity = $timeHelper.gameTime()
-        Lockr.set('farm-lastActivity', Farm.lastActivity)
+        lastActivity = $timeHelper.gameTime()
+        Lockr.set('farm-lastActivity', lastActivity)
     }
 
     /**

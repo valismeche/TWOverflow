@@ -3,8 +3,6 @@ define('TWOverflow/Farm/Commander', [
     'helper/math'
 ], function (Farm, $math) {
     /**
-     * @class
-     *
      * Controla os ciclos de comandos, enviando ataques, alternando
      * aldeias e alvos.
      */
@@ -18,7 +16,21 @@ define('TWOverflow/Farm/Commander', [
          */
         this.preventNextCommand = false
 
+        /**
+         * ID do timeout usado no intervalo entre cada ataque.
+         * Utilizado para quando o FarmOverflow for parado 
+         * manualmente, os comandos com delay sejam parados
+         * também.
+         *
+         * @type {Number}
+         */
         this.timeoutId = null
+
+        /**
+         * Indica se o FarmOverflow está em funcionamento.
+         *
+         * @type {Boolean}
+         */
         this.running = false
 
         return this
@@ -357,7 +369,7 @@ define('TWOverflow/Farm/Commander', [
         return unbind
     }
 
-     /**
+    /**
      * Chamado após a ocorrer um erro ao tentar enviar um comando.
      */
     Commander.prototype.onCommandError = function (callback) {
@@ -401,6 +413,10 @@ define('TWOverflow/Farm/Commander', [
         if (callback) {
             callback()
         }
+    }
+
+    Commander.prototype.persistent = function () {
+        // this.persistentId = 
     }
 
     return Commander
