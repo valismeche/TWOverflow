@@ -375,17 +375,17 @@ define('TWOverflow/Farm', [
     var updateExceptionGroups = function () {
         var groups = $model.getGroupList().getGroups()
 
-        if (Farm.settings.groupIgnore in groups) {
-            groupIgnore = groups[Farm.settings.groupIgnore]
-        }
+        groupIgnore = Farm.settings.groupIgnore in groups
+            ? groups[Farm.settings.groupIgnore]
+            : false
 
-        if (Farm.settings.groupInclude in groups) {
-            groupInclude = groups[Farm.settings.groupInclude]
-        }
+        groupInclude = Farm.settings.groupInclude in groups
+            ? groups[Farm.settings.groupInclude]
+            : false
 
-        if (Farm.settings.groupOnly in groups) {
-            groupOnly = groups[Farm.settings.groupOnly]
-        }
+        groupOnly = Farm.settings.groupOnly in groups
+            ? groups[Farm.settings.groupOnly]
+            : false
     }
 
     /**
@@ -515,8 +515,6 @@ define('TWOverflow/Farm', [
          * @param  {Object} report - Dados do relatório recebido.
          */
         var ignoredTargetHandler = function (report) {
-            console.log('ignoredTargetHandler()')
-
             var target = targetExists(report.target_village_id)
 
             if (!target) {
