@@ -41,9 +41,7 @@
         "general.started": "FarmOverflow iniciado.",
 
         "info.development1": "Desenvolvimento",
-        "info.development2": "Desenvolvido do <span class='brazil'>Brasil</span> com <strong style='color:#ad0202'>❤</strong> por",
-        "info.development3": "Qualquer email reportando erro, sugestão, mensagem amor ou ódio será bem vinda.",
-        "info.development4": "Esse projeto é",
+        "info.developedBy": "Desenvolvido por",
         "info.groupOnly1": "Usando apenas aldeias de um grupo para atacar",
         "info.groupOnly2": "Você pode selecionar um grupo especifico para usar apenas as aldeias desse grupo para enviar os ataques.",
         "info.ignore1": "Ignorando aldeias com grupo",
@@ -161,10 +159,8 @@
         "general.start": "Start",
         "general.started": "FarmOverflow started.",
 
-        "info.development1": "Development",
-        "info.development2": "Developed from <span class='brazil'>Brazil</span> with <strong style='color:#ad0202'>❤</strong> by",
-        "info.development3": "Any email reporting error, suggestion, messages of love or hate will be wellcome.",
-        "info.development4": "This project is",
+        "info.development": "Development",
+        "info.developedBy": "Developed by",
         "info.groupOnly1": "Using only villages from a group to attack",
         "info.groupOnly2": "You can select a specific group to use only the villages from that group to attack.",
         "info.ignore1": "Ignoring villages from a group",
