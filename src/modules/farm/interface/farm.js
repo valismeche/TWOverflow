@@ -332,7 +332,7 @@ define('TWOverflow/Farm/interface', [
             return $selected.html(Locale('farm', 'general.none'))
         }
 
-        var village = buttonLink('village', villageLabel(selectedVillage), selectedVillage.id)
+        var village = buttonLink('village', genVillageLabel(selectedVillage), selectedVillage.id)
 
         $selected.html('')
         $selected.append(village.elem)
@@ -563,8 +563,8 @@ define('TWOverflow/Farm/interface', [
 
             addEvent({
                 links: {
-                    origin: { type: 'village', name: villageLabel(from), id: from.id },
-                    target: { type: 'village', name: villageLabel(to), id: to.id }
+                    origin: { type: 'village', name: genVillageLabel(from), id: from.id },
+                    target: { type: 'village', name: genVillageLabel(to), id: to.id }
                 },
                 icon: 'attack-small',
                 type: 'sendCommand'
@@ -580,7 +580,7 @@ define('TWOverflow/Farm/interface', [
 
             addEvent({
                 links: {
-                    village: { type: 'village', name: villageLabel(next), id: next.id }
+                    village: { type: 'village', name: genVillageLabel(next), id: next.id }
                 },
                 icon: 'village',
                 type: 'nextVillage'
@@ -594,7 +594,7 @@ define('TWOverflow/Farm/interface', [
 
             addEvent({
                 links: {
-                    target: { type: 'village', name: villageLabel(target), id: target.id }
+                    target: { type: 'village', name: genVillageLabel(target), id: target.id }
                 },
                 icon: 'check-negative',
                 type: 'ignoredVillage'
@@ -608,7 +608,7 @@ define('TWOverflow/Farm/interface', [
             
             addEvent({
                 links: {
-                    target: { type: 'village', name: villageLabel(target), id: target.id }
+                    target: { type: 'village', name: genVillageLabel(target), id: target.id }
                 },
                 icon: 'parallel-recruiting',
                 type: 'priorityTargetAdded'

@@ -503,7 +503,7 @@ define('TWOverflow/Farm', [
     }
 
     /**
-     * Funções que são relacionados com os relatórios.
+     * Funções relacionadas com relatórios.
      */
     var reportListener = function () {
         var reportQueue = []
@@ -619,6 +619,65 @@ define('TWOverflow/Farm', [
     }
 
     /**
+     * Funções relacionadas com mensagens.
+     */
+    var messageListener = function () {
+        /**
+         * Detecta mensagens do jogador enviadas para sí mesmo, afim de iniciar
+         * e pausar o farm remotamente.
+         *
+         * @param  {[type]} data - Dados da mensagem recebida.
+         */
+        var remoteHandler = function (_, data) {
+            var id = Farm.settings.remoteId
+
+            if (data.participants.length !== 1 || data.title !== id) {
+                return false
+            }
+
+            var userMessage = data.message.content.trim().toLowerCase()
+
+            switch (userMessage) {
+            case 'on':
+            case 'start':
+            case 'init':
+            case 'begin':
+                disableNotifs(function () {
+                    Farm.stop()
+                    Farm.start()
+                })
+
+                sendMessageReply(data.message_id, genStatusReply())
+                Farm.trigger('remoteCommand', ['on'])
+
+                break
+            case 'off':
+            case 'stop':
+            case 'pause':
+            case 'end':
+                disableNotifs(function () {
+                    Farm.stop()
+                })
+
+                sendMessageReply(data.message_id, genStatusReply())
+                Farm.trigger('remoteCommand', ['off'])
+
+                break
+            case 'status':
+            case 'current':
+                sendMessageReply(data.message_id, genStatusReply())
+                Farm.trigger('remoteCommand', ['status'])
+
+                break
+            }
+
+            return false
+        }
+
+        $root.$on($eventType.MESSAGE_SENT, remoteHandler)
+    }
+
+    /**
      * Detecta todas atualizações de dados do jogo que são importantes
      * para o funcionamento do Farm.
      *
@@ -626,21 +685,6 @@ define('TWOverflow/Farm', [
      * Criar os handlers fora do escopo dessa função.
      */
     var listeners = function () {
-        /**
-         * Envia um mensagem resposta para a mensagem indicada
-         *
-         * @param  {Number} message_id - Identificação da mensagem.
-         * @param  {String} message - Corpo da mensagem.
-         */
-        var replyMessage = function (message_id, message) {
-            setTimeout(function () {
-                $socket.emit($route.MESSAGE_REPLY, {
-                    message_id: message_id,
-                    message: message
-                })
-            }, 300)
-        }
-
         /**
          * Remove aldeias da lista de espera e detecta se todas as aldeias
          * estavam na lista de espera, reiniciando o ciclo de ataques.
@@ -734,63 +778,6 @@ define('TWOverflow/Farm', [
             }
         }
 
-        /**
-         * Detecta mensagens do jogador enviadas para sí mesmo, afim de iniciar
-         * e pausar o farm remotamente.
-         *
-         * @param  {[type]} data - Dados da mensagem recebida.
-         */
-        var remoteHandler = function (_, data) {
-            var id = Farm.settings.remoteId
-            var replayMessage = '[color=0a8028]OK[/color]'
-
-            if (data.participants.length !== 1 || data.title !== id) {
-                return false
-            }
-
-            var userMessage = data.message.content.trim().toLowerCase()
-
-            switch (userMessage) {
-            case 'on':
-                disableNotifs(function () {
-                    Farm.stop()
-                    Farm.start()
-                })
-
-                replyMessage(data.message_id, replayMessage)
-                Farm.trigger('remoteCommand', ['on'])
-
-                break
-            case 'off':
-                disableNotifs(function () {
-                    Farm.stop()
-                })
-
-                replyMessage(data.message_id, replayMessage)
-                Farm.trigger('remoteCommand', ['off'])
-
-                break
-            case 'status':
-                var label = villageLabel(selectedVillage)
-                var readableLastAttack = readableDateFilter(lastAttack)
-
-                var bbcodeMessage = [
-                    '[b]' + Locale('farm', 'events.status') + ':[/b] ',
-                    Locale('farm', 'events.' + currentStatus) + '[br]',
-                    '[b]' + Locale('farm', 'events.selectedVillage') + ':[/b] ',
-                    '[village=' + selectedVillage.id + ']' + label + '[/village][br]',
-                    '[b]' + Locale('farm', 'events.lastAttack') + ':[/b] ' + readableLastAttack
-                ].join('')
-
-                replyMessage(data.message_id, bbcodeMessage)
-                Farm.trigger('remoteCommand', ['status'])
-
-                break
-            }
-
-            return false
-        }
-
         $root.$on($eventType.COMMAND_RETURNED, commandBackHandler)
         $root.$on($eventType.ARMY_PRESET_UPDATE, updatePresetsHandler)
         $root.$on($eventType.ARMY_PRESET_DELETED, updatePresetsHandler)
@@ -800,7 +787,6 @@ define('TWOverflow/Farm', [
         $root.$on($eventType.GROUPS_VILLAGE_LINKED, updateGroupVillages)
         $root.$on($eventType.GROUPS_VILLAGE_UNLINKED, updateGroupVillages)
         $root.$on($eventType.RECONNECT, reconnectHandler)        
-        $root.$on($eventType.MESSAGE_SENT, remoteHandler)
 
         // Carrega pedaços da mapa quando chamado.
         // É disparado através do método .getTargets()
@@ -851,18 +837,24 @@ define('TWOverflow/Farm', [
         })
 
         Farm.bind('singleCycleEnd', function () {
+            currentStatus = 'singleCycleEnd'
+
             if (notifsEnabled && Farm.settings.singleCycleNotifs) {
                 emitNotif('error', Locale('farm', 'events.singleCycleEnd'))
             }
         })
 
         Farm.bind('singleCycleEndNoVillages', function () {
+            currentStatus = 'singleCycleEndNoVillages'
+
             if (notifsEnabled && Farm.settings.singleCycleNotifs) {
                 emitNotif('error', Locale('farm', 'events.singleCycleEndNoVillages'))
             }
         })
 
         Farm.bind('singleCycleNext', function () {
+            currentStatus = 'singleCycleNext'
+            
             if (notifsEnabled && Farm.settings.singleCycleNotifs) {
                 var next = $timeHelper.gameTime() + getCycleIntervalTime()
 
@@ -1136,6 +1128,52 @@ define('TWOverflow/Farm', [
         }, callback)
     }
 
+    /**
+     * Envia um mensagem resposta para a mensagem indicada
+     *
+     * @param  {Number} message_id - Identificação da mensagem.
+     * @param  {String} message - Corpo da mensagem.
+     */
+    var sendMessageReply = function (message_id, message) {
+        $socket.emit($route.MESSAGE_REPLY, {
+            message_id: message_id,
+            message: message
+        })
+    }
+
+    /**
+     * Gera uma mensagem em código bb com o status atual do FarmOverflow
+     *
+     * @return {String}
+     */
+    var genStatusReply = function () {
+        var localeStatus = Locale('farm', 'events.status')
+        var localeVillage = Locale('farm', 'events.selectedVillage')
+        var localeLast = Locale('farm', 'events.lastAttack')
+
+        var statusReplaces = {}
+
+        if (currentStatus === 'singleCycleNext') {
+            var next = $timeHelper.gameTime() + getCycleIntervalTime()
+
+            statusReplaces.time = readableDateFilter(next, null, null, null, dateFormat)
+        }
+
+        var farmStatus = Locale('farm', 'events.' + currentStatus, statusReplaces)
+        var villageLabel = genVillageLabel(selectedVillage)
+        var last = readableDateFilter(lastAttack)
+        var vid = selectedVillage.id
+
+        var message = []
+
+        message.push('[b]', localeStatus, ':[/b] ', farmStatus, '[br]')
+        message.push('[b]', localeVillage, ':[/b] ')
+        message.push('[village=', vid, ']', villageLabel, '[/village][br]')
+        message.push('[b]', localeLast, ':[/b] ', last)
+
+        return message.join('')
+    }
+
     var Farm = {}
 
     /**
@@ -1204,6 +1242,7 @@ define('TWOverflow/Farm', [
         updatePresets()
         listeners()
         reportListener()
+        messageListener()
         initPersistentRunning()
 
         Locale.change('farm', Farm.settings.language)

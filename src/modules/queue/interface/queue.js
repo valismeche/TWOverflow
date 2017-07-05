@@ -455,8 +455,8 @@ define('TWOverflow/Queue/interface', [
         $command.dataset.id = command.id
         $command.className = 'command'
 
-        var origin = buttonLink('village', villageLabel(command.origin), command.origin.id)
-        var target = buttonLink('village', villageLabel(command.target), command.target.id)
+        var origin = buttonLink('village', genVillageLabel(command.origin), command.origin.id)
+        var target = buttonLink('village', genVillageLabel(command.target), command.target.id)
 
         var arriveTime = readableDateFilter(command.arriveTime, null, null, null, dateFormat)
         var sendTime = readableDateFilter(command.sendTime, null, null, null, dateFormat)

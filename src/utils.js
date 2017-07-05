@@ -44,10 +44,26 @@ function emitNotif (type, message) {
     })
 }
 
-function villageLabel (village) {
+/**
+ * Gera uma string com nome e coordenadas da aldeia
+ *
+ * @param {Object} village - Dados da aldeia
+ * @return {String}
+ */
+function genVillageLabel (village) {
     return village.name + ' (' + village.x + '|' + village.y + ')'
 }
 
+/**
+ * Verifica se uma coordenada é válida.
+ * 00|00
+ * 000|00
+ * 000|000
+ * 00|000
+ *
+ * @param {String} xy - Coordenadas
+ * @return {Boolean}
+ */
 function isValidCoords (xy) {
     return /\s*\d{2,3}\|\d{2,3}\s*/.test(xy)
 }
@@ -76,7 +92,7 @@ function fixDate (dateTime) {
 /**
  * Gera um id unico
  * 
- * @return {[type]}
+ * @return {String}
  */
 function guid () {
     return Math.floor((Math.random()) * 0x1000000).toString(16)
