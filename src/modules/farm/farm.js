@@ -1930,9 +1930,5 @@ define('TWOverflow/Farm', [
         return getCycleIntervalTime()
     }
 
-    var testFunction = function () {
-        console.log('test')
-    }
-
     return Farm
 })

@@ -16,6 +16,6 @@ require([
     ready(function () {
         Queue.init()
         QueueInterface()
-        QueueAnalytics('___queueAnalytics')
+        QueueAnalytics()
     })
 })

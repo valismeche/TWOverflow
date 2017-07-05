@@ -16,6 +16,6 @@ require([
     ready(function () {
         Farm.init()
         FarmInterface()
-        FarmAnalytics('___farmAnalytics')
+        FarmAnalytics()
     })
 })
