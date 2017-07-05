@@ -2,7 +2,7 @@ define('TWOverflow/Farm/analytics', [
     'TWOverflow/Farm',
     'Lockr'
 ], function (Farm, Lockr) {
-    return function (trackId) {
+    Farm.analytics = function (trackId) {
         ga('create', '___farmAnalytics', 'auto', 'TWOverflowFarm')
 
         var player = $model.getPlayer()

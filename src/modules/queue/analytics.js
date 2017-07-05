@@ -1,7 +1,7 @@
 define('TWOverflow/Queue/analytics', [
     'TWOverflow/Queue'
 ], function (Queue) {
-    return function () {
+    Queue.analytics = function () {
         ga('create', '___queueAnalytics', 'auto', 'FarmOverflowQueue')
 
         Queue.bind('start', function () {

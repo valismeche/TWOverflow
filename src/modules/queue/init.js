@@ -5,9 +5,7 @@ require([
     'TWOverflow/Queue/analytics'
 ], function (
     ready,
-    Queue,
-    QueueInterface,
-    QueueAnalytics
+    Queue
 ) {
     if (Queue.initialized) {
         return false
@@ -15,7 +13,7 @@ require([
 
     ready(function () {
         Queue.init()
-        QueueInterface()
-        QueueAnalytics()
+        Queue.interface()
+        Queue.analytics()
     })
 })

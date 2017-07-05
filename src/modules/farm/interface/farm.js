@@ -732,5 +732,5 @@ define('TWOverflow/Farm/interface', [
         populateEvents()
     }
 
-    return FarmInterface
+    Farm.interface = FarmInterface
 })

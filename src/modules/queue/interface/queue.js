@@ -968,5 +968,5 @@ define('TWOverflow/Queue/interface', [
         listenCommandCountdown()
     }
 
-    return QueueInterface
+    Queue.interface = QueueInterface
 })

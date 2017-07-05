@@ -5,9 +5,7 @@ require([
     'TWOverflow/Farm/analytics'
 ], function (
     ready,
-    Farm,
-    FarmInterface,
-    FarmAnalytics
+    Farm
 ) {
     if (Farm.isInitialized()) {
         return false
@@ -15,7 +13,7 @@ require([
 
     ready(function () {
         Farm.init()
-        FarmInterface()
-        FarmAnalytics()
+        Farm.interface()
+        Farm.analytics()
     })
 })
