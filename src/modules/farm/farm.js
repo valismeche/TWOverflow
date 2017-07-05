@@ -414,14 +414,12 @@ define('TWOverflow/Farm', [
      */
     var updatePlayerVillages = function () {
         var villages = $player.getVillageList()
-
-        villages = villages.map(function (village) {
-            return new Village(village)
-        })
-        
-        villages = villages.filter(function (village) {
-            return !ignoredVillages.includes(village.id)
-        })
+            .map(function (village) {
+                return new Village(village)
+            })
+            .filter(function (village) {
+                return !ignoredVillages.includes(village.id)
+            })
 
         if (groupOnly) {
             var groupList = $model.getGroupList()
