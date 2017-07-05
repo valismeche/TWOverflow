@@ -678,13 +678,68 @@ define('TWOverflow/Farm', [
     }
 
     /**
-     * Detecta todas atualizações de dados do jogo que são importantes
-     * para o funcionamento do Farm.
-     *
-     * TODO:
-     * Criar os handlers fora do escopo dessa função.
+     * Funções relacionadas com grupos e presets.
      */
-    var listeners = function () {
+    var groupPresetListener = function () {
+        /**
+         * Detecta alterações e atualiza lista de predefinições
+         * configuradas no script.
+         */
+        var updatePresetsHandler = function () {
+            updatePresets()
+            Farm.trigger('presetsChange')
+
+            if (!selectedPresets.length) {
+                if (Farm.commander.running) {
+                    Farm.trigger('noPreset')
+                    Farm.stop()
+                }
+            }
+        }
+
+        /**
+         * Atualiza lista de grupos configurados no script.
+         * Atualiza a lista de aldeias incluidas/ignoradas com base
+         * nos grupos.
+         */
+        var updateGroupsHandler = function () {
+            updateExceptionGroups()
+            updateExceptionVillages()
+
+            Farm.trigger('groupsChanged')
+        }
+
+        /**
+         * Detecta grupos que foram adicionados nas aldeias.
+         * Atualiza a lista de alvos e aldeias do jogador.
+         *
+         * @param  {Object} data - Dados do grupo retirado/adicionado.
+         */
+        var updateGroupVillages = function (_, data) {
+            updatePlayerVillages()
+
+            if (!groupInclude) {
+                return false
+            }
+            
+            if (groupInclude.id === data.group_id) {
+                villagesTargets = {}
+            }
+        }
+
+        $root.$on($eventType.ARMY_PRESET_UPDATE, updatePresetsHandler)
+        $root.$on($eventType.ARMY_PRESET_DELETED, updatePresetsHandler)
+        $root.$on($eventType.GROUPS_UPDATED, updateGroupsHandler)
+        $root.$on($eventType.GROUPS_CREATED, updateGroupsHandler)
+        $root.$on($eventType.GROUPS_DESTROYED, updateGroupsHandler)
+        $root.$on($eventType.GROUPS_VILLAGE_LINKED, updateGroupVillages)
+        $root.$on($eventType.GROUPS_VILLAGE_UNLINKED, updateGroupVillages)
+    }
+
+    /**
+     * Detecta todos eventos importantes para o funcionamento do FarmOverflow.
+     */
+    var generalListeners = function () {
         /**
          * Remove aldeias da lista de espera e detecta se todas as aldeias
          * estavam na lista de espera, reiniciando o ciclo de ataques.
@@ -718,52 +773,6 @@ define('TWOverflow/Farm', [
         }
 
         /**
-         * Detecta alterações e atualiza lista de predefinições
-         * configuradas no script.
-         */
-        var updatePresetsHandler = function () {
-            updatePresets()
-            Farm.trigger('presetsChange')
-
-            if (!selectedPresets.length) {
-                if (Farm.commander.running) {
-                    Farm.trigger('noPreset')
-                    Farm.stop()
-                }
-            }
-        }
-
-        /**
-         * Atualiza lista de grupos configurados no script.
-         * Atualiza a lista de aldeias incluidas/ignoradas com base
-         * nos grupos.
-         */
-        var updateGroups = function () {
-            updateExceptionGroups()
-            updateExceptionVillages()
-
-            Farm.trigger('groupsChanged')
-        }
-
-        /**
-         * Detecta grupos que foram adicionados nas aldeias.
-         * Atualiza a lista de alvos e aldeias do jogador.
-         *
-         * @param  {Object} data - Dados do grupo retirado/adicionado.
-         */
-        var updateGroupVillages = function (_, data) {
-            updatePlayerVillages()
-
-            if (!groupInclude) {
-                return false
-            }
-            
-            if (groupInclude.id === data.group_id) {
-                villagesTargets = {}
-            }
-        }
-
-        /**
          * Detecta quando a conexão é reestabelecida, podendo
          * reiniciar o script.
          */
@@ -774,26 +783,18 @@ define('TWOverflow/Farm', [
                         Farm.stop()
                         Farm.start()
                     })
-                }, 3000)
+                }, 5000)
             }
         }
 
         $root.$on($eventType.COMMAND_RETURNED, commandBackHandler)
-        $root.$on($eventType.ARMY_PRESET_UPDATE, updatePresetsHandler)
-        $root.$on($eventType.ARMY_PRESET_DELETED, updatePresetsHandler)
-        $root.$on($eventType.GROUPS_UPDATED, updateGroups)
-        $root.$on($eventType.GROUPS_CREATED, updateGroups)
-        $root.$on($eventType.GROUPS_DESTROYED, updateGroups)
-        $root.$on($eventType.GROUPS_VILLAGE_LINKED, updateGroupVillages)
-        $root.$on($eventType.GROUPS_VILLAGE_UNLINKED, updateGroupVillages)
-        $root.$on($eventType.RECONNECT, reconnectHandler)        
+        $root.$on($eventType.RECONNECT, reconnectHandler)
+    }
 
-        // Carrega pedaços da mapa quando chamado.
-        // É disparado através do método .getTargets()
-        $mapData.setRequestFn(function (args) {
-            $socket.emit($route.MAP_GETVILLAGES, args)
-        })
-
+    /**
+     * Cria os eventos utilizados pelo FarmOverflow.
+     */
+    var bindEvents = function () {
         // Lista de eventos para atualizar o último status do Farm.
         Farm.bind('sendCommand', function () {
             updateLastAttack()
@@ -1240,10 +1241,19 @@ define('TWOverflow/Farm', [
         updateExceptionVillages()
         updatePlayerVillages()
         updatePresets()
-        listeners()
         reportListener()
         messageListener()
+        groupPresetListener()
+        generalListeners()
+        bindEvents()
         initPersistentRunning()
+
+        // Carrega pedaços da mapa quando chamado.
+        // É disparado quando o método $mapData.loadTownDataAsync
+        // é executado.
+        $mapData.setRequestFn(function (args) {
+            $socket.emit($route.MAP_GETVILLAGES, args)
+        })
 
         Locale.change('farm', Farm.settings.language)
     }
