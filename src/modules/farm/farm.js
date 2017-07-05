@@ -503,11 +503,127 @@ define('TWOverflow/Farm', [
     }
 
     /**
+     * Funções que são relacionados com os relatórios.
+     */
+    var reportListener = function () {
+        var reportQueue = []
+
+        /**
+         * Adiciona o grupo de "ignorados" no alvo caso o relatório do
+         * ataque tenha causado alguma baixa nas tropas.
+         *
+         * @param  {Object} report - Dados do relatório recebido.
+         */
+        var ignoredTargetHandler = function (report) {
+            console.log('ignoredTargetHandler()')
+
+            var target = targetExists(report.target_village_id)
+
+            if (!target) {
+                return false
+            }
+
+            ignoreVillage(target)
+
+            return true
+        }
+        
+        /**
+         * Analisa a quantidade farmada dos relatórios e adiciona
+         * a aldeia alvo na lista de prioridades.
+         * 
+         * @param {Object} reportInfo - Informações básicas do relatório
+         */
+        var priorityHandler = function (reportInfo) {
+            getReport(reportInfo.id, function (data) {
+                var attack = data.ReportAttack
+                var vid = attack.attVillageId
+                var tid = attack.defVillageId
+
+                if (!priorityTargets.hasOwnProperty(vid)) {
+                    priorityTargets[vid] = []
+                }
+
+                // Caso o alvo já esteja na lista de prioridades
+                // cancela...
+                if (priorityTargets[vid].includes(tid)) {
+                    return false
+                }
+
+                priorityTargets[vid].push(tid)
+
+                Farm.trigger('priorityTargetAdded', [{
+                    id: tid,
+                    name: attack.defVillageName,
+                    x: attack.defVillageX,
+                    y: attack.defVillageY
+                }])
+            })
+        }
+
+        /**
+         * Analisa todos relatórios adicionados na lista de espera.
+         */
+        var delayedPriorityHandler = function () {
+            reportQueue.forEach(function (report) {
+                priorityHandler(report)
+            })
+
+            reportQueue = []
+        }
+
+        /**
+         * Analisa todos relatórios de ataques causados pelo Farm.
+         *
+         * @param  {Object} data - Dados do relatório recebido.
+         */
+        var reportHandler = function (event, data) {
+            if (data.type !== 'attack') {
+                return false
+            }
+
+            // data.result === 1 === 'nocasualties'
+            if (Farm.settings.ignoreOnLoss && data.result !== 1) {
+                ignoredTargetHandler(data)
+            }
+
+            if (Farm.settings.priorityTargets && data.haul === 'full') {
+                if ($wms.isTemplateOpen('report')) {
+                    reportQueue.push(data)
+                } else {
+                    priorityHandler(data)
+                }
+            }
+        }
+
+        /**
+         * Executa handlers com delay.
+         * 
+         * Alguns relatórios são adicionados na lista de espera
+         * por que quando carregados, o relatório que o jogador
+         * está visualizando no momento será substituido pelo
+         * carregado.
+         * 
+         * @param {Object} event - Dados do evento rootScope.$broadcast
+         * @param {String} templateName - Nome do template da janela que
+         *   foi fechado.
+         */
+        var delayedReportHandler = function (event, templateName) {
+            if (templateName === 'report') {
+                delayedPriorityHandler()
+            }
+        }
+
+        $root.$on($eventType.REPORT_NEW, reportHandler)
+        $root.$on($eventType.WINDOW_CLOSED, delayedReportHandler)
+    }
+
+    /**
      * Detecta todas atualizações de dados do jogo que são importantes
      * para o funcionamento do Farm.
      *
-     * TODO
-     * Encontrar um nome melhor para essa função
+     * TODO:
+     * Criar os handlers fora do escopo dessa função.
      */
     var listeners = function () {
         /**
@@ -604,100 +720,6 @@ define('TWOverflow/Farm', [
         }
 
         /**
-         * Adiciona o grupo de "ignorados" no alvo caso o relatório do
-         * ataque tenha causado alguma baixa nas tropas.
-         *
-         * @param  {Object} report - Dados do relatório recebido.
-         */
-        var ignoreOnLoss = function (report) {
-            var target = targetExists(report.target_village_id)
-
-            if (!target) {
-                return false
-            }
-
-            ignoreVillage(target)
-
-            return true
-        }
-
-        /**
-         * Adiciona alvos na lista de prioridades caso o relatório
-         * do farm seja lotado.
-         *
-         * @param  {Object} report - Dados do relatório recebido.
-         */
-        var pushPriorityTarget = function (report) {
-            var vid = report.attVillageId
-            var tid = report.defVillageId
-
-            priorityTargets[vid] = priorityTargets[vid] || []
-
-            if (priorityTargets[vid].includes(tid)) {
-                return false
-            }
-
-            priorityTargets[vid].push(tid)
-
-            Farm.trigger('priorityTargetAdded', [{
-                id: tid,
-                name: report.defVillageName,
-                x: report.defVillageX,
-                y: report.defVillageY
-            }])
-        }
-
-        /**
-         * Analisa todos relatórios de ataques causados pelo Farm.
-         *
-         * @param  {Object} data - Dados do relatório recebido.
-         */
-        var reportHandler = function (_, data) {
-            if (data.type !== 'attack') {
-                return false
-            }
-
-            var queue = []
-
-            // BATTLE_RESULTS = {
-            //     '1'         : 'nocasualties',
-            //     '2'         : 'casualties',
-            //     '3'         : 'defeat'
-            // }
-            if (Farm.settings.ignoreOnLoss && data.result !== 1) {
-                ignoreOnLoss(data)
-            }
-
-            // HAUL_TYPES = {
-            //     'FULL'      : 'full',
-            //     'PARTIAL'   : 'partial',
-            //     'NONE'      : 'none'
-            // }
-            if (Farm.settings.priorityTargets && data.haul === 'full') {
-                queue.push(pushPriorityTarget)
-            }
-
-            if (!queue.length) {
-                return false
-            }
-
-            $socket.emit($route.REPORT_GET, {
-                id: data.id
-            }, function (data) {
-                // Manter o relatório marcado como "Novo"
-                $socket.emit($route.REPORT_MARK_UNREAD, {
-                    reports: [data.id]
-                }, function () {})
-
-                var report = data.ReportAttack
-
-                queue.every(function (handler) {
-                    handler(report)
-                })
-            })
-        }
-
-        /**
          * Detecta quando a conexão é reestabelecida, podendo
          * reiniciar o script.
          */
@@ -777,7 +799,6 @@ define('TWOverflow/Farm', [
         $root.$on($eventType.GROUPS_DESTROYED, updateGroups)
         $root.$on($eventType.GROUPS_VILLAGE_LINKED, updateGroupVillages)
         $root.$on($eventType.GROUPS_VILLAGE_UNLINKED, updateGroupVillages)
-        $root.$on($eventType.REPORT_NEW, reportHandler)
         $root.$on($eventType.RECONNECT, reconnectHandler)        
         $root.$on($eventType.MESSAGE_SENT, remoteHandler)
 
@@ -1103,6 +1124,18 @@ define('TWOverflow/Farm', [
         }, PERSISTENT_INTERVAL)
     }
 
+    /**
+     * Carrega os dados de um relatório.
+     * 
+     * @param {Number} reportId - ID do relatório
+     * @param {Function} callback 
+     */
+    var getReport = function (reportId, callback) {
+        $socket.emit($route.REPORT_GET, {
+            id: reportId
+        }, callback)
+    }
+
     var Farm = {}
 
     /**
@@ -1170,6 +1203,7 @@ define('TWOverflow/Farm', [
         updatePlayerVillages()
         updatePresets()
         listeners()
+        reportListener()
         initPersistentRunning()
 
         Locale.change('farm', Farm.settings.language)
@@ -1894,6 +1928,10 @@ define('TWOverflow/Farm', [
      */
     Farm.getCycleIntervalTime = function () {
         return getCycleIntervalTime()
+    }
+
+    var testFunction = function () {
+        console.log('test')
     }
 
     return Farm
