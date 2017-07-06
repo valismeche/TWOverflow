@@ -719,6 +719,10 @@ define('TWOverflow/Queue/interface', [
         $root.$on($eventType.DESTROY_CONTEXT_MENU, function () {
             mapSelectedVillage = false
         })
+
+        $root.$on($eventType.VILLAGE_SELECTED_CHANGED, function () {
+            applyCommandFilters()
+        })
     }
 
     /**
