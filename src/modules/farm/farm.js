@@ -1666,7 +1666,7 @@ define('TWOverflow/Farm', [
         }
 
         if (Farm.settings.singleCycle) {
-            return singleCiclyNextVillage()
+            return singleCycleNextVillage()
         }
 
         var freeVillages = getFreeVillages()
@@ -1700,7 +1700,7 @@ define('TWOverflow/Farm', [
      *
      * @return {Boolean} Indica se houve troca de aldeia.
      */
-    var singleCiclyNextVillage = function () {
+    var singleCycleNextVillage = function () {
         var cycleNext = singleCycleVillages.shift()
 
         if (cycleNext) {
@@ -1709,7 +1709,7 @@ define('TWOverflow/Farm', [
             })
 
             if (!availVillage) {
-                return singleCiclyNextVillage()
+                return singleCycleNextVillage()
             }
         } else {
             if (isSingleCycleInterval()) {
