@@ -27,20 +27,14 @@ define('TWOverflow/Farm', [
     var initialized = false
 
     /**
-     * Tempo de validade dos índices dos alvos, é resetado quando o
-     * Farm está pausado por mais de 30 minutos.
+     * Tempo de validade dos dados temporarios do FarmOverflow.
+     * Dados como: índice dos alvos, lista de prioridades etc..
+     *
+     * Padrão de 30 minutos de tolerância.
      *
      * @type {Number}
      */
-    var INDEX_EXPIRE_TIME = 1000 * 60 * 30
-
-    /**
-     * Tempo de validade dos alvos adicionados nas prioridades após o script
-     * ser parado.
-     *
-     * @type {Number}
-     */
-    var PRIORITY_EXPIRE_TIME = 1000 * 60 * 10
+    var DATA_EXPIRE_TIME = 1000 * 60 * 30
 
     /**
      * Intervalo entre cada verificação de farm travado.
@@ -1171,6 +1165,26 @@ define('TWOverflow/Farm', [
         return message.join('')
     }
 
+    /**
+     * Analisa se o FarmOverflow ficou ocioso por um certo periodo
+     * de tempo, permitindo que alguns dados sejam resetados.
+     *
+     * @return {Boolean} Se os dados expiraram ou não.
+     */
+    var isExpiredData = function () {
+        var now = $timeHelper.gameTime()
+
+        if (Farm.settings.singleCycle && isSingleCycleInterval()) {
+            if (now > (lastActivity + getCycleIntervalTime() + (60 * 1000))) {
+                return true
+            }
+        } else if (now > lastActivity + DATA_EXPIRE_TIME) {
+            return true
+        }
+
+        return false
+    }
+
     var Farm = {}
 
     /**
@@ -1276,17 +1290,9 @@ define('TWOverflow/Farm', [
             return false
         }
 
-        var now = $timeHelper.gameTime()
-
-        // Reseta a lista prioridades caso tenha expirado
-        if (now > lastActivity + PRIORITY_EXPIRE_TIME) {
+        if (isExpiredData()) {
             priorityTargets = {}
-        }
-
-        // Reseta a lista índices caso tenha expirado
-        if (now > lastActivity + INDEX_EXPIRE_TIME) {
             targetIndexes = {}
-            Lockr.set('farm-indexes', {})
         }
 
         if (Farm.settings.singleCycle) {
