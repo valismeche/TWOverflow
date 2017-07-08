@@ -31,6 +31,20 @@ define('TWOverflow/locale', [
     var gameLang = gameLocale.LANGUAGE.split('_')[0]
 
     /**
+     * Função chamada quando a linguagem parão espeficicada e
+     * a linguagem nativa do jogo não estão presetes na lista
+     * de de locales.
+     *
+     * @param {Object} langData - Dados com os locales.
+     * @return {String} O ID da primeira liguagem que encontrar.
+     */
+    var getSomeLang = function (langData) {
+        for (var langId in langData) {
+            return langId
+        }
+    }
+
+    /**
      * Obtem a tradução de uma linguagem
      * 
      * @param {String} moduleId - Identificação do modulo.
@@ -75,9 +89,10 @@ define('TWOverflow/locale', [
         }
 
         var dataHasGameLang = langData.hasOwnProperty(gameLang)
-        
-        defaults[moduleId] = defaultLang
-        selecteds[moduleId] = dataHasGameLang ? gameLang : defaultLang
+        var dataHasDefaultLang = langData.hasOwnProperty(defaultLang)
+
+        defaults[moduleId] = dataHasDefaultLang ? defaultLang : getSomeLang(langData)
+        selecteds[moduleId] = dataHasGameLang ? gameLang : defaults[moduleId]
 
         for (var langId in langData) {
             langs[moduleId][langId] = i18n.create({
