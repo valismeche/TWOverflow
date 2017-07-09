@@ -68,6 +68,15 @@ define('TWOverflow/Farm', [
     var playerVillages = null
 
     /**
+     * Lista de aldeias restantes até chegar o farm chegar à última
+     * aldeia da lista. Assim que chegar a lista será resetada com 
+     * todas aldeias dispoíveis do jogador (sem as waitingVillages).
+     *
+     * @type {Array}
+     */
+    var leftVillages = []
+
+    /**
      * Formato das datas usadas nos eventos.
      *
      * TODO:
@@ -750,6 +759,8 @@ define('TWOverflow/Farm', [
                     }
 
                     if (Farm.commander.running) {
+                        // TODO:
+                        // é certo selecionar a aldeia a partir daqui?
                         selectVillage(vid)
 
                         setTimeout(function () {
@@ -974,7 +985,6 @@ define('TWOverflow/Farm', [
      * Verifica se o intervalo está ativado baseado no especificado
      * pelo jogador.
      * 
-     *
      * @return {Boolean}
      */
     var isSingleCycleInterval = function () {
@@ -1034,6 +1044,44 @@ define('TWOverflow/Farm', [
         singleCycleTimeout = setTimeout(function () {
             initSingleCycle(true /*autoInit*/)
         }, interval)
+    }
+
+    /**
+     * Seleciona a próxima aldeia do ciclo único.
+     *
+     * @return {Boolean} Indica se houve troca de aldeia.
+     */
+    var singleCycleNextVillage = function () {
+        var cycleNext = singleCycleVillages.shift()
+
+        if (cycleNext) {
+            var availVillage = getFreeVillages().some(function (freeVillage) {
+                return freeVillage.id === cycleNext.id
+            })
+
+            if (!availVillage) {
+                return singleCycleNextVillage()
+            }
+        } else {
+            if (isSingleCycleInterval()) {
+                Farm.trigger('singleCycleNext')
+                nextSingleCycle()
+            } else {
+                Farm.trigger('singleCycleEnd')
+                
+                disableNotifs(function () {
+                    Farm.stop()
+                })
+            }
+
+            return false
+        }
+
+        selectedVillage = cycleNext
+
+        Farm.trigger('nextVillage', [selectedVillage])
+
+        return true
     }
 
     /**
@@ -1298,15 +1346,7 @@ define('TWOverflow/Farm', [
         if (Farm.settings.singleCycle) {
             initSingleCycle()
         } else {
-            Farm.commander = createCommander()
-            Farm.commander.running = true
-            Farm.commander.analyse()
-
-            if (notifsEnabled) {
-                emitNotif('success', Locale('farm', 'general.started'))
-            }
-
-            Farm.trigger('start')
+            initNormalCycle()
         }
 
         return true
@@ -1655,6 +1695,27 @@ define('TWOverflow/Farm', [
         return load()
     }
 
+    var initNormalCycle = function () {
+        Farm.commander = createCommander()
+        Farm.commander.running = true
+
+        Farm.trigger('start')
+
+        if (notifsEnabled) {
+            emitNotif('success', Locale('farm', 'general.started'))
+        }
+
+        if (getFreeVillages().length === 0) {
+            Farm.trigger('noVillages')
+
+            return
+        }
+
+        leftVillages = getFreeVillages()
+
+        Farm.commander.analyse()
+    }
+
     /**
      * Seleciona a próxima aldeia do jogador.
      *
@@ -1669,68 +1730,33 @@ define('TWOverflow/Farm', [
             return singleCycleNextVillage()
         }
 
-        var freeVillages = getFreeVillages()
+        var next = leftVillages.shift()
 
-        if (!freeVillages.length) {
+        if (next) {
+            var availVillage = getFreeVillages().some(function (freeVillage) {
+                return freeVillage.id === next.id
+            })
+
+            if (availVillage) {
+                selectedVillage = next
+                Farm.trigger('nextVillage', [selectedVillage])
+                Farm.updateActivity()
+
+                return true
+            } else {
+                return Farm.nextVillage()
+            }
+        } else {
+            leftVillages = getFreeVillages()
+
+            if (leftVillages.length) {
+                return Farm.nextVillage()
+            }
+
             Farm.trigger('noVillages')
 
             return false
-        } else if (freeVillages.length === 1) {
-            selectedVillage = freeVillages[0]
-            Farm.trigger('nextVillage', [selectedVillage])
-            return true
         }
-
-        var index = freeVillages.indexOf(selectedVillage) + 1
-
-        if (!freeVillages[index]) {
-            Farm.trigger('villageCycleEnd')
-        }
-
-        selectedVillage = freeVillages[index] ? freeVillages[index] : freeVillages[0]
-        
-        Farm.trigger('nextVillage', [selectedVillage])
-        Farm.updateActivity()
-
-        return true
-    }
-
-    /**
-     * Seleciona a próxima aldeia do ciclo único.
-     *
-     * @return {Boolean} Indica se houve troca de aldeia.
-     */
-    var singleCycleNextVillage = function () {
-        var cycleNext = singleCycleVillages.shift()
-
-        if (cycleNext) {
-            var availVillage = getFreeVillages().some(function (freeVillage) {
-                return freeVillage.id === cycleNext.id
-            })
-
-            if (!availVillage) {
-                return singleCycleNextVillage()
-            }
-        } else {
-            if (isSingleCycleInterval()) {
-                Farm.trigger('singleCycleNext')
-                nextSingleCycle()
-            } else {
-                Farm.trigger('singleCycleEnd')
-                
-                disableNotifs(function () {
-                    Farm.stop()
-                })
-            }
-
-            return false
-        }
-
-        selectedVillage = cycleNext
-
-        Farm.trigger('nextVillage', [selectedVillage])
-
-        return true
     }
 
     /**
