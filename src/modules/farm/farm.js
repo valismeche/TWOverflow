@@ -1432,7 +1432,7 @@ define('TWOverflow/Farm', [
         // Pode acontecer quando o numero de alvos é reduzido em um
         // momento em que o Farm não esteja ativado.
         if (index === undefined || index > targets.length) {
-            targetIndexes[vid] = index = 0
+            targetIndexes[sid] = index = 0
         }
 
         return !!targets[index]
