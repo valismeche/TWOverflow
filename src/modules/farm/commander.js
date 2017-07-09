@@ -143,6 +143,19 @@ define('TWOverflow/Farm/Commander', [
                     return Farm.trigger('noUnitsNoCommands')
                 } else {
                     Farm.setGlobalWaiting()
+
+                    if (Farm.settings.singleCycle) {
+                        if (Farm.isSingleCycleInterval()) {
+                            Farm.trigger('singleCycleNext')
+                            Farm.nextSingleCycle()
+                        } else {
+                            Farm.trigger('singleCycleEnd')
+                            
+                            Farm.disableNotifs(function () {
+                                Farm.stop()
+                            })
+                        }
+                    }
                 }
             } else {
                 if (Farm.nextVillage()) {
