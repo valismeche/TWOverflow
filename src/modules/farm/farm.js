@@ -1212,6 +1212,8 @@ define('TWOverflow/Farm', [
             initNormalCycle()
         }
 
+        Farm.updateActivity()
+
         return true
     }
 
@@ -1424,11 +1426,13 @@ define('TWOverflow/Farm', [
             return false
         }
 
-        // Verifica se tem alvos e se o índice selecionado possui alvo.
+        // Verifica se os indices não foram resetados por ociosidade do
+        // FarmOverflow.
+        // Ou se o índice selecionado possui alvo.
         // Pode acontecer quando o numero de alvos é reduzido em um
         // momento em que o Farm não esteja ativado.
-        if (index > targets.length) {
-            targetIndexes[sid] = index = 0
+        if (index === undefined || index > targets.length) {
+            targetIndexes[vid] = index = 0
         }
 
         return !!targets[index]

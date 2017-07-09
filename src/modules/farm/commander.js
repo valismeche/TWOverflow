@@ -132,10 +132,7 @@ define('TWOverflow/Farm/Commander', [
 
             break
         case 'noUnits':
-            Farm.trigger('noUnits', [
-                selectedVillage
-            ])
-            
+            Farm.trigger('noUnits', [selectedVillage])
             Farm.setWaitingVillages(sid)
             
             if (Farm.isSingleVillage()) {
@@ -172,15 +169,25 @@ define('TWOverflow/Farm/Commander', [
             if (Farm.isSingleVillage()) {
                 Farm.setGlobalWaiting()
 
-                Farm.trigger('commandLimitSingle', [
-                    selectedVillage
-                ])
+                if (Farm.settings.singleCycle) {
+                    if (Farm.isSingleCycleInterval()) {
+                        Farm.trigger('singleCycleNext')
+                        Farm.nextSingleCycle()
+                    } else {
+                        Farm.trigger('singleCycleEnd')
+                        
+                        Farm.disableNotifs(function () {
+                            Farm.stop()
+                        })
+                    }
+
+                    return
+                }
+
+                Farm.trigger('commandLimitSingle', [selectedVillage])
             } else {
                 if (Farm.isAllWaiting()) {
-                    Farm.trigger('commandLimitMulti', [
-                        selectedVillage
-                    ])
-
+                    Farm.trigger('commandLimitMulti', [selectedVillage])
                     Farm.setGlobalWaiting()
 
                     return false
