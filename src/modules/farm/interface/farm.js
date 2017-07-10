@@ -300,8 +300,12 @@ define('TWOverflow/Farm/interface', [
             options.content = Locale('farm', 'events.' + options.type, linkTemplate)
         }
 
+        var longDate = readableDateFilter(timestamp, null, null, null, dateFormat)
+        var shortDate = readableDateFilter(timestamp, null, null, null, 'HH:mm:ss')
+
         eventElement.innerHTML = ejs.render('___htmlFarmEvent', {
-            date: readableDateFilter(timestamp, null, null, null, dateFormat),
+            longDate: longDate,
+            shortDate: shortDate,
             icon: options.icon,
             content: options.content
         })
@@ -319,6 +323,8 @@ define('TWOverflow/Farm/interface', [
         if (ui.isVisible('log')) {
             ui.recalcScrollbar()
         }
+
+        ui.setTooltips()
     }
 
     /**
