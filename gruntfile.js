@@ -45,6 +45,7 @@ module.exports = function (grunt) {
             'src/modules/farm/farm.js',
             'src/modules/farm/commander.js',
             'src/modules/farm/village.js',
+            'src/modules/farm/single-cycle.js',
             'src/modules/farm/analytics.js',
             'src/modules/farm/locale.js',
             'src/modules/farm/interface/farm.js',

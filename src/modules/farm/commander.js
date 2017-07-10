@@ -137,29 +137,22 @@ define('TWOverflow/Farm/Commander', [
             
             if (Farm.isSingleVillage()) {
                 if (selectedVillage.countCommands() === 0) {
-                    return Farm.trigger('noUnitsNoCommands')
+                    Farm.trigger('noUnitsNoCommands')
                 } else {
                     Farm.setGlobalWaiting()
 
                     if (Farm.settings.singleCycle) {
-                        if (Farm.isSingleCycleInterval()) {
-                            Farm.trigger('singleCycleNext')
-                            Farm.nextSingleCycle()
-                        } else {
-                            Farm.trigger('singleCycleEnd')
-                            
-                            Farm.disableNotifs(function () {
-                                Farm.stop()
-                            })
-                        }
+                        Farm.cycle.end()
                     }
                 }
+
+                return
+            }
+
+            if (Farm.nextVillage()) {
+                this.analyse()
             } else {
-                if (Farm.nextVillage()) {
-                    this.analyse()
-                } else {
-                    Farm.setGlobalWaiting()
-                }
+                Farm.setGlobalWaiting()
             }
 
             break
@@ -170,32 +163,20 @@ define('TWOverflow/Farm/Commander', [
                 Farm.setGlobalWaiting()
 
                 if (Farm.settings.singleCycle) {
-                    if (Farm.isSingleCycleInterval()) {
-                        Farm.trigger('singleCycleNext')
-                        Farm.nextSingleCycle()
-                    } else {
-                        Farm.trigger('singleCycleEnd')
-                        
-                        Farm.disableNotifs(function () {
-                            Farm.stop()
-                        })
-                    }
-
-                    return
+                    return Farm.cycle.end()
                 }
 
-                Farm.trigger('commandLimitSingle', [selectedVillage])
-            } else {
-                if (Farm.isAllWaiting()) {
-                    Farm.trigger('commandLimitMulti', [selectedVillage])
-                    Farm.setGlobalWaiting()
-
-                    return false
-                }
-
-                Farm.nextVillage()
-                this.analyse()
+                return Farm.trigger('commandLimitSingle', [selectedVillage])
             }
+
+            if (Farm.isAllWaiting()) {
+                Farm.trigger('commandLimitMulti', [selectedVillage])
+
+                return Farm.setGlobalWaiting()
+            }
+
+            Farm.nextVillage()
+            this.analyse()
 
             break
         }

@@ -2,7 +2,8 @@ require([
     'TWOverflow/ready',
     'TWOverflow/Farm',
     'TWOverflow/Farm/interface',
-    'TWOverflow/Farm/analytics'
+    'TWOverflow/Farm/analytics',
+    'TWOverflow/Farm/singleCycle'
 ], function (
     ready,
     Farm

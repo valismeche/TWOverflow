@@ -651,7 +651,7 @@ define('TWOverflow/Farm/interface', [
         })
 
         Farm.bind('singleCycleNext', function () {
-            var next = $timeHelper.gameTime() + Farm.getCycleIntervalTime()
+            var next = $timeHelper.gameTime() + Farm.cycle.getInterval()
 
             $status.html(Locale('farm', 'events.singleCycleNext', {
                 time: readableDateFilter(next, null, null, null, dateFormat)
@@ -659,7 +659,7 @@ define('TWOverflow/Farm/interface', [
         })
 
         Farm.bind('singleCycleNextNoVillages', function () {
-            var next = $timeHelper.gameTime() + Farm.getCycleIntervalTime()
+            var next = $timeHelper.gameTime() + Farm.cycle.getInterval()
 
             $status.html(Locale('farm', 'events.singleCycleNextNoVillages', {
                 time: readableDateFilter(next, null, null, null, dateFormat)
