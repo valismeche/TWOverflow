@@ -652,57 +652,22 @@ define('TWOverflow/Queue', [
         return expiredCommands
     }
 
-    // TODO
-    // Verificar se é preciso checar se origin/target são strings ou objecto.
-    
     /**
      * Calcula o tempo de viagem de uma aldeia a outra
      * 
-     * @param  {String|Object} origin - Coordenadas da aldeia alvo ou objeto da aldeia.
-     * @param  {String|Object} target - Veja Coordenadas da aldeia alvo ou objeto da aldeia.
-     * @param  {Object} units - Exercito usado no ataque como referência para calcular o tempo.
-     * @param  {String} type - Tipo de comando (attack,support,relocate)
-     * @param  {Object} officers - Oficiais usados no comando (usados para efeitos)
+     * @param {Object} origin - Objeto da aldeia origem.
+     * @param {Object} target - Objeto da aldeia alvo.
+     * @param {Object} units - Exercito usado no ataque como referência para calcular o tempo.
+     * @param {String} type - Tipo de comando (attack,support,relocate)
+     * @param {Object} officers - Oficiais usados no comando (usados para efeitos)
      * 
      * @return {Number} Tempo de viagem
      */
     Queue.getTravelTime = function (origin, target, units, type, officers) {
-        officers = angular.copy(officers)
-
-        var army = {
-            units: units,
-            officers: officers
-        }
-
-        var originCoords = {}
-        var targetCoords = {}
-        var targetIsBarbarian = false
-        var targetIsSameTribe = false
-
-        if (typeof origin === 'string') {
-            var splitOrigin = origin.split('|')
-            originCoords.x = splitOrigin[0]
-            originCoords.y = splitOrigin[1]
-        } else {
-            originCoords.x = origin.x
-            originCoords.y = origin.y
-        }
-
-        if (typeof target === 'string') {
-            var splitTarget = target.split('|')
-            targetCoords.x = splitTarget[0]
-            targetCoords.y = splitTarget[1]
-        } else {
-            targetCoords.x = target.x
-            targetCoords.y = target.y
-            targetIsBarbarian = !target.character_id
-
-            if (!targetIsBarbarian) {
-                targetIsSameTribe = target.tribe_id && target.tribe_id === $player.getTribeId()
-            }
-        }
-
         var useEffects = false
+        var targetIsBarbarian = !target.character_id
+        var targetIsSameTribe = target.character_id && target.tribe_id &&
+            target.tribe_id === $player.getTribeId()
 
         if (type === 'attack') {
             if ('supporter' in officers) {
@@ -722,7 +687,10 @@ define('TWOverflow/Queue', [
             }
         }
 
-        var distance = $math.actualDistance(originCoords, targetCoords)
+        var army = {
+            units: units,
+            officers: angular.copy(officers)
+        }
 
         var travelTime = $armyService.calculateTravelTime(army, {
             barbarian: targetIsBarbarian,
@@ -730,6 +698,8 @@ define('TWOverflow/Queue', [
             officers: officers,
             effects: useEffects
         }, type)
+
+        var distance = $math.actualDistance(origin, target)
 
         var totalTravelTime = $armyService.getTravelTimeForDistance(
             army,
