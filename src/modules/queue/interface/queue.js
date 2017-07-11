@@ -42,6 +42,22 @@ define('TWOverflow/Queue/interface', [
     }
 
     /**
+     * Object da aldeia origem (Obtido ao adicionar as coordendas
+     * em "Adicionar comando").
+     * 
+     * @type {Object|Null}
+     */
+    var originVillage = null
+
+    /**
+     * Object da aldeia alvo (Obtido ao adicionar as coordendas
+     * em "Adicionar comando").
+     * 
+     * @type {Object|Null}
+     */
+    var targetVillage = null
+
+    /**
      * Armazena o elemento com a contagem regressiva de todos os comandos em espera.
      * 
      * @type {Object}
@@ -330,7 +346,7 @@ define('TWOverflow/Queue/interface', [
                 var units = {}
                 units[unit] = 1
 
-                var travelTime = Queue.getTravelTime(origin, targetVillage, units, type, officers)
+                var travelTime = Queue.getTravelTime(originVillage, targetVillage, units, type, officers)
                 var readable = readableMillisecondsFilter(travelTime)
 
                 if (dateType === 'arrive') {
@@ -668,6 +684,8 @@ define('TWOverflow/Queue/interface', [
                     hideTravelTimes()
                     colorRed($origin)
                 } else {
+                    originVillage = data
+
                     colorNeutral($origin)
                 }
 
