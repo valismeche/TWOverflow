@@ -91,7 +91,20 @@
         "buildings.iron_mine": "Mina de Ferro",
         "buildings.farm": "Fazenda",
         "buildings.warehouse": "Armazém",
-        "buildings.wall": "Muralha"
+        "buildings.wall": "Muralha",
+        "units.spear": "Lanceiro",
+        "units.sword": "Espadachim",
+        "units.axe": "Viking",
+        "units.archer": "Arqueiro",
+        "units.light_cavalry": "Cavalaria Leve",
+        "units.mounted_archer": "Arqueiro Montado",
+        "units.heavy_cavalry": "Cavalaria Pesada",
+        "units.ram": "Aríete",
+        "units.catapult": "Catapulta",
+        "units.doppelsoldner": "Berserker",
+        "units.trebuchet": "Trabuco",
+        "units.snob": "Nobre",
+        "units.knight": "Paladino"
     },
     "en": {
         "title":"CommandQueue",
@@ -185,6 +198,19 @@
         "buildings.iron_mine": "Iron Mine",
         "buildings.farm": "Farm",
         "buildings.warehouse": "Warehouse",
-        "buildings.wall": "Wall"
+        "buildings.wall": "Wall",
+        "units.spear": "Spearman",
+        "units.sword": "Swordsman",
+        "units.axe": "Axe Fighter",
+        "units.archer": "Archer",
+        "units.light_cavalry": "Light Cavalry",
+        "units.mounted_archer": "Mounted Archer",
+        "units.heavy_cavalry": "Heavy Cavalry",
+        "units.ram": "Ram",
+        "units.catapult": "Catapult",
+        "units.doppelsoldner": "Berserker",
+        "units.trebuchet": "Trebuchet",
+        "units.snob": "Nobleman",
+        "units.knight": "Paladin"
     }
 }

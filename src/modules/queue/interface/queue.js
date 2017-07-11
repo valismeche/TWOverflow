@@ -220,12 +220,6 @@ define('TWOverflow/Queue/interface', [
         $travelTimes.css('display', '')
     }
 
-    // TODO
-    // remove this, use Locale() instead
-    var i18nUnit = function (unit) {
-        return $filter('i18n')(unit, $root.loc.ale, 'unit_names')
-    }
-
     /**
      * Formata milisegundos em hora/data
      * @return {String} Data e hora formatada
@@ -905,7 +899,6 @@ define('TWOverflow/Queue/interface', [
         var replaces = {
             version: Queue.version,
             locale: Locale,
-            i18nUnit: i18nUnit,
             units: unitNamesCatapultLast(),
             officers: officerNames,
             buildings: buildingNames
