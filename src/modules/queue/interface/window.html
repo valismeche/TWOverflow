@@ -196,10 +196,22 @@
                                     <span class="float-left icon-bg-black icon-44x44-unit-<#= unit #>"></span>
                                     <div class="ff-cell-fix cell-space-44x44">
                                         <span><#= i18nUnit(unit) #></span>
-                                        <input class="unit" type="text" data-setting="<#= unit #>" placeholder="0">
+                                        <input class="unit <#= unit #>" type="text" data-setting="<#= unit #>" placeholder="0">
                                     </div>
                                 </td>
                             <# }) #>
+
+                            <td class="text-center catapult-target" style="display:none">
+                                <select data-setting="catapult-target">
+                                    <# buildings.forEach(function(building, i) { #>
+                                        <# if (building === "headquarter") { #>
+                                            <option value="headquarter" selected><#= locale("queue", "buildings.headquarter") #></option>
+                                        <# } else { #>
+                                            <option value="<#= building #>"><#= locale("queue", "buildings." + building) #></option>
+                                        <# } #>
+                                    <# }) #>
+                                </select>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
