@@ -539,6 +539,12 @@ define('TWOverflow/Queue', [
                 command.officers[officer] = 1
             }
 
+            // Define o alvo da catapulta apenas se houver alguma catapulta
+            // na lista de unidades.
+            if (!command.units.catapult || command.type === 'support') {
+                command.catapultTarget = null
+            }
+
             command.id = guid()
 
             pushWaitingCommand(command)

@@ -30,6 +30,8 @@ define('TWOverflow/Queue/interface', [
     var $sections
     var $dateType
     var $filters
+    var $catapultTarget
+    var $catapultInput
 
     /**
      * Elementos da previsão dos tempos de viagem de todas unidades.
@@ -158,6 +160,13 @@ define('TWOverflow/Queue/interface', [
      * @type {Array}
      */
     var unitNames = $gameData.getOrderedUnitNames()
+
+    /**
+     * Nome de todos edificios.
+     * 
+     * @type {Array}
+     */
+    var buildingNames
 
     /**
      * Nome de uma unidade de cada velocidade disponivel no jogo.
@@ -423,6 +432,8 @@ define('TWOverflow/Queue/interface', [
 
             if (id === 'dateType') {
                 command.dateType = $input.dataset.value
+            } else if (id === 'catapultTarget') {
+                command.catapultTarget = $input.dataset.value || null
             } else if (!value) {
                 return false
             } else if (isUnit(id)) {
@@ -486,7 +497,8 @@ define('TWOverflow/Queue/interface', [
             hasOfficers: hasOfficers,
             officers: command.officers,
             section: section,
-            locale: Locale
+            locale: Locale,
+            catapultTarget: command.catapultTarget
         })
 
         $command.querySelector('.origin').replaceWith(origin.elem)
@@ -730,6 +742,14 @@ define('TWOverflow/Queue/interface', [
             populateTravelTimes()
         })
 
+        $catapultInput.on('input', function (event) {
+            if (event.target.value) {
+                $catapultTarget.css('display', '')
+            } else {
+                $catapultTarget.css('display', 'none')
+            }
+        })
+
         $root.$on($eventType.SHOW_CONTEXT_MENU, function (event, menu) {
             mapSelectedVillage = [menu.data.x, menu.data.y]
         })
@@ -862,7 +882,23 @@ define('TWOverflow/Queue/interface', [
         return officers
     }
 
+    /**
+     * Obtem a lista de unidades porém com a catapulta como o último item.
+     *
+     * @return {Array}
+     */
+    var unitNamesCatapultLast = function () {
+        var units = unitNames.filter(function (unit) {
+            return unit !== 'catapult'
+        })
+
+        units.push('catapult')
+
+        return units
+    }
+
     function QueueInterface () {
+        buildingNames = Object.keys($gameData.getBuildings())
         $player = $model.getSelectedCharacter()
 
         // Valores a serem substituidos no template da janela
@@ -870,8 +906,9 @@ define('TWOverflow/Queue/interface', [
             version: Queue.version,
             locale: Locale,
             i18nUnit: i18nUnit,
-            units: unitNames,
-            officers: officerNames
+            units: unitNamesCatapultLast(),
+            officers: officerNames,
+            buildings: buildingNames
         }
 
         ui = new Interface('CommandQueue', {
@@ -910,6 +947,8 @@ define('TWOverflow/Queue/interface', [
         $travelTimes = $window.find('table.travelTimes')
         $dateType = $window.find('.dateType')
         $filters = $window.find('.filters')
+        $catapultTarget = $window.find('td.catapult-target')
+        $catapultInput = $window.find('input.unit.catapult')
         $sections = {
             queue: $window.find('div.queue'),
             sended: $window.find('div.sended'),
