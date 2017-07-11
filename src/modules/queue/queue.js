@@ -318,6 +318,10 @@ define('TWOverflow/Queue', [
      */
     var listenCommands = function () {
         setInterval(function () {
+            if (!waitingCommands.length) {
+                return
+            }
+
             waitingCommands.some(function (command) {
                 if (isTimeToSend(command.sendTime)) {
                     if (running) {
