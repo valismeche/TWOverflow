@@ -824,7 +824,7 @@ define('TWOverflow/Farm', [
 
             if (notifsEnabled && Farm.settings.singleCycleNotifs) {
                 emitNotif('error', Locale('farm', 'events.singleCycleEndNoVillages'))
-            }
+            }[]
         })
 
         Farm.bind('singleCycleNext', function () {
