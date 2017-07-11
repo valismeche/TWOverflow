@@ -97,7 +97,7 @@
 - [New] Informações do último ataque agora são mostrados ao passar o mouse no botão de abrir a interface.
 - [New] Botão de abrir interface agora fica vermelho quando o farm está ativado.
 - [Fix] Aldeias adicionadas na lista de incluidas agora tem efeito imediato (não precisa reiniciar o script).
-- [Change] Estilo dos elementos <select> melhorados.
+- [Change] Estilo dos elementos `<select>` melhorados.
 
 ## 1.0.1rc 09/04/2017
 
