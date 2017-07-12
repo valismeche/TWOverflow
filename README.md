@@ -27,7 +27,13 @@ npm install
 
 You can specify which modules you want to include in the final build.
 
-`grunt build -modules=farm,queue`
+`grunt build -modules=module1,module2...`
+
+### List of available modules
+
+- farm
+- queue
+- deposit
 
 If you want a minified version, add `--prod` flag.
 

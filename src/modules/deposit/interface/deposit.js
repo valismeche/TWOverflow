@@ -1,0 +1,32 @@
+define('TWOverflow/autoDeposit/interface', [
+    'TWOverflow/autoDeposit',
+    'TWOverflow/FrontButton'
+], function (
+    autoDeposit,
+    FrontButton
+) {
+    var opener
+
+    function DepositInterface () {
+        opener = new FrontButton('Deposit', {
+            classHover: false,
+            classBlur: false,
+            // TODO
+            // Adicionar Locale() quando uma tela de configuração global para
+            // o TWOverflow for criada.
+            tooltip: 'Automatic Resource Deposit collector.'
+        })
+
+        opener.click(function () {
+            if (autoDeposit.isRunning()) {
+                autoDeposit.stop()
+                opener.$elem.removeClass('btn-red').addClass('btn-green')
+            } else {
+                autoDeposit.start()
+                opener.$elem.removeClass('btn-green').addClass('btn-red')
+            }
+        })
+    }
+
+    autoDeposit.interface = DepositInterface
+})

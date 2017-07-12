@@ -99,6 +99,14 @@ module.exports = function (grunt) {
         locales['dist/temp/modules/queue/locales.json'] = 'src/modules/queue/locales.json'
     }
 
+    if (modules.includes('deposit')) {
+        concat = concat.concat([
+            'src/modules/deposit/deposit.js',
+            'src/modules/deposit/interface/deposit.js',
+            'src/modules/deposit/init.js'
+        ])
+    }
+
     concat.push('src/footer.js')
 
     grunt.initConfig({

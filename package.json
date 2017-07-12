@@ -30,9 +30,9 @@
     "grunt-replace": "^1.0.1"
   },
   "scripts": {
-    "build-dev": "grunt build -modules=farm,queue --dev",
-    "build-prod": "grunt build -modules=farm,queue --prod",
-    "build": "grunt build -modules=farm,queue --prod"
+    "build-dev": "grunt build -modules=farm,queue,deposit --dev",
+    "build-prod": "grunt build -modules=farm,queue,deposit --prod",
+    "build": "grunt build -modules=farm,queue,deposit --prod"
   },
   "farmAnalytics": "UA-92130203-4",
   "queueAnalytics": "UA-92130203-5"
