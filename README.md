@@ -47,3 +47,5 @@ The script will be compiled inside `dist/`
 - Portuguese
 
 Each module has it's own locale file. `src/modules/some_module/locales.json`
+
+Please help to translate the TWOverflow [here](https://crowdin.com/project/twoverflow).
