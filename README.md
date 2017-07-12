@@ -13,6 +13,10 @@ See all informations and screenshots [here](https://github.com/FarmOverflow/Farm
 
 Command planer! Send attacks/supports or relocate troops specifying the date it shold arrive, or a data to send. See all informations and screenshots [here](https://github.com/FarmOverflow/FarmOverflow/wiki/CommandQueue).
 
+### AutoDeposit
+
+Start/collect all deposit resources automatically.
+
 ## Build
 
 You'll need install [Node.js](https://nodejs.org/en/download/) to build the script from source.
