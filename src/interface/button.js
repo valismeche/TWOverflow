@@ -2,42 +2,59 @@ define('TWOverflow/FrontButton', [
     'ejs'
 ], function (ejs) {
     function FrontButton (label, options) {
-        var self = this
-
-        self.options = angular.merge({
+        this.options = options = angular.merge({
             label: label,
             className: '',
             classHover: 'expand-button',
-            classBlur: 'contract-button'
+            classBlur: 'contract-button',
+            tooltip: false
         }, options)
 
-        self.buildWrapper()
-        self.appendButton()
+        this.buildWrapper()
+        this.appendButton()
 
-        var $label = self.$elem.find('.label')
-        var $quick = self.$elem.find('.quickview')
+        var $elem = this.$elem
 
-        if (self.options.classHover) {
-            self.$elem.on('mouseenter', function () {
-                self.$elem.addClass(self.options.classHover)
-                self.$elem.removeClass(self.options.classBlur)
+        var $label = $elem.find('.label')
+        var $quick = $elem.find('.quickview')
+
+        if (options.classHover) {
+            $elem.on('mouseenter', function () {
+                $elem.addClass(options.classHover)
+                $elem.removeClass(options.classBlur)
 
                 $label.hide()
                 $quick.show()
             })
         }
 
-        if (self.options.classBlur) {
-            self.$elem.on('mouseleave', function () {
-                self.$elem.addClass(self.options.classBlur)
-                self.$elem.removeClass(self.options.classHover)
+        if (options.classBlur) {
+            $elem.on('mouseleave', function () {
+                $elem.addClass(options.classBlur)
+                $elem.removeClass(options.classHover)
 
                 $quick.hide()
                 $label.show()
             })
         }
 
-        return self
+        if (options.tooltip) {
+            $elem.on('mouseenter', function (event) {
+                $root.$broadcast(
+                    $eventType.TOOLTIP_SHOW,
+                    'twoverflow-tooltip',
+                    options.tooltip,
+                    true,
+                    event
+                )
+            })
+
+            $elem.on('mouseleave', function () {
+                $root.$broadcast($eventType.TOOLTIP_HIDE, 'twoverflow-tooltip')
+            })
+        }
+
+        return this
     }
 
     FrontButton.prototype.updateQuickview = function (text) {
