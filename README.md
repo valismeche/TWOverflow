@@ -1,21 +1,20 @@
-# TWOverflow - Tribal Wars 2 Tool Pack
+# TWOverflow - Tribal Wars 2 Script Bundle
 
-High customizable tools for Tribal Wars 2.
+Background script with usefull tools for friendly scripts (modules).
 
 ## Modules
 
-### FarmOverflow
+### [FarmOverflow](https://github.com/TWOverflow/FarmOverflow)
 
-Tool with a lot of settings and filters to farm automatically around all your villages.
-See all informations and screenshots [here](https://github.com/FarmOverflow/FarmOverflow/wiki/FarmOverflow).
+_Script with lots of settings and filters to farm automatically around all your villages._
 
-### CommandQueue
+### [CommandQueue](https://github.com/TWOverflow/CommandQueue)
 
-Command planer! Send attacks/supports or relocate troops specifying the date it shold arrive, or a data to send. See all informations and screenshots [here](https://github.com/FarmOverflow/FarmOverflow/wiki/CommandQueue).
+_Script to send attacks/supports or relocate troops specifying the date it should arrive, or a data to send._
 
-### AutoDeposit
+### [AutoDeposit](https://github.com/TWOverflow/AutoDeposit)
 
-Start/collect all deposit resources automatically.
+_Script to collect all resources from deposit and second village automatically._
 
 ## Build
 
@@ -24,8 +23,8 @@ You'll need install [Node.js](https://nodejs.org/en/download/) to build the scri
 Clone and install dependencies.
 
 ```bash
-git clone https://github.com/FarmOverflow/FarmOverflow.git
-cd FarmOverflow
+git clone https://github.com/TWOverflow/TWOverflow.git
+cd TWOverflow
 npm install
 ```
 
