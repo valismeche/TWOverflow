@@ -20,11 +20,13 @@ define('TWOverflow/autoDeposit/interface', [
         opener.click(function () {
             if (autoDeposit.isRunning()) {
                 autoDeposit.stop()
+                autoDeposit.secondVillage.stop()
                 opener.$elem.removeClass('btn-red').addClass('btn-green')
 
                 emitNotif('success', 'Deposit stopped!')
             } else {
                 autoDeposit.start()
+                autoDeposit.secondVillage.start()
                 opener.$elem.removeClass('btn-green').addClass('btn-red')
 
                 emitNotif('success', 'Deposit started!')

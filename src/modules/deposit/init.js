@@ -1,6 +1,7 @@
 require([
     'TWOverflow/ready',
     'TWOverflow/autoDeposit',
+    'TWOverflow/autoDeposit/secondVillage',
     'TWOverflow/autoDeposit/interface'
 ], function (
     ready,
@@ -12,6 +13,7 @@ require([
 
     ready(function () {
         autoDeposit.init()
+        autoDeposit.secondVillage.init()
         autoDeposit.interface()
     })
 })

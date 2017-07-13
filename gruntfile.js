@@ -102,6 +102,7 @@ module.exports = function (grunt) {
     if (modules.includes('deposit')) {
         concat = concat.concat([
             'src/modules/deposit/deposit.js',
+            'src/modules/deposit/second-village.js',
             'src/modules/deposit/interface/deposit.js',
             'src/modules/deposit/init.js'
         ])
