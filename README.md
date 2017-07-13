@@ -2,6 +2,10 @@
 
 Background script with usefull tools for friendly scripts (modules).
 
+## Instalation
+
+See [here](https://github.com/TWOverflow/TWOverflow/wiki).
+
 ## Modules
 
 ### [FarmOverflow](https://github.com/TWOverflow/FarmOverflow)
