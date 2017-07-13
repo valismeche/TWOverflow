@@ -122,7 +122,7 @@ function matchesElem (elem, selector) {
  * @param  {String} dateString - Data em formato de string.
  * @return {Number} Timestamp (milisegundos)
  */
-function getTimeFromString (dateString) {
+function getTimeFromString (dateString, offset) {
     var dateSplit = dateString.trim().split(' ')
     var time = dateSplit[0].split(':')
     var date = dateSplit[1].split('/')
@@ -136,5 +136,15 @@ function getTimeFromString (dateString) {
     var day = date[1]
     var year = date[2]
 
-    return new Date(year, month, day, hour, min, sec, ms).getTime()
+    var date = new Date(year, month, day, hour, min, sec, ms)
+
+    return date.getTime() + (offset || 0)
+}
+
+/**
+ * Formata milisegundos em hora/data
+ * @return {String} Data e hora formatada
+ */
+function formatDate (ms, format) {
+    return readableDateFilter(ms, null, $root.GAME_TIMEZONE, $root.GAME_TIME_OFFSET, format || 'HH:mm:ss dd/MM/yyyy')
 }

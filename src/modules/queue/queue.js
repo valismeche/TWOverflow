@@ -131,6 +131,26 @@ define('TWOverflow/Queue', [
     }
 
     /**
+     * Diferença entre o timezone local e do servidor.
+     * 
+     * @type {Number}
+     */
+    var timeOffset
+
+    /**
+     * Obtem a diferença entre o timezone local e do servidor.
+     * 
+     * @type {Number}
+     */
+    var getTimeOffset = function () {
+        var localDate = $timeHelper.gameDate()
+        var localOffset = localDate.getTimezoneOffset() * 1000 * 60
+        var serverOffset = $root.GAME_TIME_OFFSET
+        
+        return localOffset + serverOffset
+    }
+
+    /**
      * Gera um prefix com o mundo atual para que
      * cada mundo tenha sua própria lista de comandos.
      * 
@@ -154,7 +174,7 @@ define('TWOverflow/Queue', [
      * @return {Boolean}
      */
     var isTimeToSend = function (sendTime) {
-        return sendTime < $timeHelper.gameTime()
+        return sendTime < ($timeHelper.gameTime() + timeOffset)
     }
 
     /**
@@ -364,6 +384,7 @@ define('TWOverflow/Queue', [
     Queue.init = function () {
         Locale.create('queue', ___langQueue, 'en')
         
+        timeOffset = getTimeOffset
         $player = $model.getSelectedCharacter()
 
         Queue.initialized = true
@@ -522,9 +543,11 @@ define('TWOverflow/Queue', [
                 command.arriveTime = inputTime + command.travelTime
             }
 
+            console.log(new Date(command.arriveTime))
+
             if (isTimeToSend(command.sendTime)) {
                 return Queue.trigger('error', [Locale('queue', 'error.alreadySent', {
-                    date: readableDateFilter(command.sendTime),
+                    date: formatDate(command.sendTime),
                     type: Locale('queue', command.type)
                 })])
             }

@@ -300,8 +300,8 @@ define('TWOverflow/Farm/interface', [
             options.content = Locale('farm', 'events.' + options.type, linkTemplate)
         }
 
-        var longDate = readableDateFilter(timestamp, null, null, null, dateFormat)
-        var shortDate = readableDateFilter(timestamp, null, null, null, 'HH:mm:ss')
+        var longDate = formatDate(timestamp)
+        var shortDate = formatDate(timestamp, 'HH:mm:ss')
 
         eventElement.innerHTML = ejs.render('___htmlFarmEvent', {
             longDate: longDate,
@@ -359,7 +359,7 @@ define('TWOverflow/Farm/interface', [
             }
         }
 
-        $last.html(readableDateFilter(lastAttack, null, null, null, dateFormat))
+        $last.html(formatDate(lastAttack))
 
         updateQuickview()
     }
@@ -660,7 +660,7 @@ define('TWOverflow/Farm/interface', [
             var next = $timeHelper.gameTime() + Farm.cycle.getInterval()
 
             $status.html(Locale('farm', 'events.singleCycleNext', {
-                time: readableDateFilter(next, null, null, null, dateFormat)
+                time: formatDate(next)
             }))
         })
 
@@ -668,7 +668,7 @@ define('TWOverflow/Farm/interface', [
             var next = $timeHelper.gameTime() + Farm.cycle.getInterval()
 
             $status.html(Locale('farm', 'events.singleCycleNextNoVillages', {
-                time: readableDateFilter(next, null, null, null, dateFormat)
+                time: formatDate(next)
             }))
         })
 

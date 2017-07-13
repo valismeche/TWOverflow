@@ -834,7 +834,7 @@ define('TWOverflow/Farm', [
                 var next = $timeHelper.gameTime() + Farm.cycle.getInterval()
 
                 emitNotif('success', Locale('farm', 'events.singleCycleNext', {
-                    time: readableDateFilter(next, null, null, null, dateFormat)
+                    time: formatDate(next)
                 }))
             }
         })
@@ -1020,12 +1020,12 @@ define('TWOverflow/Farm', [
         if (currentStatus === 'singleCycleNext') {
             var next = $timeHelper.gameTime() + Farm.cycle.getInterval()
 
-            statusReplaces.time = readableDateFilter(next, null, null, null, dateFormat)
+            statusReplaces.time = formatDate(next)
         }
 
         var farmStatus = Locale('farm', 'events.' + currentStatus, statusReplaces)
         var villageLabel = genVillageLabel(selectedVillage)
-        var last = readableDateFilter(lastAttack)
+        var last = formatDate(lastAttack)
         var vid = selectedVillage.id
 
         var message = []

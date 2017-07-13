@@ -207,6 +207,26 @@ define('TWOverflow/Queue/interface', [
     var mapSelectedVillage = false
 
     /**
+     * Diferença entre o timezone local e do servidor.
+     * 
+     * @type {Number}
+     */
+    var timeOffset
+
+    /**
+     * Obtem a diferença entre o timezone local e do servidor.
+     * 
+     * @type {Number}
+     */
+    var getTimeOffset = function () {
+        var localDate = $timeHelper.gameDate()
+        var localOffset = localDate.getTimezoneOffset() * 1000 * 60
+        var serverOffset = $root.GAME_TIME_OFFSET
+        
+        return localOffset + serverOffset
+    }
+
+    /**
      * Oculpa os tempos de viagem
      */
     var hideTravelTimes = function () {
@@ -218,14 +238,6 @@ define('TWOverflow/Queue/interface', [
      */
     var showTravelTimes = function () {
         $travelTimes.css('display', '')
-    }
-
-    /**
-     * Formata milisegundos em hora/data
-     * @return {String} Data e hora formatada
-     */
-    var formatDate = function (ms) {
-        return readableDateFilter(ms, null, null, null, dateFormat)
     }
 
     /**
@@ -312,14 +324,14 @@ define('TWOverflow/Queue/interface', [
      * @return {[type]} [description]
      */
     var gameDateFormated = function () {
-        var zf = $timeHelper.zerofill
-        var date = $timeHelper.gameDate()
-        var ms = zf(date.getMilliseconds(), 3)
-        var sec = zf(date.getSeconds(), 2)
-        var min = zf(date.getMinutes(), 2)
-        var hour = zf(date.getHours(), 2)
-        var day = zf(date.getDate(), 2)
-        var month = zf(date.getMonth() + 1, 2)
+        var date = new Date($timeHelper.gameTime() + timeOffset)
+
+        var ms = $timeHelper.zerofill(date.getMilliseconds(), 3)
+        var sec = $timeHelper.zerofill(date.getSeconds(), 2)
+        var min = $timeHelper.zerofill(date.getMinutes(), 2)
+        var hour = $timeHelper.zerofill(date.getHours(), 2)
+        var day = $timeHelper.zerofill(date.getDate(), 2)
+        var month = $timeHelper.zerofill(date.getMonth() + 1, 2)
         var year = date.getFullYear()
 
         return hour + ':' + min + ':' + sec + ':' + ms + ' ' + day + '/' + month + '/' + year
@@ -479,8 +491,8 @@ define('TWOverflow/Queue/interface', [
         var origin = buttonLink('village', genVillageLabel(command.origin), command.origin.id)
         var target = buttonLink('village', genVillageLabel(command.target), command.target.id)
 
-        var arriveTime = readableDateFilter(command.arriveTime, null, null, null, dateFormat)
-        var sendTime = readableDateFilter(command.sendTime, null, null, null, dateFormat)
+        var arriveTime = formatDate(command.arriveTime)
+        var sendTime = formatDate(command.sendTime)
         var hasOfficers = !!Object.keys(command.officers).length
 
         $command.innerHTML = ejs.render('___htmlQueueCommand', {
@@ -520,9 +532,8 @@ define('TWOverflow/Queue/interface', [
      */
     var listenCommandCountdown = function () {
         var waitingCommands = Queue.getWaitingCommandsObject()
-
         setInterval(function () {
-            var now = $timeHelper.gameTime()
+            var now = $timeHelper.gameTime() + timeOffset
 
             // Só processa os comandos se a aba dos comandos em esperera
             // estiver aberta.
@@ -850,7 +861,7 @@ define('TWOverflow/Queue/interface', [
      * @return {Boolean}
      */
     var isValidSendTime = function (time) {
-        if ($timeHelper.gameTime() > time) {
+        if (($timeHelper.gameTime() + timeOffset) > time) {
             return false
         }
 
@@ -892,6 +903,7 @@ define('TWOverflow/Queue/interface', [
     }
 
     function QueueInterface () {
+        timeOffset = getTimeOffset()
         buildingNames = Object.keys($gameData.getBuildings())
         $player = $model.getSelectedCharacter()
 
