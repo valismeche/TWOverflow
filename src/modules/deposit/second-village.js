@@ -183,31 +183,21 @@ define('TWOverflow/autoDeposit/secondVillage', [
     }
 
     /**
-     * Filtra os trabalhos do dia atual e obtem apenas o trabalho
-     * que está disponível para ser iniciado.
+     * Obtem um dos trabalhos disponíveis para o dia atual.
      *
-     * @param {Object} jobs - Lista de todos trabalhos da segunda aldeia
-     * @return {Object|undefined}
+     * @return {Object|Boolean}
      */
-    var getAvailJobToday = function (jobs) {
-        var arrayJobs = []
+    var getAvailJobToday = function () {
+        var currentDayJobs = secondVillageService.getCurrentDayJobs(jobs, day)
+        var collectedJobs = secondVillageService.getCollectedJobs(jobs)
+        var resources = $model.getSelectedVillage().getResources().getResources()
+        var availableJobs = secondVillageService.getAvailableJobs(currentDayJobs, collectedJobs, resources, [])
 
-        for (id in jobs) {
-            arrayJobs.push(jobs[id])
+        for (var id in availableJobs) {
+            return availableJobs[id]
         }
 
-        // Apenas trabalhos que ainda não foram iniciados
-        var filteredJobs = arrayJobs.filter(function (job) {
-            return job.time_started === 0
-        })
-
-        // Posiciona os trabalhos que devem ser iniciados primeiro
-        // no inicio da lista
-        var sortedJobs = filteredJobs.sort(function (minor, major) {
-            return minor.position > major.position
-        })
-
-        return sortedJobs[0]
+        return false
     }
 
     /**
