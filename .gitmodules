@@ -1,9 +1,0 @@
-[submodule "FarmOverflow"]
-	path = src/modules/farm
-	url = https://github.com/TWOverflow/FarmOverflow.git
-[submodule "CommandQueue"]
-	path = src/modules/queue
-	url = https://github.com/TWOverflow/CommandQueue.git
-[submodule "AutoDeposit"]
-	path = src/modules/deposit
-	url = https://github.com/TWOverflow/AutoDeposit.git
