@@ -8,11 +8,11 @@ define('TWOverflow/Interface/buttonLink', [
      * @param {String} text - Texto dentro do botão.
      * @param {Number} id - item id
      *
-     * @return {Object} 
+     * @return {Object}
      */
     return function (type, text, id) {
         var uid = Math.round(Math.random() * 1e5)
-        var template = '<a id="l<#= uid #>" class="img-link icon-20x20-' + 
+        var template = '<a id="l<#= uid #>" class="img-link icon-20x20-' +
             '<#= type #> btn btn-orange padded"><#= text #></a>'
 
         var html = ejs.render(template, {
@@ -30,13 +30,13 @@ define('TWOverflow/Interface/buttonLink', [
         switch (type) {
         case 'village':
             handler = function () {
-                $wds.openVillageInfo(id)
+                windowDisplayService.openVillageInfo(id)
             }
 
             break
         case 'character':
             handler = function () {
-                $wds.openCharacterProfile(id)
+                windowDisplayService.openCharacterProfile(id)
             }
 
             break

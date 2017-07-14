@@ -8,20 +8,20 @@ require([
     ejs
 ) {
     ready(function () {
-        var $player = $model.getSelectedCharacter()
+        var $player = modelDataService.getSelectedCharacter()
 
         // EJS settings
-        
+
         ejs.delimiter = '#'
 
         // Lockr settings
-        
+
         Lockr.prefix = $player.getId() + '_twOverflow_'
 
         // Interface settings
-        
-        $hotkeys.add('esc', function () {
-            $root.$broadcast($eventType.WINDOW_CLOSED)
+
+        angularHotkeys.add('esc', function () {
+            rootScope.$broadcast(eventTypeProvider.WINDOW_CLOSED)
         }, ['INPUT', 'SELECT', 'TEXTAREA'])
     })
 })

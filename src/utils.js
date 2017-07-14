@@ -5,7 +5,7 @@
  */
 function randomSeconds (base) {
     base = parseInt(base, 10)
-    
+
     var max = base + (base / 2)
     var min = base - (base / 2)
 
@@ -36,10 +36,10 @@ function time2seconds (time) {
  */
 function emitNotif (type, message) {
     var eventType = type === 'success'
-        ? $eventType.MESSAGE_SUCCESS
-        : $eventType.MESSAGE_ERROR
+        ? eventTypeProvider.MESSAGE_SUCCESS
+        : eventTypeProvider.MESSAGE_ERROR
 
-    $root.$broadcast(eventType, {
+    rootScope.$broadcast(eventType, {
         message: message
     })
 }
@@ -70,7 +70,7 @@ function isValidCoords (xy) {
 
 /**
  * Validação de horario e data de envio. Exmplo: 23:59:00:999 30/12/2016
- * 
+ *
  * @param  {String}  dateTime
  * @return {Boolean}
  */
@@ -91,7 +91,7 @@ function fixDate (dateTime) {
 
 /**
  * Gera um id unico
- * 
+ *
  * @return {String}
  */
 function guid () {
@@ -143,8 +143,15 @@ function getTimeFromString (dateString, offset) {
 
 /**
  * Formata milisegundos em hora/data
+ *
  * @return {String} Data e hora formatada
  */
 function formatDate (ms, format) {
-    return readableDateFilter(ms, null, $root.GAME_TIMEZONE, $root.GAME_TIME_OFFSET, format || 'HH:mm:ss dd/MM/yyyy')
+    return $filter('readableDateFilter')(
+        ms,
+        null,
+        rootScope.GAME_TIMEZONE,
+        rootScope.GAME_TIME_OFFSET,
+        format || 'HH:mm:ss dd/MM/yyyy'
+    )
 }

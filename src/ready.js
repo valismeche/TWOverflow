@@ -6,10 +6,7 @@ define('TWOverflow/ready', function () {
         if ($mapScope.isInitialized) {
             callback()
         } else {
-            var $root = angular.element(document).scope()
-            var $eventType = injector.get('eventTypeProvider')
-
-            $root.$on($eventType.MAP_INITIALIZED, callback)
+            rootScope.$on(eventTypeProvider.MAP_INITIALIZED, callback)
         }
     }
 })

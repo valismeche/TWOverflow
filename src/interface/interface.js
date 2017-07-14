@@ -9,7 +9,7 @@ define('TWOverflow/Interface', [
 ) {
     /**
      * Lista com todas janelas criadas pelo Interface()
-     * 
+     *
      * @type {Array}
      */
     var interfaceInstances = []
@@ -22,10 +22,10 @@ define('TWOverflow/Interface', [
             ui.closeWindow()
         })
     }
-    
+
     /**
      * Gera um elemento <style>
-     * 
+     *
      * @param  {String} id - ID do element
      * @param  {String} css - Estilos formato CSS
      */
@@ -40,7 +40,7 @@ define('TWOverflow/Interface', [
 
     /**
      * Gera um <select> customizado
-     * 
+     *
      * @param  {Element} $originalSelect - Elemento <select> que será substituido
      */
     var createSelect = function ($originalSelect) {
@@ -60,8 +60,8 @@ define('TWOverflow/Interface', [
         }
 
         var hideSelect = function () {
-            $root.$broadcast($eventType.SELECT_HIDE, selectId)
-            
+            rootScope.$broadcast(eventTypeProvider.SELECT_HIDE, selectId)
+
             $(window).off('click', clickHandler)
             $('.win-main').off('mousewheel', hideSelect)
 
@@ -147,8 +147,8 @@ define('TWOverflow/Interface', [
                 selectData.push(data)
             })
 
-            $root.$broadcast(
-                $eventType.SELECT_SHOW,
+            rootScope.$broadcast(
+                eventTypeProvider.SELECT_SHOW,
                 selectId,
                 selectData,
                 selectedData,
@@ -170,7 +170,7 @@ define('TWOverflow/Interface', [
 
     // TODO
     // mover todos arquivos de interface para um modulo próprio
-    
+
     buildStyle('own', '___cssWindow')
 
     /**
@@ -200,7 +200,7 @@ define('TWOverflow/Interface', [
             self.closeWindow()
         })
 
-        $root.$on($eventType.WINDOW_CLOSED, function () {
+        rootScope.$on(eventTypeProvider.WINDOW_CLOSED, function () {
             self.closeWindow()
         })
 
@@ -227,7 +227,7 @@ define('TWOverflow/Interface', [
      * Abrir janela.
      */
     Interface.prototype.openWindow = function () {
-        $wms.closeAll()
+        windowManagerService.closeAll()
         closeAllInstances()
 
         this.$window.style.visibility = 'visible'
@@ -322,7 +322,7 @@ define('TWOverflow/Interface', [
 
         self.$tabs.forEach(function ($tab) {
             var name = $tab.getAttribute('tab')
-            
+
             $tab.addEventListener('click', function () {
                 self.activeTab = name
                 self.tabsState()
@@ -391,11 +391,11 @@ define('TWOverflow/Interface', [
             $elem.removeAttribute('tooltip')
 
             $elem.addEventListener('mouseenter', function (event) {
-                $root.$broadcast($eventType.TOOLTIP_SHOW, 'twoverflow-tooltip', text, true, event)
+                rootScope.$broadcast(eventTypeProvider.TOOLTIP_SHOW, 'twoverflow-tooltip', text, true, event)
             })
 
             $elem.addEventListener('mouseleave', function () {
-                $root.$broadcast($eventType.TOOLTIP_HIDE, 'twoverflow-tooltip')
+                rootScope.$broadcast(eventTypeProvider.TOOLTIP_HIDE, 'twoverflow-tooltip')
             })
         })
     }
