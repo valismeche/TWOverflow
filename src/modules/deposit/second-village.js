@@ -169,6 +169,10 @@ define('TWOverflow/autoDeposit/secondVillage', [
         var dayJobs = secondVillageService.getCurrentDayJobs(jobs, day)
         var job = getAvailJobToday(dayJobs)
 
+        if (!job) {
+            return false
+        }
+
         $socket.emit($route.SECOND_VILLAGE_START_JOB, {
             job_id: job.id,
             village_id: $model.getSelectedVillage().getId()
