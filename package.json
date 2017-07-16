@@ -1,20 +1,18 @@
 {
   "name": "tw2overflow",
-  "title": "TW2Overflow",
-  "description": "High customizable script pack for Tribal Wars 2.",
+  "title": "TWOverflow",
+  "description": "Script Bundle for Tribal Wars 2",
   "author": {
-    "name": "Relaxeaza",
+    "name": "Rafael Mafra",
     "email": "mafrazzrafael@gmail.com",
     "url": "https://github.com/mafrazz"
   },
   "private": true,
   "version": "1.0.0",
-  "farmVersion": "2.2.3",
-  "queueVersion": "0.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/FarmOverflow/FarmOverflow"
+    "url": "https://github.com/TWOverflow/TWOverflow"
   },
   "devDependencies": {
     "grunt": "^1.0.1",
@@ -26,14 +24,11 @@
     "grunt-contrib-less": "^1.4.1",
     "grunt-contrib-uglify": "^2.2.0",
     "grunt-eslint": "^19.0.0",
-    "grunt-minjson": "^0.4.0",
     "grunt-replace": "^1.0.1"
   },
   "scripts": {
     "build-dev": "grunt build -modules=farm,queue,deposit --dev",
     "build-prod": "grunt build -modules=farm,queue,deposit --prod",
     "build": "grunt build -modules=farm,queue,deposit --prod"
-  },
-  "farmAnalytics": "UA-92130203-4",
-  "queueAnalytics": "UA-92130203-5"
+  }
 }

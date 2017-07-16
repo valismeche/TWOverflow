@@ -171,7 +171,7 @@ define('TWOverflow/Interface', [
     // TODO
     // mover todos arquivos de interface para um modulo próprio
 
-    buildStyle('own', '___cssWindow')
+    buildStyle('own', '__overflow_interface_css_window')
 
     /**
      * @class

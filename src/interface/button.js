@@ -82,7 +82,7 @@ define('TWOverflow/FrontButton', [
     }
 
     FrontButton.prototype.appendButton = function () {
-        var html = ejs.render('___htmlButton', {
+        var html = ejs.render('__overflow_interface_html_button', {
             className: this.options.className,
             label: this.options.label
         })

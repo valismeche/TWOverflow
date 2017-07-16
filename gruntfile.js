@@ -1,7 +1,95 @@
-module.exports = function (grunt) {
-    var modules = grunt.option('modules').split(',')
+var fs = require('fs')
+var glob = require('glob')
+var path = require('path')
+var mkdirp = require('mkdirp')
+var temp = 'dist/temp'
 
-    var concat = [
+var modules = []
+var overflow = {
+    js: [],
+    html: {},
+    css: {},
+    replaces: [], // array!
+    locales: {}
+}
+
+var addModule = function (moduleId) {
+    var modulePath = `src/modules/${moduleId}`
+    var data = {
+        id: moduleId,
+        js: [],
+        css: [],
+        html: [],
+        replaces: {}, // object!
+        locales: false
+    }
+
+    if (fs.existsSync(`${modulePath}/module.json`)) {
+        var modulePackage = JSON.parse(fs.readFileSync(`${modulePath}/module.json`, 'utf8'))
+
+        for (var key in modulePackage) {
+            data.replaces[`${moduleId}_${key}`] = modulePackage[key]
+        }
+    } else {
+        return console.error(`Module "${moduleId}" missing "module.json"`)
+    }
+
+    var source = glob.sync(`${modulePath}/source/*.js`, {
+        ignore: [
+            `${modulePath}/source/${moduleId}.js`,
+            `${modulePath}/source/init.js`
+        ]
+    })
+
+    source.forEach(function (filePath) {
+        data.js.push(filePath)
+    })
+
+    if (fs.existsSync(`${modulePath}/source/${moduleId}.js`)) {
+        data.js.unshift(`${modulePath}/source/${moduleId}.js`)
+    } else {
+        return console.error(`Module "${moduleId}"" missing "${moduleId}.js"`)
+    }
+
+    var hasInterfacePath = fs.existsSync(`${modulePath}/interface`)
+    var hasInterfaceFile = fs.existsSync(`${modulePath}/interface/interface.js`)
+
+    if (hasInterfacePath && hasInterfaceFile) {
+        data.js.push(`${modulePath}/interface/interface.js`)
+
+        data.html = glob.sync(`${modulePath}/interface/*.html`)
+        data.css = glob.sync(`${modulePath}/interface/*.less`)
+
+        data.html.forEach(function (htmlPath) {
+            var filename = path.basename(htmlPath, '.html')
+            data.replaces[`${moduleId}_html_${filename}`] = htmlPath
+        })
+
+        data.css.forEach(function (cssPath) {
+            var filename = path.basename(cssPath, '.less')
+            data.replaces[`${moduleId}_css_${filename}`] = cssPath
+        })
+    }
+
+    if (fs.existsSync(`${modulePath}/locales`)) {
+        data.locales = glob.sync(`${modulePath}/locales/*.json`)
+    }
+
+    if (fs.existsSync(`${modulePath}/source/init.js`)) {
+        data.js.push(`${modulePath}/source/init.js`)
+    } else {
+        return console.error(`Module "${moduleId}"" missing "init.js"`)
+    }
+
+    modules.push(data)
+}
+
+fs.readdirSync('src/modules/').forEach(function (module,) {
+    addModule(module)
+})
+
+module.exports = function (grunt) {
+    overflow.js = overflow.js.concat([
         'src/libs/lockr.js',
         'src/libs/i18n.js',
         'src/libs/ejs.js',
@@ -13,109 +101,94 @@ module.exports = function (grunt) {
         'src/interface/interface.js',
         'src/interface/button.js',
         'src/interface/button-link.js'
-    ]
-
-    var css = {
-        'dist/temp/interface/style.css': 'src/interface/style.less'
-    }
-
-    var html = {
-        'dist/temp/interface/button.html': 'src/interface/button.html'
-    }
-
-    var replaces = [{
+    ])
+    overflow.css[`${temp}/src/interface/style.css`] = 'src/interface/style.less'
+    overflow.html[`${temp}/src/interface/button.html`] = 'src/interface/button.html'
+    overflow.replaces.push({
         json: {
-            title: '<%= pkg.title %>',
-            license: '<%= pkg.license %>',
-            author: '<%= pkg.author %>',
-            authorName: '<%= pkg.author.name %>',
-            authorEmail: '<%= pkg.author.email %>',
-            authorUrl: '<%= pkg.author.url %>',
-            date: '<%= new Date() %>',
-            build: '<%= pkg.build %>',
-            htmlButton: '<%= grunt.file.read("dist/temp/interface/button.html") %>',
-            cssWindow: '<%= grunt.file.read("dist/temp/interface/style.css") %>'
+            overflow_title: '<%= pkg.title %>',
+            overflow_version: '<%= pkg.version %>',
+            overflow_license: '<%= pkg.license %>',
+            overflow_author: '<%= pkg.author %>',
+            overflow_author_name: '<%= pkg.author.name %>',
+            overflow_author_email: '<%= pkg.author.email %>',
+            overflow_author_url: '<%= pkg.author.url %>',
+            overflow_date: '<%= new Date() %>',
+            overflow_build: '<%= pkg.build %>',
+            overflow_interface_html_button: `<%= grunt.file.read("${temp}/src/interface/button.html") %>`,
+            overflow_interface_css_window: `<%= grunt.file.read("${temp}/src/interface/style.css") %>`
         }
-    }]
+    })
 
-    var locales = {}
+    modules.forEach(function (module) {
+        overflow.js = overflow.js.concat(module.js)
 
-    if (modules.includes('farm')) {
-        concat = concat.concat([
-            'src/modules/farm/farm.js',
-            'src/modules/farm/commander.js',
-            'src/modules/farm/village.js',
-            'src/modules/farm/single-cycle.js',
-            'src/modules/farm/analytics.js',
-            'src/modules/farm/locale.js',
-            'src/modules/farm/interface/farm.js',
-            'src/modules/farm/init.js'
-        ])
-
-        css['dist/temp/modules/farm/interface/style.css'] = 'src/modules/farm/interface/style.less'
-
-        html['dist/temp/modules/farm/interface/window.html'] = 'src/modules/farm/interface/window.html'
-        html['dist/temp/modules/farm/interface/event.html'] = 'src/modules/farm/interface/event.html'
-
-        replaces.push({
-            json: {
-                farmVersion: '<%= pkg.farmVersion %>',
-                farmAnalytics: '<%= pkg.farmAnalytics %>',
-                htmlFarmWindow: '<%= grunt.file.read("dist/temp/modules/farm/interface/window.html") %>',
-                htmlFarmEvent: '<%= grunt.file.read("dist/temp/modules/farm/interface/event.html") %>',
-                cssFarm: '<%= grunt.file.read("dist/temp/modules/farm/interface/style.css") %>',
-                langFarm: '<%= grunt.file.read("dist/temp/modules/farm/locales.json") %>'
-            }
+        module.html.forEach(function (htmlPath) {
+            overflow.html[`${temp}/${htmlPath}`] = htmlPath
         })
 
-        locales['dist/temp/modules/farm/locales.json'] = 'src/modules/farm/locales.json'
-    }
-
-    if (modules.includes('queue')) {
-        concat = concat.concat([
-            'src/modules/queue/queue.js',
-            'src/modules/queue/analytics.js',
-            'src/modules/queue/locale.js',
-            'src/modules/queue/interface/queue.js',
-            'src/modules/queue/init.js'
-        ])
-
-        css['dist/temp/modules/queue/interface/style.css'] = 'src/modules/queue/interface/style.less'
-
-        html['dist/temp/modules/queue/interface/window.html'] = 'src/modules/queue/interface/window.html'
-        html['dist/temp/modules/queue/interface/command.html'] = 'src/modules/queue/interface/command.html'
-
-        replaces.push({
-            json: {
-                queueVersion: '<%= pkg.queueVersion %>',
-                queueAnalytics: '<%= pkg.queueAnalytics %>',
-                htmlQueueWindow: '<%= grunt.file.read("dist/temp/modules/queue/interface/window.html") %>',
-                htmlQueueCommand: '<%= grunt.file.read("dist/temp/modules/queue/interface/command.html") %>',
-                cssQueue: '<%= grunt.file.read("dist/temp/modules/queue/interface/style.css") %>',
-                langQueue: '<%= grunt.file.read("dist/temp/modules/queue/locales.json") %>'
-            }
+        module.css.forEach(function (lessPath) {
+            var cssPath = lessPath.replace(/\.less$/, '.css')
+            overflow.css[`${temp}/${cssPath}`] = lessPath
         })
 
-        locales['dist/temp/modules/queue/locales.json'] = 'src/modules/queue/locales.json'
-    }
+        if (module.locales) {
+            var localeFiles = glob.sync(`src/modules/${module.id}/locales/*.json`)
+            var localeData = {}
 
-    if (modules.includes('deposit')) {
-        concat = concat.concat([
-            'src/modules/deposit/deposit.js',
-            'src/modules/deposit/second-village.js',
-            'src/modules/deposit/interface/deposit.js',
-            'src/modules/deposit/init.js'
-        ])
-    }
+            localeFiles.forEach(function (localePath) {
+                var id = path.basename(localePath, '.json')
+                var data = JSON.parse(fs.readFileSync(localePath, 'utf8'))
 
-    concat.push('src/footer.js')
+                localeData[id] = data
+            })
+
+            localeData = JSON.stringify(localeData)
+
+            mkdirp.sync(`${temp}/src/modules/${module.id}/locales`)
+            fs.writeFileSync(`${temp}/src/modules/${module.id}/locales/locales.json`, localeData, 'utf8')
+
+            module.replaces[`${module.id}_locale`] = `${temp}/src/modules/${module.id}/locales/locales.json`
+        }
+
+        var tempReplaces = {}
+
+        for (var id in module.replaces) {
+            var value = module.replaces[id]
+
+            if (fs.existsSync(value)) {
+                var ext = path.extname(value)
+
+                if (ext === '.less') {
+                    value = value.replace(/\.less$/, '.css')
+                }
+
+                // locale.json é criado diretamente dentro da pasta temporaria,
+                // então é preciso especificar o caminho do mesmo para checar
+                // se o arquivo existe. Então é preciso remover o caminho aqui.
+                if (id === `${module.id}_locale`) {
+                    value = `<%= grunt.file.read("${value}") %>`
+                } else {
+                    value = `<%= grunt.file.read("${temp}/${value}") %>`
+                }
+            }
+
+            tempReplaces[id] = value
+        }
+
+        overflow.replaces.push({
+            json: tempReplaces
+        })
+    })
+
+    overflow.js.push('src/footer.js')
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         concat: {
-            prod: {
-                src: concat,
-                dest: 'dist/temp/<%= pkg.name %>.js'
+            build: {
+                src: overflow.js,
+                dest: `${temp}/<%= pkg.name %>.js`
             }
         },
         eslint: {
@@ -123,38 +196,38 @@ module.exports = function (grunt) {
                 configFile: '.eslintrc.json',
                 quiet: true
             },
-            all: ['src/**/*.js']
+            build: overflow.js
         },
         less: {
-            all: {
+            build: {
                 options: {
                     compress: true,
                     ieCompat: false
                 },
-                files: css
+                files: overflow.css
             }
         },
         htmlmin: {
-            all: {
+            build: {
                 options: {
                     removeComments: true,
                     collapseWhitespace: true,
                     ignoreCustomFragments: [/\<\#[\s\S]*?\#\>/]
                 },
-                files: html
+                files: overflow.html
             }
         },
         replace: {
-            all: {
+            build: {
                 options: {
-                    prefix: '___',
-                    patterns: replaces
+                    prefix: '__',
+                    patterns: overflow.replaces
                 },
                 files: [{
                     expand: true,
                     flatten: true,
                     src: [
-                        'dist/temp/<%= pkg.name %>.js'
+                        `${temp}/<%= pkg.name %>.js`
                     ],
                     dest: 'dist/'
                 }]
@@ -172,13 +245,8 @@ module.exports = function (grunt) {
                 }
             }
         },
-        minjson: {
-            build: {
-                files: locales
-            }
-        },
         clean: {
-            all: ['dist/temp']
+            build: [temp]
         }
     })
 
@@ -189,14 +257,12 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-replace')
     grunt.loadNpmTasks('grunt-contrib-clean')
     grunt.loadNpmTasks('grunt-contrib-copy')
-    grunt.loadNpmTasks('grunt-minjson')
 
     var tasks = [
         'eslint',
         'concat',
         'less',
         'htmlmin',
-        'minjson',
         'replace'
     ]
 
