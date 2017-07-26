@@ -17,6 +17,7 @@ var addModule = function (moduleId, moduleDir) {
     var modulePath = `src/modules/${moduleDir}`
     var data = {
         id: moduleId,
+        dir: moduleDir,
         js: [],
         css: [],
         html: [],
@@ -103,13 +104,9 @@ module.exports = function (grunt) {
         'src/utils.js',
         'src/locale.js',
         'src/ready.js',
-        'src/configs.js',
-        'src/interface/interface.js',
-        'src/interface/button.js',
-        'src/interface/button-link.js'
+        'src/configs.js'
     ])
-    overflow.css[`${temp}/src/interface/style.css`] = 'src/interface/style.less'
-    overflow.html[`${temp}/src/interface/button.html`] = 'src/interface/button.html'
+
     overflow.replaces.push({
         json: {
             overflow_title: '<%= pkg.title %>',
@@ -120,9 +117,7 @@ module.exports = function (grunt) {
             overflow_author_email: '<%= pkg.author.email %>',
             overflow_author_url: '<%= pkg.author.url %>',
             overflow_date: '<%= new Date() %>',
-            overflow_build: '<%= pkg.build %>',
-            overflow_interface_html_button: `<%= grunt.file.read("${temp}/src/interface/button.html") %>`,
-            overflow_interface_css_window: `<%= grunt.file.read("${temp}/src/interface/style.css") %>`
+            overflow_build: '<%= pkg.build %>'
         }
     })
 
@@ -139,10 +134,9 @@ module.exports = function (grunt) {
         })
 
         if (module.locales) {
-            var localeFiles = glob.sync(`src/modules/${module.id}/locales/*.json`)
             var localeData = {}
 
-            localeFiles.forEach(function (localePath) {
+            module.locales.forEach(function (localePath) {
                 var id = path.basename(localePath, '.json')
                 var data = JSON.parse(fs.readFileSync(localePath, 'utf8'))
 
@@ -151,10 +145,10 @@ module.exports = function (grunt) {
 
             localeData = JSON.stringify(localeData)
 
-            mkdirp.sync(`${temp}/src/modules/${module.id}/locales`)
-            fs.writeFileSync(`${temp}/src/modules/${module.id}/locales/locales.json`, localeData, 'utf8')
+            mkdirp.sync(`${temp}/src/modules/${module.dir}/locales`)
+            fs.writeFileSync(`${temp}/src/modules/${module.dir}/locales/locales.json`, localeData, 'utf8')
 
-            module.replaces[`${module.id}_locale`] = `${temp}/src/modules/${module.id}/locales/locales.json`
+            module.replaces[`${module.id}_locale`] = `${temp}/src/modules/${module.dir}/locales/locales.json`
         }
 
         var tempReplaces = {}
