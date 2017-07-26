@@ -55,8 +55,10 @@ var addModule = function (moduleId, moduleDir) {
     var hasInterfacePath = fs.existsSync(`${modulePath}/interface`)
     var hasInterfaceFile = fs.existsSync(`${modulePath}/interface/interface.js`)
 
-    if (hasInterfacePath && hasInterfaceFile) {
-        data.js.push(`${modulePath}/interface/interface.js`)
+    if (hasInterfacePath) {
+        if (hasInterfaceFile) {
+            data.js.push(`${modulePath}/interface/interface.js`)
+        }
 
         data.html = glob.sync(`${modulePath}/interface/*.html`)
         data.css = glob.sync(`${modulePath}/interface/*.less`)
@@ -79,7 +81,7 @@ var addModule = function (moduleId, moduleDir) {
     if (fs.existsSync(`${modulePath}/source/init.js`)) {
         data.js.push(`${modulePath}/source/init.js`)
     } else {
-        return console.error(`Module "${moduleId}"" missing "init.js"`)
+        return console.error(`Module "${moduleId}" missing "init.js"`)
     }
 
     modules.push(data)
