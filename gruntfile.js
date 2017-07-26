@@ -13,8 +13,8 @@ var overflow = {
     locales: {}
 }
 
-var addModule = function (moduleId) {
-    var modulePath = `src/modules/${moduleId}`
+var addModule = function (moduleId, moduleDir) {
+    var modulePath = `src/modules/${moduleDir}`
     var data = {
         id: moduleId,
         js: [],
@@ -48,7 +48,7 @@ var addModule = function (moduleId) {
     if (fs.existsSync(`${modulePath}/source/${moduleId}.js`)) {
         data.js.unshift(`${modulePath}/source/${moduleId}.js`)
     } else {
-        return console.error(`Module "${moduleId}"" missing "${moduleId}.js"`)
+        return console.error(`Module "${moduleId}" missing "${moduleId}.js"`)
     }
 
     var hasInterfacePath = fs.existsSync(`${modulePath}/interface`)
@@ -84,8 +84,14 @@ var addModule = function (moduleId) {
     modules.push(data)
 }
 
-fs.readdirSync('src/modules/').forEach(function (module,) {
-    addModule(module)
+fs.readdirSync('src/modules/').forEach(function (moduleDir) {
+    if (!fs.existsSync(`src/modules/${moduleDir}/module.json`)) {
+        return false
+    }
+
+    var moduleInfo = JSON.parse(fs.readFileSync(`src/modules/${moduleDir}/module.json`, 'utf8'))
+
+    addModule(moduleInfo.id, moduleDir)
 })
 
 module.exports = function (grunt) {
