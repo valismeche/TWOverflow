@@ -1,4 +1,41 @@
-## Changelog
+# TWOverflow
+
+### 1.0.0
+- [Added] FarmOverflow
+- [Added] CommandQueue
+- [Added] AutoDeposit
+
+# AutoDeposit
+
+### 1.0.0
+- [Added] Auto deposit/second village system (AutoDeposit).
+
+# CommandQueue
+
+### 1.0.0
+- [Added] Command planner system (CommandQueue).
+
+# FarmOverflow
+
+### 3.0.0
+- [Changed] Date/time on task log's time shirinked (time only! Date showed on mouse hover).
+- [Changed] Options "Ignore on Loss" is activated by default now.
+- [Changed] Removed option to select language (now it's based on current server language, or english if a translation not exists).
+- [Changed] Better description for the options.
+- [Changed] When start/stop farm via Remote Control a status message is returned instead of a simple "OK".
+- [Fixed] Last villages not being used in farm when accounts have many villages.
+- [Fixed] Event messages on task log's tab corrected.
+- [Fixed] Shortcut keys working when the script is run before game is loaded.
+- [Fixed] Date/time in different servers (Time Zones).
+- [Fixed] Task Logs village buttons opening wrong village.
+- [Fixed] Farm stopping when some village is not loaded yet.
+- [Fixed] Farm stopping because of conection problems will restant automatically.
+- [Fixed] Using groups from filters in settings tab even after disabling then.
+- [Added] Tooltip informations on setting's tab options.
+- [Added] Collapse section button on interface.
+- [Added] Using native game custom `<select>`.
+- [Added] Single cycle system for farms with interval time.
+- [Added] New keywords for start/pause/status via Remote Controle (start, init, begin, stop, pause, end, current).
 
 ### 2.2.3
 - [Fixed] "Route not public" error after reconnecting.
