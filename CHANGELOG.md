@@ -23,6 +23,7 @@
 - [Changed] Removed option to select language (now it's based on current server language, or english if a translation not exists).
 - [Changed] Better description for the options.
 - [Changed] When start/stop farm via Remote Control a status message is returned instead of a simple "OK".
+- [Changed] Targets are added to priority/ignored list only when the farm is running.
 - [Fixed] Last villages not being used in farm when accounts have many villages.
 - [Fixed] Event messages on task log's tab corrected.
 - [Fixed] Shortcut keys working when the script is run before game is loaded.
