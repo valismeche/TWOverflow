@@ -32,19 +32,7 @@ cd TWOverflow
 npm install
 ```
 
-You can specify which modules you want to include in the final build.
-
-`grunt build -modules=module1,module2...`
-
-### List of available modules
-
-- farm
-- queue
-- deposit
-
-If you want a minified version, add `--prod` flag.
-
-`grunt build -modules=farm,queue --prod`
+To build run `npm run build` or `npm run build-dev` to skip minifined/map version.
 
 The script will be compiled inside `dist/`
 
@@ -53,6 +41,6 @@ The script will be compiled inside `dist/`
 - English
 - Portuguese
 
-Each module has it's own locale file. `src/modules/some_module/locales.json`
+Each module has it's own locale file. `src/modules/some_module/locales/*.json`
 
 Please help to translate the TWOverflow [here](https://crowdin.com/project/twoverflow).
