@@ -13,6 +13,26 @@ var overflow = {
     locales: {}
 }
 
+var loadLocaleFiles = function (path) {
+    return glob.sync(`${path}/locales/*.json`)
+}
+
+var createLocaleFile = function (module) {
+    var localeData = {}
+
+    module.locales.forEach(function (localePath) {
+        var id = path.basename(localePath, '.json')
+        var data = JSON.parse(fs.readFileSync(localePath, 'utf8'))
+
+        localeData[id] = data
+    })
+
+    localeData = JSON.stringify(localeData)
+
+    mkdirp.sync(`${temp}/src/modules/${module.dir}/locales`)
+    fs.writeFileSync(`${temp}/src/modules/${module.dir}/locales/locales.json`, localeData, 'utf8')
+}
+
 var addModule = function (moduleId, moduleDir) {
     var modulePath = `src/modules/${moduleDir}`
     var data = {
@@ -75,7 +95,7 @@ var addModule = function (moduleId, moduleDir) {
     }
 
     if (fs.existsSync(`${modulePath}/locales`)) {
-        data.locales = glob.sync(`${modulePath}/locales/*.json`)
+        data.locales = loadLocaleFiles(modulePath)
     }
 
     if (fs.existsSync(`${modulePath}/source/init.js`)) {
@@ -106,8 +126,14 @@ module.exports = function (grunt) {
         'src/utils.js',
         'src/locale.js',
         'src/ready.js',
-        'src/configs.js'
+        'src/configs.js',
+        'src/init.js'
     ])
+
+    createLocaleFile({
+        locales: loadLocaleFiles('src/'),
+        dir: 'core'
+    })
 
     overflow.replaces.push({
         json: {
@@ -119,7 +145,8 @@ module.exports = function (grunt) {
             overflow_author_email: '<%= pkg.author.email %>',
             overflow_author_url: '<%= pkg.author.url %>',
             overflow_date: '<%= new Date() %>',
-            overflow_build: '<%= pkg.build %>'
+            overflow_build: '<%= pkg.build %>',
+            overflow_locales: fs.readFileSync(`${temp}/src/modules/core/locales/locales.json`, 'utf8')
         }
     })
 
@@ -136,19 +163,7 @@ module.exports = function (grunt) {
         })
 
         if (module.locales) {
-            var localeData = {}
-
-            module.locales.forEach(function (localePath) {
-                var id = path.basename(localePath, '.json')
-                var data = JSON.parse(fs.readFileSync(localePath, 'utf8'))
-
-                localeData[id] = data
-            })
-
-            localeData = JSON.stringify(localeData)
-
-            mkdirp.sync(`${temp}/src/modules/${module.dir}/locales`)
-            fs.writeFileSync(`${temp}/src/modules/${module.dir}/locales/locales.json`, localeData, 'utf8')
+            createLocaleFile(module)
 
             module.replaces[`${module.id}_locale`] = `${temp}/src/modules/${module.dir}/locales/locales.json`
         }
