@@ -4,28 +4,28 @@ define('TWOverflow/locale', [
 ], function (gameLocale, i18n) {
     /**
      * Linguagens geradas para cada modulo
-     * 
+     *
      * @type {Object}
      */
     var langs = {}
 
     /**
      * Linguagem padrão para cada modulo
-     * 
+     *
      * @type {Object}
      */
     var defaults = {}
 
     /**
      * Linguagem atualmente selecionada em cada modulo.
-     * 
+     *
      * @type {Object}
      */
     var selecteds = {}
 
     /**
      * Linguagem atualmente usada pela interface do jogo.
-     * 
+     *
      * @type {String}
      */
     var gameLang = gameLocale.LANGUAGE.split('_')[0]
@@ -46,7 +46,7 @@ define('TWOverflow/locale', [
 
     /**
      * Obtem a tradução de uma linguagem
-     * 
+     *
      * @param {String} moduleId - Identificação do modulo.
      * @param {String} key - Key da tradução.
      * @param {Object} replaces - Valores a serem substituidos na tradução.
@@ -78,15 +78,17 @@ define('TWOverflow/locale', [
      *         "key": "value"
      *     }
      * }, "en")
-     * 
+     *
      * @param  {String} moduleId - Identificação do modulo.
      * @param  {Object} langData - Dados de cada linguagem.
      * @param  {String} defaultLang - Linguagem padrão
      */
     Locale.create = function (moduleId, langData, defaultLang) {
-        if (!langs.hasOwnProperty(moduleId)) {
-            langs[moduleId] = {}
+        if (langs.hasOwnProperty(moduleId)) {
+            return false
         }
+
+        langs[moduleId] = {}
 
         var dataHasGameLang = langData.hasOwnProperty(gameLang)
         var dataHasDefaultLang = langData.hasOwnProperty(defaultLang)
@@ -103,7 +105,7 @@ define('TWOverflow/locale', [
 
     /**
      * Altera a linguagem selecionada do modulo.
-     * 
+     *
      * @param  {String} moduleId - Identificação do modulo.
      * @param  {String} langId - Linguagem a ser selecionada.
      */
@@ -120,7 +122,7 @@ define('TWOverflow/locale', [
 
     /**
      * Obtem a linguagem atualmente selecionada do modulo.
-     * 
+     *
      * @param  {String} moduleId - Identificação do modulo.
      */
     Locale.current = function (moduleId) {
@@ -129,7 +131,7 @@ define('TWOverflow/locale', [
 
     /**
      * Loop em cada linguagem adicionado ao modulo.
-     * 
+     *
      * @param  {String} moduleId - Identificação do modulo.
      * @param  {Function} callback
      */
