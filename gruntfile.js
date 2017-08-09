@@ -2,6 +2,7 @@ var fs = require('fs')
 var glob = require('glob')
 var path = require('path')
 var mkdirp = require('mkdirp')
+var pkg = require('./package.json')
 var temp = 'dist/temp'
 
 var modules = []
@@ -137,15 +138,14 @@ module.exports = function (grunt) {
 
     overflow.replaces.push({
         json: {
-            overflow_title: '<%= pkg.title %>',
-            overflow_version: '<%= pkg.version %>',
-            overflow_license: '<%= pkg.license %>',
-            overflow_author: '<%= pkg.author %>',
-            overflow_author_name: '<%= pkg.author.name %>',
-            overflow_author_email: '<%= pkg.author.email %>',
-            overflow_author_url: '<%= pkg.author.url %>',
-            overflow_date: '<%= new Date() %>',
-            overflow_build: '<%= pkg.build %>',
+            overflow_title: pkg.title,
+            overflow_version: pkg.version,
+            overflow_license: pkg.license,
+            overflow_author: JSON.stringify(pkg.author),
+            overflow_author_name: pkg.author.name,
+            overflow_author_email: pkg.author.email,
+            overflow_author_url: pkg.author.url,
+            overflow_date: new Date().toLocaleString(),
             overflow_locales: fs.readFileSync(`${temp}/src/modules/core/locales/locales.json`, 'utf8')
         }
     })
@@ -201,11 +201,10 @@ module.exports = function (grunt) {
     overflow.js.push('src/footer.js')
 
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
         concat: {
             build: {
                 src: overflow.js,
-                dest: `${temp}/<%= pkg.name %>.js`
+                dest: `${temp}/${pkg.name}.js`
             }
         },
         eslint: {
@@ -244,7 +243,7 @@ module.exports = function (grunt) {
                     expand: true,
                     flatten: true,
                     src: [
-                        `${temp}/<%= pkg.name %>.js`
+                        `${temp}/${pkg.name}.js`
                     ],
                     dest: 'dist/'
                 }]
@@ -253,12 +252,12 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 sourceMap: true,
-                sourceMapName: 'dist/<%= pkg.name %>.map',
-                banner: '/*! <%= pkg.name %>.min.js@<%= pkg.version %> | Licence <%= pkg.license %> */'
+                sourceMapName: 'dist/${pkg.name}.map',
+                banner: '/*! ${pkg.name}.min.js@${pkg.version} | Licence ${pkg.license} */'
             },
             build: {
                 files: {
-                    'dist/<%= pkg.name %>.min.js': 'dist/<%= pkg.name %>.js'
+                    'dist/${pkg.name}.min.js': 'dist/${pkg.name}.js'
                 }
             }
         },
