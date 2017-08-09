@@ -27,8 +27,8 @@
     "grunt-replace": "^1.0.1"
   },
   "scripts": {
-    "build-dev": "grunt build -modules=farm,queue,deposit --dev",
-    "build-prod": "grunt build -modules=farm,queue,deposit --prod",
-    "build": "grunt build -modules=farm,queue,deposit --prod"
+    "build-dev": "grunt build --dev",
+    "build-prod": "grunt build --prod",
+    "build": "grunt build --prod"
   }
 }
