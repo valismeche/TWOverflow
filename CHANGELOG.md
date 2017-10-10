@@ -5,6 +5,9 @@
 - [Added] CommandQueue
 - [Added] AutoDeposit
 
+### 1.0.1 (09/10/2017)
+- [Added] Polish language.
+
 # AutoDeposit
 
 ### 1.0.0
