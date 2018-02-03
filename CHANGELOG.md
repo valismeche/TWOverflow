@@ -27,6 +27,9 @@
 
 # FarmOverflow
 
+### 3.0.1 (02/02/2018)
+- [Removed] Polish language.
+
 ### 3.0.0
 - [Changed] Date/time on task log's time shirinked (time only! Date showed on mouse hover).
 - [Changed] Options "Ignore on Loss" is activated by default now.
