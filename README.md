@@ -104,7 +104,6 @@ The script will be compiled inside `dist/`
 
 - English
 - Português
-- Polski
 
 Each module has it's own locale file. `src/modules/some_module/locales/*.json`
 
