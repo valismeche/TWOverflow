@@ -1,12 +1,15 @@
 # TWOverflow
 
+### 1.0.2 (02/02/2018)
+- [Removed] Polish language.
+
+### 1.0.1 (09/10/2017)
+- [Added] Polish language.
+
 ### 1.0.0
 - [Added] FarmOverflow
 - [Added] CommandQueue
 - [Added] AutoDeposit
-
-### 1.0.1 (09/10/2017)
-- [Added] Polish language.
 
 # AutoDeposit
 
@@ -14,6 +17,10 @@
 - [Added] Auto deposit/second village system (AutoDeposit).
 
 # CommandQueue
+
+### 1.0.1 (02/02/2018)
+- [Removed] Polish language.
+- [Fixed] Catapults not hiting the selected building.
 
 ### 1.0.0
 - [Added] Command planner system (CommandQueue).
