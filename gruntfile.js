@@ -252,12 +252,12 @@ module.exports = function (grunt) {
         uglify: {
             options: {
                 sourceMap: true,
-                sourceMapName: 'dist/${pkg.name}.map',
-                banner: '/*! ${pkg.name}.min.js@${pkg.version} | Licence ${pkg.license} */'
+                sourceMapName: `dist/${pkg.name}.map`,
+                banner: `/*! ${pkg.name}.min.js@${pkg.version} | Licence ${pkg.license} */`
             },
             build: {
                 files: {
-                    'dist/${pkg.name}.min.js': 'dist/${pkg.name}.js'
+                    [`dist/${pkg.name}.min.js`]: `dist/${pkg.name}.js`
                 }
             }
         },
