@@ -124,6 +124,7 @@ module.exports = function (grunt) {
         'src/libs/i18n.js',
         'src/libs/ejs.js',
         'src/header.js',
+        'src/event-queue.js',
         'src/utils.js',
         'src/locale.js',
         'src/ready.js',
