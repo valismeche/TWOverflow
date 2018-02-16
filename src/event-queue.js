@@ -6,6 +6,11 @@ define('TWOverflow/eventQueue', function () {
      */
     var eventListeners = {}
 
+    /**
+     * Métodos públicos do eventQueue.
+     *
+     * @type {Object}
+     */
     var eventQueue = {}
 
     /**
